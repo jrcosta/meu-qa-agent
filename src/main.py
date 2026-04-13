@@ -2,7 +2,7 @@ from pathlib import Path
 
 from src.config.settings import get_settings
 from src.crew.qa_crew import QACrewRunner
-from src.utils.git_utils import get_changed_files
+from src.utils.git_utils import get_changed_files, get_file_diff
 
 
 def read_file_content(file_path: str) -> str:
@@ -42,15 +42,28 @@ def main() -> None:
 
     for file_path in changed_files:
         print(f"Analisando: {file_path}")
+
         code_content = read_file_content(file_path)
+        file_diff = get_file_diff(file_path)
+
+        if not file_diff.strip():
+            print(f"Sem diff relevante para: {file_path}")
+            continue
 
         result = crew_runner.run(
             file_path=file_path,
+            file_diff=file_diff,
             code_content=code_content,
         )
 
         section = f"# Arquivo analisado: {file_path}\n\n{result}"
         analyses.append(section)
+
+    if not analyses:
+        message = "# Nenhum diff relevante encontrado para análise."
+        save_output(message)
+        print(message)
+        return
 
     final_report = build_report(analyses)
     save_output(final_report)

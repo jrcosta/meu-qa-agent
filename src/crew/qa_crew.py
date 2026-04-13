@@ -9,9 +9,9 @@ class QACrewRunner:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
 
-    def run(self, file_path: str, code_content: str) -> str:
+    def run(self, file_path: str, file_diff: str, code_content: str) -> str:
         agent = QAAgentFactory(self.settings).create()
-        task = QATaskFactory.create(agent, file_path, code_content)
+        task = QATaskFactory.create(agent, file_path, file_diff, code_content)
 
         crew = Crew(
             agents=[agent],

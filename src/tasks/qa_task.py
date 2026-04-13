@@ -3,19 +3,24 @@ from crewai import Task
 
 class QATaskFactory:
     @staticmethod
-    def create(agent, file_path: str, code_content: str) -> Task:
+    def create(agent, file_path: str, file_diff: str, code_content: str) -> Task:
         description = f"""
 Você é um QA Sênior e deve produzir um relatório técnico completo sobre a mudança abaixo.
 
 Arquivo: {file_path}
 
-Conteúdo do arquivo:
+Diff da mudança:
+[INICIO_DIFF]
+{file_diff}
+[FIM_DIFF]
+
+Conteúdo atual do arquivo para contexto:
 [INICIO_CODIGO]
 {code_content}
 [FIM_CODIGO]
 
 Analise com foco em:
-- riscos funcionais
+- riscos funcionais da mudança
 - regressão
 - comportamento inválido
 - casos de borda
@@ -33,12 +38,12 @@ Preencha obrigatoriamente estas seções:
 # Pontos que precisam de esclarecimento
 
 Regras obrigatórias:
+- foque principalmente no diff
+- use o conteúdo completo apenas como contexto
 - não inclua "Thought:"
 - não inclua raciocínio interno
-- não inclua observações sobre como você pensou
 - não faça conclusão final
 - não diga "o relatório acima"
-- não resuma a resposta em um único parágrafo
 - entregue apenas o relatório final em markdown
 """
 
