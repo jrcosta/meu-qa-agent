@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from argparse import ArgumentParser
 from datetime import datetime, timezone
 from pathlib import Path
 import html
@@ -7,10 +8,19 @@ import shutil
 
 
 ROOT = Path.cwd()
-OUTPUT_FILE = ROOT / "outputs" / "analysis.md"
 SITE_DIR = ROOT / "site"
 HISTORY_DIR = SITE_DIR / "history"
 PREVIOUS_PAGES_DIR = ROOT / "previous-pages"
+
+
+def parse_args():
+    parser = ArgumentParser()
+    parser.add_argument(
+        "--analysis-file",
+        default="outputs/analysis.md",
+        help="Caminho do relatório markdown a ser publicado",
+    )
+    return parser.parse_args()
 
 
 def copy_previous_history() -> None:
@@ -28,10 +38,10 @@ def current_run_slug() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M-%S_UTC")
 
 
-def read_analysis() -> str:
-    if not OUTPUT_FILE.exists():
+def read_analysis(analysis_file: Path) -> str:
+    if not analysis_file.exists():
         return "# Nenhum relatório foi gerado\n"
-    return OUTPUT_FILE.read_text(encoding="utf-8")
+    return analysis_file.read_text(encoding="utf-8")
 
 
 def write_run_pages(run_slug: str, analysis_md: str) -> None:
@@ -107,10 +117,13 @@ def write_index(runs: list[str]) -> None:
 
 
 def main() -> None:
+    args = parse_args()
+    analysis_file = Path(args.analysis_file)
+
     ensure_site_dirs()
     copy_previous_history()
 
-    analysis_md = read_analysis()
+    analysis_md = read_analysis(analysis_file)
     run_slug = current_run_slug()
 
     write_run_pages(run_slug, analysis_md)

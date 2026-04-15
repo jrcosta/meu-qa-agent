@@ -9,9 +9,21 @@ on:
       - main
       - master
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
   qa-review:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Debug payload
@@ -68,9 +80,35 @@ jobs:
         run: |
           cat target/outputs/analysis.md || true
 
-      - name: Publicar relatório
+      - name: Publicar relatório como artifact
         uses: actions/upload-artifact@v4
         with:
           name: qa-analysis
           path: target/outputs/analysis.md
           retention-days: 7
+
+      - name: Baixar histórico atual da branch gh-pages
+        run: |
+          mkdir -p previous-pages
+          if git ls-remote --exit-code --heads origin gh-pages; then
+            git fetch origin gh-pages
+            git worktree add previous-pages gh-pages
+          fi
+        working-directory: agent
+
+      - name: Montar site com histórico
+        run: |
+          python scripts/build_pages_site.py --analysis-file ../target/outputs/analysis.md
+        working-directory: agent
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload do site para Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: agent/site
+
+      - name: Deploy no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
