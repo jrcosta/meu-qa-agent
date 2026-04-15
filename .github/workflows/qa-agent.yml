@@ -14,9 +14,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout do repositório
+      - name: Debug payload
+        run: |
+          echo "target_owner=${{ github.event.client_payload.target_owner }}"
+          echo "target_repo=${{ github.event.client_payload.target_repo }}"
+          echo "target_ref=${{ github.event.client_payload.target_ref }}"
+          echo "target_branch=${{ github.event.client_payload.target_branch }}"
+          echo "base_sha=${{ github.event.client_payload.base_sha }}"
+          echo "head_sha=${{ github.event.client_payload.head_sha }}"
+
+      - name: Checkout do repo do agente
         uses: actions/checkout@v4
         with:
+          path: agent
+          fetch-depth: 0
+
+      - name: Checkout do repo alvo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.client_payload.target_owner }}/${{ github.event.client_payload.target_repo }}
+          ref: ${{ github.event.client_payload.target_ref }}
+          path: target
           fetch-depth: 0
 
       - name: Configurar Python
@@ -24,25 +42,34 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Instalar dependências
+      - name: Instalar dependências do agente
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r agent/requirements.txt
 
-      - name: Criar arquivo .env
+      - name: Criar arquivo .env do agente
         run: |
-          echo "LLM_PROVIDER=groq" >> .env
-          echo "LLM_MODEL=groq/llama-3.3-70b-versatile" >> .env
-          echo "LLM_API_KEY=${{ secrets.GROQ_API_KEY }}" >> .env
-          echo "LLM_TEMPERATURE=0" >> .env
+          echo "LLM_PROVIDER=groq" >> agent/.env
+          echo "LLM_MODEL=groq/llama-3.3-70b-versatile" >> agent/.env
+          echo "LLM_API_KEY=${{ secrets.GROQ_API_KEY }}" >> agent/.env
+          echo "LLM_TEMPERATURE=0" >> agent/.env
 
-      - name: Executar QAgent
+      - name: Executar QAgent contra o repo alvo
         run: |
-          python -m src.main
+          cd agent
+          python -m src.main \
+            --repo-path ../target \
+            --output-file ../target/outputs/analysis.md \
+            --base-sha "${{ github.event.client_payload.base_sha }}" \
+            --head-sha "${{ github.event.client_payload.head_sha }}"
+
+      - name: Mostrar relatório gerado
+        run: |
+          cat target/outputs/analysis.md || true
 
       - name: Publicar relatório
         uses: actions/upload-artifact@v4
         with:
           name: qa-analysis
-          path: outputs/analysis.md
+          path: target/outputs/analysis.md
           retention-days: 7
