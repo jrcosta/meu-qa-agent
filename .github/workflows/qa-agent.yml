@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Debug payload
         run: |
           echo "target_owner=${{ github.event.client_payload.target_owner }}"
@@ -80,7 +81,6 @@ jobs:
 
       - name: Preparar histórico existente
         run: |
-          mkdir -p previous-pages
           if git ls-remote --exit-code --heads origin gh-pages; then
             git fetch origin gh-pages
             git worktree add previous-pages gh-pages
@@ -92,9 +92,17 @@ jobs:
           python scripts/build_pages_site.py --analysis-file ../target/outputs/analysis.md
         working-directory: agent
 
+      - name: Remover worktree temporário
+        run: |
+          if [ -d previous-pages ]; then
+            git worktree remove previous-pages --force
+          fi
+        working-directory: agent
+
       - name: Preparar branch gh-pages para publicação
         run: |
           mkdir -p publish
+
           if git ls-remote --exit-code --heads origin gh-pages; then
             git fetch origin gh-pages
             git worktree add publish gh-pages
