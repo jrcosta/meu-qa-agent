@@ -59,6 +59,9 @@ def create_branch_and_commit(
     commit_message: str,
 ) -> None:
     """Cria branch, adiciona arquivos de teste e faz commit."""
+    run_git(["config", "user.name", "qagent[bot]"], repo_path)
+    run_git(["config", "user.email", "qagent[bot]@users.noreply.github.com"], repo_path)
+
     run_git(["checkout", "-b", branch_name], repo_path)
 
     for file_path in test_files:
