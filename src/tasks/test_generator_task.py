@@ -33,9 +33,13 @@ Contexto adicional do repositório:
 Instruções:
 1. Leia atentamente a seção "Sugestões de testes unitários" do relatório de QA.
 2. Analise o código-fonte para entender a implementação real.
-3. Identifique o framework de testes usado no projeto (pytest, unittest, jest, mocha, etc.).
-4. Gere testes unitários concretos para CADA sugestão do relatório.
-5. Siga a estrutura de pastas e convenções do projeto.
+3. Analise o contexto adicional do repositório, incluindo os testes já existentes e arquivos de código relacionados.
+4. Identifique a linguagem e o framework de testes usado no projeto (sem assumir stack específica).
+5. Para cada sugestão do relatório, verifique se já existe cobertura equivalente nos testes existentes.
+6. Gere apenas os testes que preencham lacunas reais de cobertura (evite duplicação e cenários redundantes).
+7. Siga a estrutura de pastas e convenções do projeto.
+8. Quando fizer sentido, priorize atualizar/expandir arquivos de teste já existentes em vez de criar novos arquivos.
+9. Seja agnóstico de linguagem: respeite as convenções e ferramentas do repositório alvo, qualquer que seja a stack.
 
 Sua resposta deve ser APENAS no formato abaixo, um bloco para cada arquivo de teste:
 
@@ -50,6 +54,7 @@ Regras:
 - use nomes descritivos para os testes
 - cubra cenários positivos e negativos
 - use mocks quando necessário para isolar dependências externas
+- não replique testes já existentes com pequenas variações sem ganho de cobertura
 - NÃO inclua explicações fora dos blocos de código
 """
 
