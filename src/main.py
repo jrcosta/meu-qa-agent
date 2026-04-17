@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from pathlib import Path
+import os
 
 from src.config.settings import get_settings
 from src.crew.qa_crew import QACrewRunner
@@ -80,6 +81,19 @@ def main() -> None:
     repo_name = args.repo_name or repo_path.name
 
     settings = get_settings()
+    # Diagnostic: print masked info about the LLM API key so CI logs show
+    # what the runner actually received without revealing the full secret.
+    # This helps debug cases where the secret is present but malformed/invalid.
+    try:
+        env_key = os.getenv("LLM_API_KEY") or getattr(settings, "llm_api_key", None)
+        if env_key:
+            # show only length and last 4 chars
+            print(f"DIAGNOSTIC: LLM_API_KEY present: length={len(env_key)}, last4={env_key[-4:]}")
+        else:
+            print("DIAGNOSTIC: LLM_API_KEY is not set or empty")
+    except Exception:
+        # Never crash on diagnostics
+        print("DIAGNOSTIC: Failed to read LLM_API_KEY for diagnostics")
     # Validação precoce do LLM: tenta criar/validar o valor retornado por
     # `Settings.create_llm()` para falhar cedo em caso de configuração
     # incorreta (por exemplo, falta de API key quando um cliente real é
