@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>QAgent · jrcosta/repo_alvo_api_simples · 17 Apr 2026 – 21:38:04 UTC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-hover: #1c2129;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+  --purple: #bc8cff;
+  --radius: 10px;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  margin: 0; padding: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; transition: color .15s; }
+a:hover { color: var(--accent-hover); }
+.container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+}
+.topbar a { font-size: .9rem; }
+.topbar .sep { color: var(--border); }
+.topbar .slug { color: var(--text-muted); font-size: .85rem; font-family: var(--font-mono); }
+.report { padding-top: 16px; }
+.report h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.report h2 { font-size: 1.3rem; margin-top: 32px; color: var(--accent); }
+.report h3 { font-size: 1.1rem; margin-top: 24px; }
+.report p { margin: 12px 0; }
+.report ul, .report ol { padding-left: 24px; }
+.report li { margin: 6px 0; }
+.report code {
+  font-family: var(--font-mono); font-size: .88em;
+  background: var(--surface); padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.report pre {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: .88rem; line-height: 1.5;
+}
+.report pre code { background: none; border: none; padding: 0; }
+.report blockquote {
+  border-left: 3px solid var(--accent); margin: 16px 0;
+  padding: 8px 16px; color: var(--text-muted); background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.report table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.report th, .report td {
+  border: 1px solid var(--border); padding: 8px 12px; text-align: left;
+}
+.report th { background: var(--surface); font-weight: 600; }
+.report hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.report strong { color: #f0f6fc; }
+.meta-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px;
+  display: flex; flex-wrap: wrap; gap: 24px; font-size: .88rem;
+}
+.meta-item label { color: var(--text-muted); display: block; font-size: .78rem; margin-bottom: 2px; }
+.meta-item span { font-family: var(--font-mono); }
+footer { text-align: center; color: var(--text-muted); font-size: .8rem; padding: 40px 0 20px;
+         border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+  <nav class="topbar">
+    <a href="../../index.html">← Histórico</a>
+    <span class="sep">|</span>
+    <span class="slug">2026-04-17_21-38-04_UTC__jrcosta__repo_alvo_api_simples</span>
+  </nav>
+  <div class="container">
+    <div class="meta-box">
+      <div class="meta-item"><label>Repositório</label><span>jrcosta/repo_alvo_api_simples</span></div>
+      <div class="meta-item"><label>Execução</label><span>17 Apr 2026 – 21:38:04 UTC</span></div>
+    </div>
+    <article class="report">
+      <h1 id="arquivo-analisado-appapiroutespy">Arquivo analisado: app/api/routes.py</h1>
+<h1 id="tipo-da-mudanca">Tipo da mudança</h1>
+<p>Adição de um novo endpoint para encontrar usuários com e-mails duplicados.</p>
+<h1 id="evidencias-observadas">Evidências observadas</h1>
+<ul>
+<li>O diff introduz um novo método <code>find_duplicate_users()</code> que é um endpoint GET em <code>/users/duplicates</code>.</li>
+<li>O método utiliza <code>user_service.list_users()</code> para obter todos os usuários e, em seguida, compara os e-mails de cada usuário para identificar duplicatas.</li>
+<li>A lógica de comparação é feita através de dois loops aninhados, onde se verifica se o e-mail de um usuário é igual ao de outro, e se o usuário ainda não está na lista de duplicatas.</li>
+</ul>
+<h1 id="impacto-provavel">Impacto provável</h1>
+<ul>
+<li>O novo endpoint pode impactar a performance do sistema, especialmente se a lista de usuários for grande, devido à complexidade O(n²) da lógica de comparação.</li>
+<li>A funcionalidade de busca por e-mails duplicados pode ser útil para a manutenção da integridade dos dados, mas pode não ser eficiente em grandes bases de dados.</li>
+</ul>
+<h1 id="riscos-identificados">Riscos identificados</h1>
+<ul>
+<li><strong>Performance</strong>: A implementação atual pode levar a um tempo de resposta elevado em bases de dados grandes, o que pode resultar em timeouts ou degradação da experiência do usuário.</li>
+<li><strong>Regressão</strong>: Se houver mudanças na implementação do <code>user_service.list_users()</code>, isso pode afetar a lógica de duplicação, especialmente se a lista não for retornada corretamente.</li>
+<li><strong>Duplicatas não detectadas</strong>: A lógica atual não considera a possibilidade de usuários com e-mails em diferentes formatos (ex: maiúsculas e minúsculas) serem considerados duplicados.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais">Cenários de testes manuais</h1>
+<ul>
+<li><strong>Cenário 1</strong>: Testar o endpoint <code>/users/duplicates</code> com uma base de dados que contém usuários com e-mails duplicados e verificar se todos os usuários duplicados são retornados corretamente.</li>
+<li><strong>Cenário 2</strong>: Testar o endpoint com uma base de dados sem usuários duplicados e garantir que a resposta seja uma lista vazia.</li>
+<li><strong>Cenário 3</strong>: Testar o endpoint com uma base de dados que contém usuários com e-mails em diferentes formatos (ex: <code>exemplo@dominio.com</code> e <code>EXEMPLO@DOMINIO.COM</code>) para verificar se a lógica de duplicação é sensível a maiúsculas e minúsculas.</li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios">Sugestões de testes unitários</h1>
+<ul>
+<li><strong>Teste 1</strong>: Criar um teste unitário para verificar se o método <code>find_duplicate_users()</code> retorna a lista correta de usuários duplicados quando fornecido um conjunto de usuários com duplicatas.</li>
+<li><strong>Teste 2</strong>: Criar um teste unitário para verificar se o método retorna uma lista vazia quando não há duplicatas.</li>
+<li><strong>Teste 3</strong>: Criar um teste unitário para verificar a sensibilidade a maiúsculas e minúsculas na comparação de e-mails.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao">Sugestões de testes de integração</h1>
+<ul>
+<li><strong>Teste 1</strong>: Testar a integração do novo endpoint com o serviço de usuários para garantir que a lista de usuários retornada está correta e que a lógica de duplicação funciona conforme esperado.</li>
+<li><strong>Teste 2</strong>: Verificar se o endpoint lida corretamente com erros do <code>user_service.list_users()</code>, como exceções ou retornos inesperados.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li><strong>Teste de carga</strong>: Realizar um teste de carga no endpoint <code>/users/duplicates</code> com um grande número de usuários (ex: 10.000 ou mais) para avaliar o tempo de resposta e a performance do sistema sob carga.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li><strong>Formato de e-mail</strong>: A lógica atual considera e-mails exatamente iguais. Há uma necessidade de esclarecer se a comparação deve ser sensível a maiúsculas e minúsculas.</li>
+<li><strong>Limite de usuários</strong>: Existe um limite máximo de usuários que o sistema deve considerar para evitar problemas de performance? Se sim, como isso deve ser tratado?</li>
+<li><strong>Tratamento de erros</strong>: Como o sistema deve se comportar se <code>user_service.list_users()</code> falhar? Deve retornar um erro específico ou uma lista vazia?</li>
+</ul>
+    </article>
+  </div>
+  <footer>QAgent — análise automatizada de QA com IA</footer>
+</body>
+</html>
