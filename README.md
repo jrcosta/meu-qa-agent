@@ -6,19 +6,17 @@ Agente de IA com foco em **QA** para analisar mudanças de código, identificar 
 ![CrewAI](https://img.shields.io/badge/CrewAI-Agent%20Orchestration-6B46C1)
 ![Groq](https://img.shields.io/badge/Groq-LLM-F55036)
 ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?logo=githubactions&logoColor=white)
-![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-History-222222?logo=githubpages&logoColor=white)
 
 ## O que ele faz
 
 O QAgent analisa alterações de código a partir do **diff entre commits**, busca contexto adicional no repositório e gera um relatório com foco em QA, incluindo:
 
-- tipo da mudança
-- riscos identificados
-- impacto provável
-- cenários de testes manuais
-- sugestões de testes unitários
-- sugestões de testes de integração
-- pontos que precisam de esclarecimento
+- Tipo da mudança
+- Riscos identificados
+- Impacto provável
+- Cenários de testes manuais
+- Sugestões de testes automatizados
+- Pontos que precisam de esclarecimento
 
 ## Como funciona
 
@@ -27,107 +25,74 @@ O QAgent analisa alterações de código a partir do **diff entre commits**, bus
 3. O QAgent faz checkout do repositório alvo.
 4. Ele compara `base_sha` e `head_sha` para descobrir o que mudou.
 5. O agente usa o diff + contexto do repositório para gerar o relatório.
-6. O resultado é salvo em Markdown e publicado com histórico no **GitHub Pages**.
+6. O resultado é salvo em Markdown.
 
 ## Stack
 
-- **Python** para orquestração
-- **CrewAI** para agentes e tasks
-- **Groq** como provedor de LLM
-- **GitHub Actions** para automação
-- **GitHub Pages** para histórico dos relatórios
-
-# QAgent
-
-Agente de IA com foco em **QA** para analisar mudanças de código, identificar riscos e sugerir cenários de teste de forma automatizada.
-
-![Python](https://img.shields.io/badge/Python-3.14.7+-3776AB?logo=python&logoColor=white)
-![CrewAI](https://img.shields.io/badge/CrewAI-Agent%20Orchestration-6B46C1)
-![Groq](https://img.shields.io/badge/Groq-LLM-F55036)
-![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?logo=githubactions&logoColor=white)
-
-Uma ferramenta que compara commits (diff) e gera relatórios com foco em qualidade (riscos, impactos e sugestões de testes).
-
-## Principais recursos
-
-- Classifica o tipo de mudança
-- Identifica riscos e impactos prováveis
-- Gera cenários de teste manuais e sugestões de testes automatizados
-- Salva o resultado em Markdown para publicação/histórico
-
-## Stack
-
-- Python (orquestração)
-- CrewAI (agentes e tasks)
-- Groq (LLM provider) — configurável via variáveis de ambiente
-- GitHub Actions (CI)
-
-## Instalação
-
-1. Crie e ative um ambiente virtual (recomendado).
-
-```powershell
-python -m venv .venv
-.\\.venv\\Scripts\\Activate.ps1
-```
-
-2. Instale dependências:
-
-```powershell
-pip install -r requirements.txt
-```
-
-3. Copie o arquivo de exemplo de variáveis de ambiente e ajuste as chaves:
-
-```powershell
-copy .env.example .env
-```
-
-## Execução local
-
-O ponto de entrada principal é `src/main.py`. Exemplo básico:
-
-```powershell
-python -m src.main --repo-path . --output-file outputs/analysis.md
-```
-
-Comparando um range de commits:
-
-```powershell
-python -m src.main --repo-path . --output-file outputs/analysis.md --base-sha COMMIT_BASE --head-sha COMMIT_HEAD
-```
+- **Python** — orquestração
+- **CrewAI** — agentes e tasks
+- **Groq** — LLM provider (configurável via variáveis de ambiente)
+- **GitHub Actions** — automação CI
 
 ## Estrutura do projeto
 
 ```text
 src/
-├─ agent/
-├─ config/
-├─ crew/
-├─ prompts/
-├─ schemas/
-├─ services/
-├─ tasks/
-├─ tools/
-├─ utils/
-└─ main.py
+├─ agent/        # Definição do agente de QA
+├─ config/       # Settings e variáveis de ambiente
+├─ crew/         # Orquestração CrewAI
+├─ prompts/      # Prompt de sistema
+├─ schemas/      # Schemas Pydantic de resultado
+├─ services/     # Context builder e client LLM
+├─ tasks/        # Definição de tasks
+├─ tools/        # Ferramentas do agente (leitura de repo)
+├─ utils/        # Utilitários (git, debug logger)
+└─ main.py       # Ponto de entrada CLI
 ```
 
-## Observações de limpeza
+## Instalação
 
-- Pastas de cache Python (`__pycache__`) são ignoradas via `.gitignore`. Elas podem ser removidas com segurança do disco.
-- O diretório `outputs/` também está ignorado para evitar comitar relatórios locais.
+1. Crie e ative um ambiente virtual:
 
-## Ambiente
+```bash
+python -m venv .venv
+# Windows
+.\.venv\Scripts\Activate.ps1
+# Linux/macOS
+source .venv/bin/activate
+```
 
-Coloque suas credenciais e configurações em `.env`. Um exemplo de variáveis necessárias está em `.env.example` (LLM_PROVIDER, LLM_MODEL, LLM_API_KEY, etc.).
+2. Instale as dependências:
 
-## Roadmap (curto prazo)
+```bash
+pip install -r requirements.txt
+```
 
-- agentes especializados por tipo de teste
-- investigação mais profunda de contexto
-- revisão mais específica por stack
+3. Configure as variáveis de ambiente:
+
+```bash
+cp .env.example .env
+# Edite .env e preencha suas chaves (LLM_PROVIDER, LLM_MODEL, LLM_API_KEY, etc.)
+```
+
+## Execução local
+
+```bash
+python -m src.main --repo-path . --output-file outputs/analysis.md
+```
+
+Com range de commits:
+
+```bash
+python -m src.main --repo-path . --output-file outputs/analysis.md --base-sha COMMIT_BASE --head-sha COMMIT_HEAD
+```
+
+## Roadmap
+
+- Agentes especializados por tipo de teste
+- Investigação mais profunda de contexto
+- Revisão mais específica por stack
 
 ## Status
 
-Projeto em evolução — esta é uma base para automatizar análises de QA com agentes de IA.
+Projeto em evolução — base para automatizar análises de QA com agentes de IA.
