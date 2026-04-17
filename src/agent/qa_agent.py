@@ -1,8 +1,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from crewai import Agent
 
 from src.tools.repo_tools import (
@@ -20,6 +18,44 @@ class QAAgentFactory:
         self.repo_path = repo_path
         self.debug_logger = debug_logger
 
+    def _resolve_llm(self):
+        candidates = [
+            "llm",
+            "_llm",
+            "agent_llm",
+            "crewai_llm",
+            "review_llm",
+            "model",
+        ]
+
+        for attr in candidates:
+            if hasattr(self.settings, attr):
+                value = getattr(self.settings, attr)
+                if value is not None:
+                    return value
+
+        method_candidates = [
+            "get_llm",
+            "build_llm",
+            "create_llm",
+            "make_llm",
+        ]
+
+        for method_name in method_candidates:
+            if hasattr(self.settings, method_name):
+                method = getattr(self.settings, method_name)
+                if callable(method):
+                    value = method()
+                    if value is not None:
+                        return value
+
+        raise AttributeError(
+            "Não foi possível resolver o LLM a partir de Settings. "
+            "A classe Settings precisa expor um destes atributos: "
+            "'llm', '_llm', 'agent_llm', 'crewai_llm', 'review_llm' ou 'model', "
+            "ou um destes métodos: 'get_llm()', 'build_llm()', 'create_llm()', 'make_llm()'."
+        )
+
     def create(self) -> Agent:
         tools = [
             ReadFileTool(repo_path=self.repo_path, debug_logger=self.debug_logger),
@@ -29,12 +65,16 @@ class QAAgentFactory:
             GetOfficialDocsReferenceTool(),
         ]
 
+        llm = self._resolve_llm()
+
         if self.debug_logger:
             self.debug_logger.write_json(
                 "agent_config.json",
                 {
                     "repo_path": self.repo_path,
                     "tools": [tool.name for tool in tools],
+                    "llm_repr": repr(llm),
+                    "settings_type": type(self.settings).__name__,
                 },
             )
 
@@ -51,7 +91,7 @@ class QAAgentFactory:
                 "claim in evidence from the diff, related code, tests or official documentation."
             ),
             tools=tools,
-            llm=self.settings.llm,
+            llm=llm,
             verbose=True,
             allow_delegation=False,
         )
