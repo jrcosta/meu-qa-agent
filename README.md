@@ -2,7 +2,7 @@
 
 Agente de IA com foco em **QA** para analisar mudanças de código, identificar riscos e sugerir cenários de teste de forma automatizada.
 
-![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.14.7+-3776AB?logo=python&logoColor=white)
 ![CrewAI](https://img.shields.io/badge/CrewAI-Agent%20Orchestration-6B46C1)
 ![Groq](https://img.shields.io/badge/Groq-LLM-F55036)
 ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?logo=githubactions&logoColor=white)
