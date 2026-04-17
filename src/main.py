@@ -80,6 +80,27 @@ def main() -> None:
     repo_name = args.repo_name or repo_path.name
 
     settings = get_settings()
+    # Validação precoce do LLM: tenta criar/validar o valor retornado por
+    # `Settings.create_llm()` para falhar cedo em caso de configuração
+    # incorreta (por exemplo, falta de API key quando um cliente real é
+    # requerido).
+    try:
+        llm_validation = None
+        if hasattr(settings, "create_llm") and callable(getattr(settings, "create_llm")):
+            # Alguns ambientes devolvem uma string (modelo) — isso é válido
+            # para a construção do Agent; outros podem criar um cliente LLM
+            # que exige credenciais/depêndencias.
+            llm_validation = settings.create_llm()
+        elif hasattr(settings, "get_llm") and callable(getattr(settings, "get_llm")):
+            llm_validation = settings.get_llm()
+
+        # Se a validação lançar exceção, ela será capturada abaixo.
+    except Exception as exc:  # pragma: no cover - queremos uma mensagem clara em runtime
+        raise RuntimeError(
+            "Falha ao validar a configuração do LLM: %s. "
+            "Verifique as variáveis de ambiente LLM_API_KEY, LLM_MODEL e dependências."
+            % (exc,)
+        )
     crew_runner = QACrewRunner(settings)
 
     changed_files = get_changed_files(

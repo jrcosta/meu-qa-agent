@@ -34,9 +34,18 @@ class Settings:
     # QAAgentFactory._resolve_llm looks for methods like 'create_llm' on the
     # settings object, so exposing this keeps backwards compatibility.
     def create_llm(self):
-        from src.services.llm_client import LLMClient
+        """
+        Return a value compatible with the `crewai.Agent` `llm` parameter.
 
-        return LLMClient(self)
+        The `Agent` model accepts either a string model identifier or an
+        instance of the framework's BaseLLM. Returning the configured
+        model string is the safest, dependency-free option for CI runs.
+        """
+
+        # Prefer returning the model identifier (string). If in the future
+        # you want to return a richer object (e.g. an LLM client), ensure it
+        # implements the interface expected by `crewai.Agent`.
+        return self.llm_model
 
 
 def get_settings() -> Settings:
@@ -57,12 +66,11 @@ def create_llm_from_settings(settings: Settings):
 
 # Backwards-compatible method name expected by QAAgentFactory/_resolve_llm
 def create_llm() -> Any:
-    """Create an LLM client using the default settings.
+    """Create an LLM value using the default settings.
 
-    This function exists so callers that call `settings.create_llm()` can
-    still work when `get_settings()` returns a plain `Settings` dataclass.
-    It will build the client using the default settings returned by
-    `get_settings()`.
+    Delegates to the `Settings.create_llm()` instance method to produce a
+    value compatible with `QAAgentFactory._resolve_llm()` and the `Agent`
+    constructor.
     """
     settings = get_settings()
-    return create_llm_from_settings(settings)
+    return settings.create_llm()
