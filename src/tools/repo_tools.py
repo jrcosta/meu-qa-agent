@@ -142,6 +142,38 @@ class SearchInRepoTool(_RepoTool):
             return f"Error searching repository for '{query}': {exc}"
 
 
+class ListFilesInRepoTool(_RepoTool):
+    name: str = "list_files_in_repo"
+    description: str = (
+        "List repository files, optionally filtering by glob pattern and limiting results. "
+        "Useful to inspect project structure or discover related files."
+    )
+
+    def _run(self, pattern: str = "*", max_results: int = 200) -> str:
+        logger = self._logger()
+        logger.log_tool_start(self.name, {"pattern": pattern, "max_results": max_results})
+        try:
+            matches: list[str] = []
+            root = self._root()
+
+            for file_path in self._iter_files():
+                rel = str(file_path.relative_to(root))
+                if fnmatch.fnmatch(rel, pattern) or fnmatch.fnmatch(file_path.name, pattern):
+                    matches.append(rel)
+                    if len(matches) >= max_results:
+                        break
+
+            logger.log_tool_success(self.name, {"matches": len(matches), "pattern": pattern})
+
+            if not matches:
+                return f"No files found for pattern: {pattern}"
+
+            return "\n".join(matches)
+        except Exception as exc:
+            logger.log_tool_error(self.name, {"pattern": pattern, "error": repr(exc)})
+            return f"Error listing files for pattern '{pattern}': {exc}"
+
+
 class FindRelatedTestFilesTool(_RepoTool):
     name: str = "find_related_test_files"
     description: str = (
@@ -290,17 +322,15 @@ class InspectRepoStackTool(_RepoTool):
                     if any(hint in content for hint in hints):
                         detected_frameworks.add(framework)
 
-                if "pytest" in content or "junit" in content or "jest" in content or "vitest" in content:
-                    if "pytest" in content:
-                        test_tools.add("Pytest")
-                    if "junit" in content:
-                        test_tools.add("JUnit")
-                    if "jest" in content:
-                        test_tools.add("Jest")
-                    if "vitest" in content:
-                        test_tools.add("Vitest")
+                if "pytest" in content:
+                    test_tools.add("Pytest")
+                if "junit" in content:
+                    test_tools.add("JUnit")
+                if "jest" in content:
+                    test_tools.add("Jest")
+                if "vitest" in content:
+                    test_tools.add("Vitest")
 
-            # detect .csproj files separately
             csproj_files = [str(p.relative_to(root)) for p in root.rglob("*.csproj")]
             if csproj_files:
                 manifests.extend(csproj_files)
@@ -373,6 +403,7 @@ class GetOfficialDocsReferenceTool(BaseTool):
 __all__ = [
     "ReadFileTool",
     "SearchInRepoTool",
+    "ListFilesInRepoTool",
     "FindRelatedTestFilesTool",
     "InspectRepoStackTool",
     "GetOfficialDocsReferenceTool",
