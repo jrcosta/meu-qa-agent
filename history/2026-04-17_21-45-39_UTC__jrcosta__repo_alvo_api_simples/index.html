@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>QAgent · jrcosta/repo_alvo_api_simples · 17 Apr 2026 – 21:45:39 UTC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-hover: #1c2129;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+  --purple: #bc8cff;
+  --radius: 10px;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  margin: 0; padding: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; transition: color .15s; }
+a:hover { color: var(--accent-hover); }
+.container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+}
+.topbar a { font-size: .9rem; }
+.topbar .sep { color: var(--border); }
+.topbar .slug { color: var(--text-muted); font-size: .85rem; font-family: var(--font-mono); }
+.report { padding-top: 16px; }
+.report h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.report h2 { font-size: 1.3rem; margin-top: 32px; color: var(--accent); }
+.report h3 { font-size: 1.1rem; margin-top: 24px; }
+.report p { margin: 12px 0; }
+.report ul, .report ol { padding-left: 24px; }
+.report li { margin: 6px 0; }
+.report code {
+  font-family: var(--font-mono); font-size: .88em;
+  background: var(--surface); padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.report pre {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: .88rem; line-height: 1.5;
+}
+.report pre code { background: none; border: none; padding: 0; }
+.report blockquote {
+  border-left: 3px solid var(--accent); margin: 16px 0;
+  padding: 8px 16px; color: var(--text-muted); background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.report table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.report th, .report td {
+  border: 1px solid var(--border); padding: 8px 12px; text-align: left;
+}
+.report th { background: var(--surface); font-weight: 600; }
+.report hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.report strong { color: #f0f6fc; }
+.meta-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px;
+  display: flex; flex-wrap: wrap; gap: 24px; font-size: .88rem;
+}
+.meta-item label { color: var(--text-muted); display: block; font-size: .78rem; margin-bottom: 2px; }
+.meta-item span { font-family: var(--font-mono); }
+footer { text-align: center; color: var(--text-muted); font-size: .8rem; padding: 40px 0 20px;
+         border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+  <nav class="topbar">
+    <a href="../../index.html">← Histórico</a>
+    <span class="sep">|</span>
+    <span class="slug">2026-04-17_21-45-39_UTC__jrcosta__repo_alvo_api_simples</span>
+  </nav>
+  <div class="container">
+    <div class="meta-box">
+      <div class="meta-item"><label>Repositório</label><span>jrcosta/repo_alvo_api_simples</span></div>
+      <div class="meta-item"><label>Execução</label><span>17 Apr 2026 – 21:45:39 UTC</span></div>
+    </div>
+    <article class="report">
+      <h1 id="arquivo-analisado-appapiroutespy">Arquivo analisado: app/api/routes.py</h1>
+<h1 id="tipo-da-mudanca">Tipo da mudança</h1>
+<p>Refatoração da lógica de busca de usuários duplicados.</p>
+<h1 id="evidencias-observadas">Evidências observadas</h1>
+<ul>
+<li>O trecho original da função <code>find_duplicate_users</code> utilizava dois loops aninhados para comparar cada usuário com todos os outros, o que resultava em uma complexidade de tempo O(n²):<br />
+<code>python
+  for i, user in enumerate(all_users):
+      for j, other in enumerate(all_users):
+          if i != j and user.email == other.email:
+              if user not in duplicates:
+                  duplicates.append(user)</code></li>
+<li>A nova implementação utiliza a classe <code>Counter</code> da biblioteca <code>collections</code> para contar as ocorrências de emails, reduzindo a complexidade para O(n):<br />
+<code>python
+  email_counts = Counter(user.email for user in all_users)
+  duplicated_emails = {email for email, count in email_counts.items() if count &gt; 1}
+  return [user for user in all_users if user.email in duplicated_emails]</code></li>
+<li>A mudança foi feita na função <code>find_duplicate_users</code>, que retorna usuários com emails duplicados.</li>
+</ul>
+<h1 id="impacto-provavel">Impacto provável</h1>
+<ul>
+<li>A refatoração deve melhorar a performance da função <code>find_duplicate_users</code>, especialmente em sistemas com um grande número de usuários, pois a nova abordagem é mais eficiente.</li>
+<li>O comportamento da função permanece o mesmo: ela ainda retorna uma lista de usuários com emails duplicados, mas agora de forma mais eficiente.</li>
+</ul>
+<h1 id="riscos-identificados">Riscos identificados</h1>
+<ul>
+<li><strong>Risco de regressão</strong>: A nova implementação, embora mais eficiente, pode introduzir erros se houver alguma diferença sutil no tratamento de dados. Por exemplo, se houver usuários com emails em diferentes formatos (como maiúsculas e minúsculas), a nova lógica pode não considerar esses casos como duplicados.</li>
+<li><strong>Dependência de dados</strong>: Se a função <code>user_service.list_users()</code> retornar dados inesperados (como usuários com emails nulos ou em formatos não padronizados), isso pode afetar a lógica de contagem e a lista de duplicados.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais">Cenários de testes manuais</h1>
+<ul>
+<li><strong>Teste de usuários duplicados</strong>: Criar um conjunto de usuários com emails duplicados e verificar se a função retorna todos os usuários esperados.</li>
+<li><strong>Teste de emails únicos</strong>: Criar um conjunto de usuários com emails únicos e verificar se a função retorna uma lista vazia.</li>
+<li><strong>Teste de formatação de emails</strong>: Incluir usuários com emails em diferentes formatos (ex: "Email@Exemplo.com" e "email@exemplo.com") e verificar se ambos são considerados duplicados.</li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios">Sugestões de testes unitários</h1>
+<ul>
+<li>Testar a função <code>find_duplicate_users</code> com um conjunto de dados que inclui:</li>
+<li>Vários usuários com emails duplicados.</li>
+<li>Vários usuários com emails únicos.</li>
+<li>Usuários com emails em diferentes formatos (para verificar a sensibilidade a maiúsculas e minúsculas).</li>
+<li>Usuários com emails nulos ou inválidos.</li>
+</ul>
+<pre><code class="language-python">def test_find_duplicate_users_with_duplicates():
+    # Mock user_service.list_users() to return users with duplicate emails
+    pass
+
+def test_find_duplicate_users_with_no_duplicates():
+    # Mock user_service.list_users() to return users with unique emails
+    pass
+
+def test_find_duplicate_users_with_varied_email_cases():
+    # Mock user_service.list_users() to return users with emails in different cases
+    pass
+</code></pre>
+<h1 id="sugestoes-de-testes-de-integracao">Sugestões de testes de integração</h1>
+<ul>
+<li>Testar a integração da função <code>find_duplicate_users</code> com o serviço de usuários para garantir que a lista de usuários retornada está correta e que a contagem de emails duplicados está funcionando conforme esperado.</li>
+<li>Verificar se a API retorna o status correto e a lista de usuários duplicados quando a rota <code>/users/duplicates</code> é chamada.</li>
+</ul>
+<pre><code class="language-python">def test_api_find_duplicate_users():
+    # Simular uma chamada à API e verificar a resposta
+    pass
+</code></pre>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li><strong>Teste de carga</strong>: Realizar um teste de carga na rota <code>/users/duplicates</code> com um grande número de usuários (ex: 10.000) para verificar se a nova implementação mantém a performance e não causa lentidão ou falhas.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li><strong>Tratamento de emails</strong>: Como a aplicação deve lidar com emails que podem ter diferentes formatações (ex: "Email@Exemplo.com" vs "email@exemplo.com")? A lógica atual não parece considerar isso.</li>
+<li><strong>Dados nulos</strong>: O que deve acontecer se a lista de usuários contiver emails nulos? A nova implementação não trata explicitamente esse caso.</li>
+</ul>
+    </article>
+  </div>
+  <footer>QAgent — análise automatizada de QA com IA</footer>
+</body>
+</html>
