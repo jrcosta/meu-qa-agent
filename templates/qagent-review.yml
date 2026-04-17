@@ -40,6 +40,15 @@ jobs:
           cd qagent
           python -m src.main --repo-path .. --output-file ../outputs/analysis.md
 
+      - name: Executar agente gerador de testes unitários
+        run: |
+          cd qagent
+          python -m src.main_test_generator \
+            --repo-path .. \
+            --report-file ../outputs/analysis.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Publicar relatório
         uses: actions/upload-artifact@v4
         with:

@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   qa-review:
@@ -68,6 +69,16 @@ jobs:
       - name: Mostrar relatório gerado
         run: |
           cat target/outputs/analysis.md || true
+
+      - name: Executar agente gerador de testes unitários
+        run: |
+          cd agent
+          python -m src.main_test_generator \
+            --repo-path ../target \
+            --report-file ../target/outputs/analysis.md \
+            --base-branch "${{ github.event.client_payload.target_branch }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
 
       - name: Publicar relatório como artifact
         uses: actions/upload-artifact@v4
