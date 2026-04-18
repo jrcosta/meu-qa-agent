@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>QAgent · jrcosta/repo_alvo_api_simples · 18 Apr 2026 – 22:51:48 UTC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-hover: #1c2129;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+  --purple: #bc8cff;
+  --radius: 10px;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  margin: 0; padding: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; transition: color .15s; }
+a:hover { color: var(--accent-hover); }
+.container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+}
+.topbar a { font-size: .9rem; }
+.topbar .sep { color: var(--border); }
+.topbar .slug { color: var(--text-muted); font-size: .85rem; font-family: var(--font-mono); }
+.report { padding-top: 16px; }
+.report h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.report h2 { font-size: 1.3rem; margin-top: 32px; color: var(--accent); }
+.report h3 { font-size: 1.1rem; margin-top: 24px; }
+.report p { margin: 12px 0; }
+.report ul, .report ol { padding-left: 24px; }
+.report li { margin: 6px 0; }
+.report code {
+  font-family: var(--font-mono); font-size: .88em;
+  background: var(--surface); padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.report pre {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: .88rem; line-height: 1.5;
+}
+.report pre code { background: none; border: none; padding: 0; }
+.report blockquote {
+  border-left: 3px solid var(--accent); margin: 16px 0;
+  padding: 8px 16px; color: var(--text-muted); background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.report table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.report th, .report td {
+  border: 1px solid var(--border); padding: 8px 12px; text-align: left;
+}
+.report th { background: var(--surface); font-weight: 600; }
+.report hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.report strong { color: #f0f6fc; }
+.meta-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px;
+  display: flex; flex-wrap: wrap; gap: 24px; font-size: .88rem;
+}
+.meta-item label { color: var(--text-muted); display: block; font-size: .78rem; margin-bottom: 2px; }
+.meta-item span { font-family: var(--font-mono); }
+footer { text-align: center; color: var(--text-muted); font-size: .8rem; padding: 40px 0 20px;
+         border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+  <nav class="topbar">
+    <a href="../../index.html">← Histórico</a>
+    <span class="sep">|</span>
+    <span class="slug">2026-04-18_22-51-48_UTC__jrcosta__repo_alvo_api_simples</span>
+  </nav>
+  <div class="container">
+    <div class="meta-box">
+      <div class="meta-item"><label>Repositório</label><span>jrcosta/repo_alvo_api_simples</span></div>
+      <div class="meta-item"><label>Execução</label><span>18 Apr 2026 – 22:51:48 UTC</span></div>
+    </div>
+    <article class="report">
+      <h1 id="arquivo-analisado-java-apisrcmainjavacomrepoalvojavaapicontrollerusercontrollerjava">Arquivo analisado: java-api/src/main/java/com/repoalvo/javaapi/controller/UserController.java</h1>
+<h1 id="tipo-da-mudanca">Tipo da mudança</h1>
+<ul>
+<li><strong>Adição de novo endpoint REST</strong> no controlador <code>UserController</code>.</li>
+</ul>
+<h1 id="evidencias-observadas">Evidências observadas</h1>
+<ul>
+<li>O diff mostra a inclusão do método <code>userExists</code> anotado com <code>@GetMapping("/users/{userId}/exists")</code> que retorna um objeto <code>UserExistsResponse</code> com um booleano indicando se o usuário existe ou não.</li>
+<li>O método utiliza <code>userService.getById(userId).isPresent()</code> para verificar a existência do usuário.</li>
+<li>O arquivo atual confirma que o método está implementado no <code>UserController</code> e que a classe <code>UserExistsResponse</code> foi importada.</li>
+<li>O contexto do repositório indica que a API Java expõe endpoints REST para manipulação de usuários, e que há testes de integração existentes para o <code>UserController</code> (embora não haja menção explícita a este novo endpoint).</li>
+<li>O padrão do projeto é lançar <code>ResponseStatusException</code> com 404 para usuários não encontrados em outros endpoints, mas neste caso o endpoint retorna um objeto com <code>true</code> ou <code>false</code> sem lançar exceção.</li>
+</ul>
+<h1 id="impacto-provavel">Impacto provável</h1>
+<ul>
+<li><strong>Novo endpoint para consulta rápida da existência de um usuário pelo ID</strong>, retornando um JSON simples com um booleano.</li>
+<li>Não altera endpoints existentes, portanto não deve impactar funcionalidades atuais.</li>
+<li>Pode ser usado para otimizar verificações de existência sem precisar retornar dados completos do usuário.</li>
+<li>Como não lança exceção para usuário não encontrado, pode alterar o padrão de tratamento de erros esperado para consultas de usuário, o que pode impactar clientes que esperam 404.</li>
+</ul>
+<h1 id="riscos-identificados">Riscos identificados</h1>
+<ul>
+<li><strong>Inconsistência no tratamento de usuário não encontrado:</strong> outros endpoints que buscam usuário por ID lançam 404, enquanto este retorna <code>false</code>. Isso pode causar confusão ou erros em clientes que esperam exceção para usuário inexistente.</li>
+<li><strong>Possível falta de validação do parâmetro <code>userId</code>:</strong> o método recebe <code>int userId</code> sem validação explícita, embora o Spring possa validar automaticamente. Se <code>userId</code> for inválido (ex: negativo), o comportamento não está claro.</li>
+<li><strong>Ausência de testes específicos para este endpoint:</strong> não há evidência no contexto de testes unitários ou integração cobrindo <code>/users/{userId}/exists</code>.</li>
+<li><strong>Dependência direta do <code>userService.getById</code>:</strong> se o método <code>getById</code> mudar seu comportamento, pode impactar este endpoint.</li>
+<li><strong>Possível impacto em cache ou performance se usado em alta frequência, embora não haja evidência clara disso.</strong></li>
+</ul>
+<h1 id="cenarios-de-testes-manuais">Cenários de testes manuais</h1>
+<ol>
+<li>
+<p><strong>Consulta de usuário existente:</strong><br />
+   - Chamar <code>GET /users/{userId}/exists</code> com um ID válido de usuário existente.<br />
+   - Verificar retorno HTTP 200 e JSON <code>{ "exists": true }</code> (assumindo que <code>UserExistsResponse</code> tem campo booleano <code>exists</code>).</p>
+</li>
+<li>
+<p><strong>Consulta de usuário inexistente:</strong><br />
+   - Chamar <code>GET /users/{userId}/exists</code> com um ID que não existe.<br />
+   - Verificar retorno HTTP 200 e JSON <code>{ "exists": false }</code>.</p>
+</li>
+<li>
+<p><strong>Consulta com ID inválido (ex: negativo, zero, string):</strong><br />
+   - Chamar <code>GET /users/{userId}/exists</code> com valores inválidos.<br />
+   - Verificar se retorna erro 400 (bad request) ou outro comportamento esperado.</p>
+</li>
+<li>
+<p><strong>Comparação com endpoint <code>/users/{userId}</code>:</strong><br />
+   - Chamar <code>/users/{userId}</code> para um ID inexistente e verificar 404.<br />
+   - Chamar <code>/users/{userId}/exists</code> para o mesmo ID e verificar retorno <code>false</code>.<br />
+   - Confirmar que o comportamento é consistente e documentado para clientes.</p>
+</li>
+</ol>
+<h1 id="sugestoes-de-testes-unitarios">Sugestões de testes unitários</h1>
+<ul>
+<li>Testar o método <code>userExists</code> isoladamente, mockando <code>userService.getById</code> para:</li>
+<li>Retornar <code>Optional.of(user)</code> e verificar que o retorno tem <code>exists == true</code>.</li>
+<li>Retornar <code>Optional.empty()</code> e verificar que o retorno tem <code>exists == false</code>.</li>
+<li>Testar comportamento para valores limite de <code>userId</code> (ex: 0, negativo) se aplicável.</li>
+<li>Testar que o método não lança exceção para usuário inexistente.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao">Sugestões de testes de integração</h1>
+<ul>
+<li>Criar teste de integração em <code>UserControllerIntegrationTest.java</code> para o endpoint <code>/users/{userId}/exists</code>:</li>
+<li>Verificar retorno 200 e <code>exists: true</code> para usuário criado previamente.</li>
+<li>Verificar retorno 200 e <code>exists: false</code> para ID inexistente.</li>
+<li>Verificar retorno 400 para IDs inválidos (se aplicável).</li>
+<li>Testar fluxo completo:</li>
+<li>Criar usuário via POST <code>/users</code>.</li>
+<li>Consultar existência via <code>/users/{userId}/exists</code>.</li>
+<li>Deletar usuário (se houver endpoint) e verificar que <code>/exists</code> retorna <code>false</code>.</li>
+<li>Validar formato do JSON retornado e status HTTP.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não há evidência na mudança que justifique testes de carga ou desempenho específicos para este endpoint.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>
+<p><strong>Qual o contrato esperado para o endpoint <code>/users/{userId}/exists</code> em relação a erros?</strong><br />
+  Por que não lançar 404 para usuário não encontrado, diferente dos outros endpoints? Isso está alinhado com a API e clientes?</p>
+</li>
+<li>
+<p><strong>Qual o formato exato do JSON retornado por <code>UserExistsResponse</code>?</strong><br />
+  O campo booleano é <code>exists</code>? Isso deve ser confirmado para testes e documentação.</p>
+</li>
+<li>
+<p><strong>Existe necessidade de validação adicional para o parâmetro <code>userId</code>?</strong><br />
+  Por exemplo, rejeitar IDs negativos ou zero explicitamente.</p>
+</li>
+<li>
+<p><strong>Este endpoint será documentado na API pública?</strong><br />
+  Para garantir que clientes saibam da diferença de comportamento.</p>
+</li>
+</ul>
+<hr />
+<h1 id="resumo">Resumo</h1>
+<p>A mudança adiciona um endpoint simples para verificar a existência de usuário por ID, retornando um booleano encapsulado em <code>UserExistsResponse</code>. O impacto funcional é limitado a esta nova funcionalidade, sem alterar endpoints existentes. O principal risco é a inconsistência no tratamento de usuário não encontrado (retorno 200 com <code>false</code> vs 404 em outros endpoints). Recomenda-se criar testes unitários e de integração específicos para este endpoint, validar o comportamento para IDs inválidos e esclarecer o contrato esperado para erros e formato de resposta.</p>
+<hr />
+<h1 id="arquivo-analisado-java-apisrcmainjavacomrepoalvojavaapimodeluserexistsresponsejava">Arquivo analisado: java-api/src/main/java/com/repoalvo/javaapi/model/UserExistsResponse.java</h1>
+<h1 id="tipo-da-mudanca_1">Tipo da mudança</h1>
+<p>Inclusão de novo modelo de dados (record Java) para resposta de existência de usuário.</p>
+<h1 id="evidencias-observadas_1">Evidências observadas</h1>
+<ul>
+<li>O diff mostra a criação do arquivo <code>UserExistsResponse.java</code> contendo um <code>record</code> Java com um único campo booleano <code>exists</code>.</li>
+<li>O arquivo está localizado em <code>java-api/src/main/java/com/repoalvo/javaapi/model/</code>, indicando que é um modelo de dados para a API Java.</li>
+<li>No contexto do repositório, o <code>UserController.java</code> importa <code>UserExistsResponse</code>, sugerindo que este novo record será usado para representar respostas de endpoints relacionados à verificação da existência de usuários.</li>
+<li>Não há alteração em endpoints ou serviços no diff, apenas a criação do modelo.</li>
+<li>Testes existentes no repositório (ex: <code>UserControllerIntegrationTest.java</code>) não mostram ainda testes específicos para esse novo modelo, indicando que a funcionalidade associada pode estar em desenvolvimento ou será adicionada em outro commit.</li>
+</ul>
+<h1 id="impacto-provavel_1">Impacto provável</h1>
+<ul>
+<li>Provavelmente será usado para padronizar a resposta de endpoints que verificam se um usuário existe, retornando um JSON simples com <code>{ "exists": true/false }</code>.</li>
+<li>Facilita a serialização/deserialização automática pelo framework (provavelmente Spring Boot), garantindo consistência no formato da resposta.</li>
+<li>Pode substituir respostas anteriores que usavam outros formatos ou booleanos diretos, melhorando a clareza e manutenção do código.</li>
+<li>Não altera comportamento existente, pois é uma adição de modelo, mas impacta a interface pública da API se endpoints começarem a usar esse record.</li>
+</ul>
+<h1 id="riscos-identificados_1">Riscos identificados</h1>
+<ul>
+<li>Risco baixo, pois é apenas a criação de um modelo de dados sem lógica associada.</li>
+<li>Risco de inconsistência se o record for usado em endpoints sem atualização dos testes correspondentes, podendo causar falhas na serialização ou na expectativa do cliente.</li>
+<li>Se o record for usado em endpoints já existentes, pode haver quebra de contrato se o formato da resposta mudar sem comunicação adequada.</li>
+<li>Risco de confusão se houver outros modelos similares para indicar existência de usuário, podendo gerar duplicidade ou inconsistência.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_1">Cenários de testes manuais</h1>
+<ul>
+<li>Testar o endpoint que utiliza <code>UserExistsResponse</code> para verificar se a resposta JSON contém o campo <code>exists</code> com valor booleano correto.</li>
+<li>Testar com usuário existente e usuário inexistente para validar os dois valores possíveis do campo <code>exists</code>.</li>
+<li>Validar o status HTTP retornado pelo endpoint que usa esse modelo (ex: 200 OK).</li>
+<li>Verificar se a resposta está corretamente serializada e não contém campos extras ou faltantes.</li>
+<li>Testar integração com front-end ou cliente que consome esse endpoint para garantir compatibilidade.</li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios_1">Sugestões de testes unitários</h1>
+<ul>
+<li>Testar a criação do <code>UserExistsResponse</code> com valores <code>true</code> e <code>false</code> e garantir que o campo <code>exists</code> retorne o valor esperado.</li>
+<li>Testar a serialização do record para JSON, garantindo que o campo <code>exists</code> seja corretamente representado.</li>
+<li>Testar a desserialização de JSON para o record, assegurando que o JSON com campo <code>exists</code> seja convertido corretamente.</li>
+<li>Caso haja lógica futura associada ao uso desse record, criar testes para validar essa lógica.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_1">Sugestões de testes de integração</h1>
+<ul>
+<li>Criar teste de integração para o endpoint que retorna <code>UserExistsResponse</code>, validando o status HTTP, o corpo da resposta e o valor do campo <code>exists</code>.</li>
+<li>Testar fluxo completo onde se verifica a existência de um usuário via API, incluindo casos de usuário existente e não existente.</li>
+<li>Validar que a resposta do endpoint está conforme o contrato esperado pelo cliente.</li>
+<li>Integrar com testes existentes de <code>UserControllerIntegrationTest</code> para garantir que a inclusão do novo modelo não quebre outros testes.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_1">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável, pois a mudança é apenas a criação de um modelo de dados sem impacto direto em performance ou carga.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_1">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>Qual(is) endpoint(s) utilizará(ão) o <code>UserExistsResponse</code>? Não está claro no diff nem no contexto se já existe endpoint implementado que retorna esse modelo.</li>
+<li>Há planos para substituir respostas booleanas simples por esse record para padronização? Isso pode impactar clientes existentes.</li>
+<li>Existe alguma validação ou lógica adicional associada ao uso desse record que não foi mostrada no diff?</li>
+<li>O record será usado apenas internamente ou exposto diretamente na API pública? Isso pode afetar versionamento e compatibilidade.</li>
+</ul>
+<hr />
+<p><strong>Resumo:</strong> A mudança adiciona um novo record Java para representar respostas de existência de usuário, com baixo risco e impacto direto limitado à padronização do formato da resposta. Recomenda-se focar testes na serialização, integração com endpoints que o utilizem e validação do contrato da API. É importante esclarecer o uso pretendido para garantir cobertura adequada e evitar regressões.</p>
+<hr />
+<h1 id="arquivo-analisado-java-apisrctestjavacomrepoalvojavaapiusercontrollerintegrationtestjava">Arquivo analisado: java-api/src/test/java/com/repoalvo/javaapi/UserControllerIntegrationTest.java</h1>
+<h1 id="tipo-da-mudanca_2">Tipo da mudança</h1>
+<ul>
+<li>Inclusão de teste de integração para novo endpoint <code>/users/{id}/exists</code>.</li>
+</ul>
+<h1 id="evidencias-observadas_2">Evidências observadas</h1>
+<ul>
+<li>O diff adiciona um novo método de teste <code>userExistsEndpointShouldReturnTrueAndFalse()</code> na classe <code>UserControllerIntegrationTest</code>.</li>
+<li>Este método realiza duas requisições GET para o endpoint <code>/users/{id}/exists</code>:</li>
+<li>Uma para o usuário com ID 1, esperando resposta JSON com <code>{"exists": true}</code>.</li>
+<li>Outra para o usuário com ID 999, esperando <code>{"exists": false}</code>.</li>
+<li>O arquivo de teste já contém outros testes de integração para endpoints REST da API Java, usando <code>MockMvc</code>.</li>
+<li>O contexto do repositório indica que a API Java expõe endpoints REST para manipulação de usuários, mas o endpoint <code>/users/{id}/exists</code> não estava testado anteriormente.</li>
+<li>Não há evidência no diff ou no contexto de alteração no código de produção, apenas inclusão de teste.</li>
+</ul>
+<h1 id="impacto-provavel_2">Impacto provável</h1>
+<ul>
+<li>A mudança adiciona cobertura de teste para o endpoint <code>/users/{id}/exists</code>.</li>
+<li>Provavelmente este endpoint foi implementado recentemente ou não estava coberto por testes.</li>
+<li>O teste valida o comportamento esperado para IDs existentes e não existentes, garantindo que o endpoint retorne status 200 e o campo booleano correto.</li>
+<li>A inclusão do teste aumenta a confiabilidade da API para este endpoint específico.</li>
+<li>Não há alteração funcional no código de produção, portanto o impacto é restrito à validação do comportamento.</li>
+</ul>
+<h1 id="riscos-identificados_2">Riscos identificados</h1>
+<ul>
+<li>Como a mudança é apenas adição de teste, o risco de regressão funcional é baixo.</li>
+<li>Risco potencial de falso positivo se o endpoint <code>/users/{id}/exists</code> não estiver implementado corretamente, mas isso não é causado pela mudança.</li>
+<li>Se o endpoint <code>/users/{id}/exists</code> não estiver populado com dados de teste consistentes (ex: usuário 1 existe, 999 não), o teste pode falhar ou passar indevidamente.</li>
+<li>Dependência implícita de que o usuário com ID 1 exista no banco de dados de teste, o que pode causar fragilidade se o banco for resetado ou alterado.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_2">Cenários de testes manuais</h1>
+<ul>
+<li>Realizar requisição GET para <code>/users/1/exists</code> e verificar que o status é 200 e o JSON contém <code>"exists": true</code>.</li>
+<li>Realizar requisição GET para <code>/users/999/exists</code> (ou outro ID inexistente) e verificar que o status é 200 e o JSON contém <code>"exists": false</code>.</li>
+<li>Testar com IDs negativos, zero ou strings para verificar comportamento do endpoint (não coberto pelo teste automatizado).</li>
+<li>Testar o endpoint com autenticação (se aplicável) para verificar se há restrições de acesso.</li>
+<li>Verificar resposta para IDs muito grandes ou inválidos para garantir robustez.</li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios_2">Sugestões de testes unitários</h1>
+<ul>
+<li>Testar o método do controller que implementa <code>/users/{id}/exists</code> isoladamente, mockando o serviço de usuário para:</li>
+<li>Retornar <code>true</code> quando o usuário existe.</li>
+<li>Retornar <code>false</code> quando o usuário não existe.</li>
+<li>Testar tratamento de exceções no controller para casos de erro inesperado.</li>
+<li>Testar validação de entrada (ex: ID inválido) no controller ou serviço.</li>
+<li>Testar o serviço de usuário que verifica existência, garantindo que consulta ao banco retorna booleano correto.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_2">Sugestões de testes de integração</h1>
+<ul>
+<li>Expandir o teste atual para incluir:</li>
+<li>Verificação do formato exato do JSON retornado (ex: somente o campo <code>exists</code>).</li>
+<li>Testar com múltiplos IDs existentes e não existentes.</li>
+<li>Testar comportamento com banco de dados vazio (nenhum usuário cadastrado).</li>
+<li>Testar integração com autenticação/autorização se aplicável.</li>
+<li>Testar o endpoint em conjunto com criação e deleção de usuários para validar consistência dinâmica.</li>
+<li>Testar resposta para IDs inválidos (ex: string, negativo) para garantir que o endpoint responde com erro adequado (ex: 400 Bad Request).</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_2">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável, pois a mudança é apenas inclusão de teste funcional para endpoint simples de verificação de existência.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_2">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>O endpoint <code>/users/{id}/exists</code> está documentado na API? Não aparece na lista de endpoints no <code>docs/java-api.md</code>.</li>
+<li>Qual o comportamento esperado para IDs inválidos (ex: string, negativo, zero)? O teste atual não cobre esses casos.</li>
+<li>O endpoint retorna sempre status 200, mesmo para IDs inexistentes? Isso está correto do ponto de vista de API REST?</li>
+<li>Existe algum requisito de autenticação/autorização para este endpoint?</li>
+<li>O teste assume que o usuário com ID 1 existe no banco de dados de teste. Há garantia de que o banco de teste sempre terá esse usuário? Caso contrário, o teste pode ser frágil.</li>
+</ul>
+<hr />
+<p><strong>Resumo:</strong> A mudança adiciona um teste de integração para o endpoint <code>/users/{id}/exists</code>, validando respostas para usuário existente e inexistente. Não há alteração funcional, apenas cobertura de teste. Riscos são baixos, mas o teste depende da existência do usuário 1 no banco de teste. Recomenda-se ampliar testes para casos de IDs inválidos e validar documentação e requisitos do endpoint.</p>
+    </article>
+  </div>
+  <footer>QAgent — análise automatizada de QA com IA</footer>
+</body>
+</html>
