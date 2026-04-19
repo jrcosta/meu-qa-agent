@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>QAgent · jrcosta/repo_alvo_api_simples · 19 Apr 2026 – 22:17:37 UTC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-hover: #1c2129;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+  --purple: #bc8cff;
+  --radius: 10px;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  margin: 0; padding: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; transition: color .15s; }
+a:hover { color: var(--accent-hover); }
+.container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+}
+.topbar a { font-size: .9rem; }
+.topbar .sep { color: var(--border); }
+.topbar .slug { color: var(--text-muted); font-size: .85rem; font-family: var(--font-mono); }
+.report { padding-top: 16px; }
+.report h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.report h2 { font-size: 1.3rem; margin-top: 32px; color: var(--accent); }
+.report h3 { font-size: 1.1rem; margin-top: 24px; }
+.report p { margin: 12px 0; }
+.report ul, .report ol { padding-left: 24px; }
+.report li { margin: 6px 0; }
+.report code {
+  font-family: var(--font-mono); font-size: .88em;
+  background: var(--surface); padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.report pre {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: .88rem; line-height: 1.5;
+}
+.report pre code { background: none; border: none; padding: 0; }
+.report blockquote {
+  border-left: 3px solid var(--accent); margin: 16px 0;
+  padding: 8px 16px; color: var(--text-muted); background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.report table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.report th, .report td {
+  border: 1px solid var(--border); padding: 8px 12px; text-align: left;
+}
+.report th { background: var(--surface); font-weight: 600; }
+.report hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.report strong { color: #f0f6fc; }
+.meta-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px;
+  display: flex; flex-wrap: wrap; gap: 24px; font-size: .88rem;
+}
+.meta-item label { color: var(--text-muted); display: block; font-size: .78rem; margin-bottom: 2px; }
+.meta-item span { font-family: var(--font-mono); }
+footer { text-align: center; color: var(--text-muted); font-size: .8rem; padding: 40px 0 20px;
+         border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+  <nav class="topbar">
+    <a href="../../index.html">← Histórico</a>
+    <span class="sep">|</span>
+    <span class="slug">2026-04-19_22-17-37_UTC__jrcosta__repo_alvo_api_simples</span>
+  </nav>
+  <div class="container">
+    <div class="meta-box">
+      <div class="meta-item"><label>Repositório</label><span>jrcosta/repo_alvo_api_simples</span></div>
+      <div class="meta-item"><label>Execução</label><span>19 Apr 2026 – 22:17:37 UTC</span></div>
+    </div>
+    <article class="report">
+      <h1 id="arquivo-analisado-java-apisrcmainjavacomrepoalvojavaapicontrollerusercontrollerjava">Arquivo analisado: java-api/src/main/java/com/repoalvo/javaapi/controller/UserController.java</h1>
+<h1 id="tipo-da-mudanca">Tipo da mudança</h1>
+<p>Remoção de endpoint REST na API Java (<code>UserController</code>): exclusão do método <code>listUserNames()</code> que atendia a rota <code>GET /users/names</code>.</p>
+<hr />
+<h1 id="evidencias-observadas">Evidências observadas</h1>
+<ul>
+<li>No diff, o método anotado com <code>@GetMapping("/users/names")</code> foi completamente removido.</li>
+<li>O método removido retornava uma lista de nomes de usuários (<code>List&lt;String&gt;</code>) obtidos via <code>userService.listAllUsers()</code>, mapeando para o nome, ordenando ignorando case e coletando em lista.</li>
+<li>O arquivo atual <code>UserController.java</code> não contém mais esse método.</li>
+<li>No contexto adicional, há testes unitários e de integração específicos para o endpoint <code>/users/names</code>:</li>
+<li><code>UserControllerUnitTest.java</code> possui vários testes para <code>listUserNames()</code>.</li>
+<li><code>UserControllerIntegrationTest.java</code> possui testes que fazem requisição HTTP para <code>/users/names</code> e validam status 200, formato JSON e ordenação.</li>
+<li>A documentação <code>docs/java-api.md</code> lista os endpoints principais, mas não menciona explicitamente <code>/users/names</code>.</li>
+<li>Nenhuma outra parte do código ou serviço parece substituir ou redirecionar essa rota.</li>
+</ul>
+<hr />
+<h1 id="impacto-provavel">Impacto provável</h1>
+<ul>
+<li>O endpoint <code>GET /users/names</code> deixará de existir, resultando em erro 404 para qualquer cliente que tente acessá-lo.</li>
+<li>Clientes que dependiam da lista de nomes de usuários em formato simples (lista de strings) perderão essa funcionalidade.</li>
+<li>A remoção pode afetar integrações, frontends ou scripts que consumiam essa rota para exibir ou manipular nomes de usuários.</li>
+<li>Como o método era uma simples transformação da lista completa de usuários, não há impacto direto em outras funcionalidades do controlador ou do serviço.</li>
+<li>Testes automatizados existentes para esse endpoint ficarão obsoletos e devem ser removidos ou ajustados para evitar falhas.</li>
+</ul>
+<hr />
+<h1 id="riscos-identificados">Riscos identificados</h1>
+<ul>
+<li><strong>Quebra de contrato da API:</strong> Clientes que consumiam <code>/users/names</code> terão falhas inesperadas (404).</li>
+<li><strong>Testes automatizados quebrados:</strong> Testes unitários e de integração existentes para <code>/users/names</code> irão falhar, podendo impactar pipelines de CI/CD.</li>
+<li><strong>Possível confusão para consumidores da API:</strong> Se a remoção não for comunicada, pode gerar dúvidas e retrabalho para times que usam a API.</li>
+<li><strong>Dependências indiretas:</strong> Se algum código interno ou externo dependia do método <code>listUserNames()</code>, pode haver falhas silenciosas.</li>
+</ul>
+<hr />
+<h1 id="cenarios-de-testes-manuais">Cenários de testes manuais</h1>
+<ul>
+<li><strong>Teste de acesso ao endpoint removido:</strong></li>
+<li>Fazer requisição HTTP <code>GET /users/names</code>.</li>
+<li>Verificar que o retorno é HTTP 404 (Not Found).</li>
+<li><strong>Teste de endpoints relacionados:</strong></li>
+<li>Verificar que <code>GET /users</code> continua funcionando normalmente, retornando lista completa de usuários.</li>
+<li>Verificar que outros endpoints que retornam usuários (ex: <code>/users/search</code>, <code>/users/duplicates</code>) continuam funcionando sem impacto.</li>
+<li><strong>Teste de regressão geral:</strong></li>
+<li>Validar que a listagem de usuários via <code>/users</code> e demais endpoints não foi afetada.</li>
+<li><strong>Teste de comportamento do sistema para clientes que consumiam <code>/users/names</code>:</strong></li>
+<li>Se possível, simular cliente que consumia <code>/users/names</code> e observar falha ou comportamento esperado.</li>
+</ul>
+<hr />
+<h1 id="sugestoes-de-testes-unitarios">Sugestões de testes unitários</h1>
+<ul>
+<li><strong>Remover ou desabilitar testes unitários existentes para <code>listUserNames()</code>:</strong></li>
+<li>Ex: <code>listUserNamesShouldCallListAllUsersOnce()</code>, <code>listUserNamesShouldReturnSortedNamesIgnoringCase()</code>, etc.</li>
+<li><strong>Adicionar teste para garantir que o método <code>listUserNames()</code> não existe mais:</strong></li>
+<li>Embora não seja comum, pode-se validar que a classe <code>UserController</code> não possui mais o método.</li>
+<li><strong>Testar que outros métodos do controlador continuam funcionando normalmente:</strong></li>
+<li>Ex: <code>listUsers()</code>, <code>findDuplicateUsers()</code>, etc.</li>
+</ul>
+<hr />
+<h1 id="sugestoes-de-testes-de-integracao">Sugestões de testes de integração</h1>
+<ul>
+<li><strong>Remover ou desabilitar testes de integração que fazem requisição para <code>/users/names</code>:</strong></li>
+<li>Ex: <code>getUserNamesShouldReturnStatus200AndJsonArrayOfStrings()</code>, <code>getUserNamesShouldReturnNamesSortedIgnoringCase()</code>, etc.</li>
+<li><strong>Adicionar teste para requisição <code>GET /users/names</code> que espera HTTP 404:</strong></li>
+<li>Validar que a rota não está mais disponível.</li>
+<li><strong>Testar endpoints relacionados para garantir que não houve regressão:</strong></li>
+<li><code>GET /users</code></li>
+<li><code>GET /users/count</code></li>
+<li><code>GET /users/search</code></li>
+<li><code>GET /users/duplicates</code></li>
+</ul>
+<hr />
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável, pois a mudança é remoção de endpoint e não há indício de impacto em performance ou carga.</li>
+</ul>
+<hr />
+<h1 id="pontos-que-precisam-de-esclarecimento">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li><strong>Motivo da remoção:</strong> Qual a justificativa para remover o endpoint <code>/users/names</code>? Foi por desuso, segurança, simplificação da API?</li>
+<li><strong>Comunicação para consumidores:</strong> Houve comunicação prévia para os consumidores da API sobre a remoção? Existe plano de migração?</li>
+<li><strong>Substituição ou alternativa:</strong> Existe algum endpoint alternativo para obter lista de nomes de usuários? Caso contrário, clientes que precisem dessa informação ficarão sem solução.</li>
+<li><strong>Impacto nos testes automatizados:</strong> Como será tratado o impacto nos testes unitários e de integração que dependem desse endpoint?</li>
+<li><strong>Possível remoção de código relacionado:</strong> O serviço <code>userService.listAllUsers()</code> ainda é usado para outros endpoints, mas o mapeamento para nomes e ordenação era exclusivo do método removido. Há código duplicado ou similar em outros lugares que pode ser revisado?</li>
+</ul>
+<hr />
+<h1 id="resumo">Resumo</h1>
+<p>A mudança removeu o endpoint <code>GET /users/names</code> do controlador <code>UserController</code>, eliminando a funcionalidade que retornava uma lista ordenada de nomes de usuários. Essa remoção impacta diretamente clientes que consumiam essa rota, além de quebrar testes unitários e de integração existentes. É necessário validar que a remoção foi intencional e comunicar aos consumidores da API. Testes que acessam essa rota devem ser removidos ou ajustados, e testes para garantir que outros endpoints continuam funcionando devem ser mantidos. Não há impacto funcional além da indisponibilidade desse endpoint específico.</p>
+    </article>
+  </div>
+  <footer>QAgent — análise automatizada de QA com IA</footer>
+</body>
+</html>
