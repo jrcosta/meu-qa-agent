@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>QAgent · jrcosta/repo_alvo_api_simples · 19 Apr 2026 – 22:29:51 UTC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-hover: #1c2129;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+  --purple: #bc8cff;
+  --radius: 10px;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  margin: 0; padding: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; transition: color .15s; }
+a:hover { color: var(--accent-hover); }
+.container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+}
+.topbar a { font-size: .9rem; }
+.topbar .sep { color: var(--border); }
+.topbar .slug { color: var(--text-muted); font-size: .85rem; font-family: var(--font-mono); }
+.report { padding-top: 16px; }
+.report h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.report h2 { font-size: 1.3rem; margin-top: 32px; color: var(--accent); }
+.report h3 { font-size: 1.1rem; margin-top: 24px; }
+.report p { margin: 12px 0; }
+.report ul, .report ol { padding-left: 24px; }
+.report li { margin: 6px 0; }
+.report code {
+  font-family: var(--font-mono); font-size: .88em;
+  background: var(--surface); padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.report pre {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: .88rem; line-height: 1.5;
+}
+.report pre code { background: none; border: none; padding: 0; }
+.report blockquote {
+  border-left: 3px solid var(--accent); margin: 16px 0;
+  padding: 8px 16px; color: var(--text-muted); background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.report table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.report th, .report td {
+  border: 1px solid var(--border); padding: 8px 12px; text-align: left;
+}
+.report th { background: var(--surface); font-weight: 600; }
+.report hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.report strong { color: #f0f6fc; }
+.meta-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px;
+  display: flex; flex-wrap: wrap; gap: 24px; font-size: .88rem;
+}
+.meta-item label { color: var(--text-muted); display: block; font-size: .78rem; margin-bottom: 2px; }
+.meta-item span { font-family: var(--font-mono); }
+footer { text-align: center; color: var(--text-muted); font-size: .8rem; padding: 40px 0 20px;
+         border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+  <nav class="topbar">
+    <a href="../../index.html">← Histórico</a>
+    <span class="sep">|</span>
+    <span class="slug">2026-04-19_22-29-51_UTC__jrcosta__repo_alvo_api_simples</span>
+  </nav>
+  <div class="container">
+    <div class="meta-box">
+      <div class="meta-item"><label>Repositório</label><span>jrcosta/repo_alvo_api_simples</span></div>
+      <div class="meta-item"><label>Execução</label><span>19 Apr 2026 – 22:29:51 UTC</span></div>
+    </div>
+    <article class="report">
+      <h1 id="arquivo-analisado-githubworkflowsforward-pr-commentyml">Arquivo analisado: .github/workflows/forward-pr-comment.yml</h1>
+<h1 id="tipo-da-mudanca">Tipo da mudança</h1>
+<p>Correção de configuração de workflow GitHub Actions (ajuste de variável de ambiente para token de autenticação).</p>
+<h1 id="evidencias-observadas">Evidências observadas</h1>
+<ul>
+<li>No diff, a única alteração foi na variável de ambiente <code>QAGENT_PAT</code> dentro do job <code>forward</code> do workflow <code>.github/workflows/forward-pr-comment.yml</code>:<br />
+  ```diff</li>
+<li>QAGENT_PAT: ${{ secrets.QAGENT_DISPATCH_PAT }}</li>
+<li>QAGENT_PAT: ${{ secrets.QAGENT_PAT }}<br />
+  ```</li>
+<li>O arquivo atual mostra que essa variável é usada para autenticar uma requisição <code>curl</code> para disparar um evento <code>repository_dispatch</code> no repositório <code>jrcosta/qagent</code>.</li>
+<li>O nome do segredo mudou de <code>QAGENT_DISPATCH_PAT</code> para <code>QAGENT_PAT</code>, indicando uma correção para usar o segredo correto.</li>
+<li>Não há outras alterações no workflow, nem no código do repositório relacionadas a esse workflow.</li>
+<li>O contexto adicional não apresenta arquivos relacionados a esse workflow, nem testes automatizados para ele.</li>
+</ul>
+<h1 id="impacto-provavel">Impacto provável</h1>
+<ul>
+<li>O token de autenticação usado para enviar o evento <code>repository_dispatch</code> para o repositório <code>jrcosta/qagent</code> será alterado para o segredo correto.</li>
+<li>Provavelmente, antes da mudança, o workflow falhava ou não conseguia autenticar a requisição, pois usava um segredo inexistente ou incorreto (<code>QAGENT_DISPATCH_PAT</code>).</li>
+<li>Após a correção, o workflow deve conseguir autenticar e enviar o evento com sucesso.</li>
+<li>O comportamento funcional do workflow (encaminhar comentários de PR criados por usuários com "copilot" no login para o serviço <code>qagent</code>) permanece o mesmo, apenas a autenticação foi corrigida.</li>
+</ul>
+<h1 id="riscos-identificados">Riscos identificados</h1>
+<ul>
+<li>Se o segredo <code>QAGENT_PAT</code> não estiver configurado corretamente no repositório, o workflow continuará falhando.</li>
+<li>Se o segredo <code>QAGENT_DISPATCH_PAT</code> estava sendo usado em algum outro lugar ou por engano, a mudança pode causar falha nesses usos.</li>
+<li>Não há validação explícita no workflow para verificar se o token está presente ou válido antes de executar o <code>curl</code>.</li>
+<li>Caso o token <code>QAGENT_PAT</code> tenha permissões diferentes do token anterior, pode haver impacto na autorização do evento <code>repository_dispatch</code>.</li>
+<li>Como o workflow depende do evento <code>issue_comment</code> e do filtro para usuários com "copilot" no login, qualquer problema na autenticação pode impedir o disparo correto do evento para o <code>qagent</code>.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais">Cenários de testes manuais</h1>
+<ol>
+<li>
+<p><strong>Teste de disparo do workflow com comentário de PR por usuário com "copilot" no login:</strong><br />
+   - Criar um comentário em um PR com um usuário cujo login contenha "copilot".<br />
+   - Verificar se o workflow é disparado.<br />
+   - Confirmar nos logs do workflow que o <code>curl</code> para o <code>repository_dispatch</code> foi executado com sucesso (status HTTP 2xx).<br />
+   - Confirmar no repositório <code>jrcosta/qagent</code> que o evento <code>pr_comment_created</code> foi recebido.</p>
+</li>
+<li>
+<p><strong>Teste com usuário sem "copilot" no login:</strong><br />
+   - Criar comentário em PR com usuário sem "copilot" no login.<br />
+   - Verificar que o job <code>forward</code> não é executado (condição <code>if</code> falha).</p>
+</li>
+<li>
+<p><strong>Teste com token <code>QAGENT_PAT</code> ausente ou inválido:</strong><br />
+   - Temporariamente remover ou invalidar o segredo <code>QAGENT_PAT</code>.<br />
+   - Criar comentário de PR com usuário "copilot".<br />
+   - Verificar que o workflow falha na etapa de envio do evento.<br />
+   - Confirmar mensagem de erro nos logs do workflow.</p>
+</li>
+</ol>
+<h1 id="sugestoes-de-testes-unitarios">Sugestões de testes unitários</h1>
+<ul>
+<li>Como o workflow é um arquivo YAML de CI/CD, não há código fonte para testes unitários diretos.</li>
+<li>Caso exista um script ou ação customizada que use o token, sugerir testes unitários para validar o uso correto do token e tratamento de erros na autenticação.</li>
+<li>Testar função que monta o payload JSON para o <code>repository_dispatch</code> (se existir em código separado).</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao">Sugestões de testes de integração</h1>
+<ul>
+<li>Criar um teste de integração que simule o evento <code>issue_comment</code> com usuário "copilot" e verifique se o evento <code>repository_dispatch</code> é enviado corretamente para o repositório <code>qagent</code>.</li>
+<li>Testar integração entre o workflow e o serviço <code>qagent</code> para garantir que o evento disparado é recebido e processado.</li>
+<li>Validar o comportamento do workflow em ambiente de staging com tokens reais para garantir autenticação e disparo corretos.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável, pois a mudança é apenas na configuração do token de autenticação.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>Qual é o escopo e permissões do token <code>QAGENT_PAT</code>? Está configurado com permissões mínimas necessárias para disparar eventos <code>repository_dispatch</code>?</li>
+<li>O segredo <code>QAGENT_DISPATCH_PAT</code> estava configurado anteriormente? Se sim, por que foi substituído? Há impacto em outros workflows ou integrações?</li>
+<li>Existe monitoramento ou alertas para falhas nesse workflow? Como é feita a detecção de falhas na autenticação?</li>
+<li>O repositório <code>jrcosta/qagent</code> está sob nosso controle? Podemos validar o recebimento dos eventos disparados?</li>
+<li>Há planos para adicionar testes automatizados para esse workflow ou para a integração com o <code>qagent</code>?</li>
+</ul>
+<hr />
+<p><strong>Resumo:</strong> A mudança corrige o nome do segredo usado para autenticação no workflow que encaminha comentários de PR para o serviço <code>qagent</code>. Isso deve resolver falhas de autenticação e permitir o disparo correto do evento <code>repository_dispatch</code>. O risco principal é a ausência ou configuração incorreta do novo segredo. Recomenda-se testes manuais focados na autenticação e disparo do evento, além de validação da integração com o serviço <code>qagent</code>.</p>
+    </article>
+  </div>
+  <footer>QAgent — análise automatizada de QA com IA</footer>
+</body>
+</html>
