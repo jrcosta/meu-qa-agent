@@ -9,12 +9,22 @@ class TestGeneratorTaskFactory:
         file_path: str,
         code_content: str,
         repo_context: str,
+        memories: str = "",
     ) -> Task:
+        memories_block = ""
+        if memories and "Nenhuma memória" not in memories:
+            memories_block = f"""
+IMPORTANTE — Lições aprendidas de execuções anteriores (NÃO repita estes erros):
+[INICIO_MEMORIAS]
+{memories}
+[FIM_MEMORIAS]
+"""
+
         description = f"""
 Você deve gerar testes unitários baseados no relatório de QA abaixo.
 
 Arquivo alvo: {file_path}
-
+{memories_block}
 Relatório de QA:
 [INICIO_RELATORIO]
 {qa_report}
