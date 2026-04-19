@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>QAgent · jrcosta/repo_alvo_api_simples · 19 Apr 2026 – 21:55:15 UTC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-hover: #1c2129;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+  --purple: #bc8cff;
+  --radius: 10px;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  margin: 0; padding: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; transition: color .15s; }
+a:hover { color: var(--accent-hover); }
+.container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+}
+.topbar a { font-size: .9rem; }
+.topbar .sep { color: var(--border); }
+.topbar .slug { color: var(--text-muted); font-size: .85rem; font-family: var(--font-mono); }
+.report { padding-top: 16px; }
+.report h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.report h2 { font-size: 1.3rem; margin-top: 32px; color: var(--accent); }
+.report h3 { font-size: 1.1rem; margin-top: 24px; }
+.report p { margin: 12px 0; }
+.report ul, .report ol { padding-left: 24px; }
+.report li { margin: 6px 0; }
+.report code {
+  font-family: var(--font-mono); font-size: .88em;
+  background: var(--surface); padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.report pre {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: .88rem; line-height: 1.5;
+}
+.report pre code { background: none; border: none; padding: 0; }
+.report blockquote {
+  border-left: 3px solid var(--accent); margin: 16px 0;
+  padding: 8px 16px; color: var(--text-muted); background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.report table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.report th, .report td {
+  border: 1px solid var(--border); padding: 8px 12px; text-align: left;
+}
+.report th { background: var(--surface); font-weight: 600; }
+.report hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.report strong { color: #f0f6fc; }
+.meta-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px;
+  display: flex; flex-wrap: wrap; gap: 24px; font-size: .88rem;
+}
+.meta-item label { color: var(--text-muted); display: block; font-size: .78rem; margin-bottom: 2px; }
+.meta-item span { font-family: var(--font-mono); }
+footer { text-align: center; color: var(--text-muted); font-size: .8rem; padding: 40px 0 20px;
+         border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+  <nav class="topbar">
+    <a href="../../index.html">← Histórico</a>
+    <span class="sep">|</span>
+    <span class="slug">2026-04-19_21-55-15_UTC__jrcosta__repo_alvo_api_simples</span>
+  </nav>
+  <div class="container">
+    <div class="meta-box">
+      <div class="meta-item"><label>Repositório</label><span>jrcosta/repo_alvo_api_simples</span></div>
+      <div class="meta-item"><label>Execução</label><span>19 Apr 2026 – 21:55:15 UTC</span></div>
+    </div>
+    <article class="report">
+      <h1 id="arquivo-analisado-java-apisrcmainjavacomrepoalvojavaapicontrollerusercontrollerjava">Arquivo analisado: java-api/src/main/java/com/repoalvo/javaapi/controller/UserController.java</h1>
+<h1 id="tipo-da-mudanca">Tipo da mudança</h1>
+<ul>
+<li><strong>Nova funcionalidade (feature)</strong>: inclusão de um novo endpoint REST <code>GET /users/names</code> que retorna uma lista ordenada alfabeticamente dos nomes dos usuários.</li>
+</ul>
+<h1 id="evidencias-observadas">Evidências observadas</h1>
+<ul>
+<li>No diff, foi adicionada a função <code>listUserNames()</code> no <code>UserController</code>:</li>
+</ul>
+<pre><code class="language-java">@GetMapping(&quot;/users/names&quot;)
+public List&lt;String&gt; listUserNames() {
+    return userService.listAllUsers()
+            .stream()
+            .map(UserResponse::name)
+            .sorted(String::compareToIgnoreCase)
+            .toList();
+}
+</code></pre>
+<ul>
+<li>
+<p>O método usa <code>userService.listAllUsers()</code> para obter todos os usuários, extrai apenas o nome (<code>UserResponse::name</code>), ordena ignorando case e retorna a lista.</p>
+</li>
+<li>
+<p>O arquivo <code>UserController.java</code> já possui outros endpoints que usam <code>userService.listAllUsers()</code>, como <code>/users/count</code>, <code>/users/duplicates</code>, <code>/users/search</code>, etc., indicando que o serviço retorna uma lista completa de usuários.</p>
+</li>
+<li>
+<p>Nos testes existentes (<code>UserControllerUnitTest.java</code>, <code>UserControllerIntegrationTest.java</code>, <code>UserControllerTest.java</code>) não há menção a esse endpoint, pois é novo.</p>
+</li>
+<li>
+<p>O contexto do repositório mostra que a API Java expõe endpoints REST para manipulação e consulta de usuários, e que testes unitários e de integração estão presentes para o controller.</p>
+</li>
+</ul>
+<h1 id="impacto-provavel">Impacto provável</h1>
+<ul>
+<li>
+<p>A mudança adiciona um novo endpoint público que expõe uma lista de nomes de usuários ordenada alfabeticamente.</p>
+</li>
+<li>
+<p>Não altera comportamento existente, pois é uma adição isolada.</p>
+</li>
+<li>
+<p>Pode impactar clientes que desejam obter apenas os nomes dos usuários, otimizando a consulta para esse caso.</p>
+</li>
+<li>
+<p>Como o método usa <code>listAllUsers()</code>, o desempenho e a escalabilidade dependem do tamanho da lista retornada pelo serviço.</p>
+</li>
+</ul>
+<h1 id="riscos-identificados">Riscos identificados</h1>
+<ul>
+<li>
+<p><strong>Risco de desempenho e memória</strong>: <code>listAllUsers()</code> retorna todos os usuários em memória. Se a base crescer muito, pode causar lentidão ou uso excessivo de memória.</p>
+</li>
+<li>
+<p><strong>Risco de exposição de dados</strong>: embora só retorne nomes, se houver alguma restrição de acesso ou privacidade sobre nomes, não está contemplada.</p>
+</li>
+<li>
+<p><strong>Risco de ordenação</strong>: a ordenação é feita via <code>String::compareToIgnoreCase</code>, que pode não considerar regras locais de ordenação (collation). Pode impactar usuários com nomes com caracteres especiais.</p>
+</li>
+<li>
+<p><strong>Risco de inconsistência</strong>: se <code>listAllUsers()</code> retornar usuários com nomes nulos ou vazios, pode causar exceções ou resultados inesperados (não há tratamento explícito para nomes nulos).</p>
+</li>
+<li>
+<p><strong>Risco de falta de paginação</strong>: o endpoint retorna toda a lista, sem paginação, o que pode ser problemático para grandes volumes.</p>
+</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais">Cenários de testes manuais</h1>
+<ol>
+<li>
+<p><strong>Consulta básica</strong>: chamar <code>GET /users/names</code> e verificar se retorna lista de strings com nomes de usuários.</p>
+</li>
+<li>
+<p><strong>Ordem alfabética</strong>: verificar se a lista está ordenada alfabeticamente ignorando case (ex: "ana", "Bruno", "carlos").</p>
+</li>
+<li>
+<p><strong>Lista vazia</strong>: simular ambiente sem usuários e verificar se retorna lista vazia sem erro.</p>
+</li>
+<li>
+<p><strong>Nomes com caracteres especiais</strong>: incluir usuários com nomes contendo acentos, cedilha, espaços e verificar ordenação e retorno correto.</p>
+</li>
+<li>
+<p><strong>Nomes nulos ou vazios</strong>: se possível, testar comportamento com usuários que tenham nome nulo ou vazio (verificar se gera erro ou ignora).</p>
+</li>
+<li>
+<p><strong>Carga de usuários</strong>: testar com grande número de usuários para avaliar tempo de resposta e uso de memória.</p>
+</li>
+</ol>
+<h1 id="sugestoes-de-testes-unitarios">Sugestões de testes unitários</h1>
+<ul>
+<li>
+<p>Testar que <code>listUserNames()</code> chama <code>userService.listAllUsers()</code> exatamente uma vez.</p>
+</li>
+<li>
+<p>Testar que o método retorna lista de nomes extraídos corretamente dos objetos <code>UserResponse</code>.</p>
+</li>
+<li>
+<p>Testar que a lista retornada está ordenada alfabeticamente ignorando case.</p>
+</li>
+<li>
+<p>Testar comportamento com lista vazia (retorna lista vazia).</p>
+</li>
+<li>
+<p>Testar comportamento com nomes duplicados (devem aparecer repetidos na lista).</p>
+</li>
+<li>
+<p>Testar comportamento com nomes nulos (se permitido) e garantir que não cause NullPointerException.</p>
+</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao">Sugestões de testes de integração</h1>
+<ul>
+<li>
+<p>Testar endpoint <code>GET /users/names</code> com dados reais da base (seed ou mock) e validar:</p>
+</li>
+<li>
+<p>Status HTTP 200.</p>
+</li>
+<li>
+<p>Corpo da resposta é JSON array de strings.</p>
+</li>
+<li>
+<p>Ordem alfabética correta.</p>
+</li>
+<li>
+<p>Lista vazia quando não há usuários.</p>
+</li>
+<li>
+<p>Testar integração com o serviço <code>UserService</code> para garantir que o endpoint reflete o estado atual dos usuários.</p>
+</li>
+<li>
+<p>Testar que o endpoint não retorna dados além dos nomes (ex: não retorna emails ou ids).</p>
+</li>
+<li>
+<p>Testar comportamento com usuários criados via <code>POST /users</code> e verificar se aparecem no resultado.</p>
+</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não há indicação clara na mudança que justifique testes de carga específicos, mas recomenda-se monitorar o desempenho do endpoint em ambientes com muitos usuários, devido ao uso de <code>listAllUsers()</code> e retorno de lista completa.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>
+<p><strong>Tratamento de nomes nulos ou vazios</strong>: o que deve ocorrer se algum usuário tiver nome nulo ou vazio? Ignorar, lançar erro ou incluir?</p>
+</li>
+<li>
+<p><strong>Limitação de tamanho da lista</strong>: há necessidade de paginação ou limite para evitar retorno de listas muito grandes?</p>
+</li>
+<li>
+<p><strong>Regras de ordenação</strong>: a ordenação atual é suficiente ou deve considerar regras locais (locale) para ordenação?</p>
+</li>
+<li>
+<p><strong>Controle de acesso</strong>: há alguma restrição para expor a lista de nomes? O endpoint é público?</p>
+</li>
+</ul>
+<hr />
+<h1 id="resumo">Resumo</h1>
+<p>A mudança adiciona um endpoint simples que retorna lista ordenada de nomes de usuários, usando dados já disponíveis via <code>userService.listAllUsers()</code>. Não altera funcionalidades existentes, mas pode impactar desempenho e uso de memória em bases grandes. Recomenda-se testes focados em validação da ordenação, tratamento de casos extremos (lista vazia, nomes nulos) e integração com o serviço. Pontos de negócio sobre tratamento de nomes e limites de retorno devem ser esclarecidos para evitar problemas futuros.</p>
+    </article>
+  </div>
+  <footer>QAgent — análise automatizada de QA com IA</footer>
+</body>
+</html>
