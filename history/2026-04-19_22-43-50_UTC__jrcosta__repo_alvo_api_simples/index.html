@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>QAgent · jrcosta/repo_alvo_api_simples · 19 Apr 2026 – 22:43:50 UTC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-hover: #1c2129;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+  --purple: #bc8cff;
+  --radius: 10px;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  margin: 0; padding: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; transition: color .15s; }
+a:hover { color: var(--accent-hover); }
+.container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+}
+.topbar a { font-size: .9rem; }
+.topbar .sep { color: var(--border); }
+.topbar .slug { color: var(--text-muted); font-size: .85rem; font-family: var(--font-mono); }
+.report { padding-top: 16px; }
+.report h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.report h2 { font-size: 1.3rem; margin-top: 32px; color: var(--accent); }
+.report h3 { font-size: 1.1rem; margin-top: 24px; }
+.report p { margin: 12px 0; }
+.report ul, .report ol { padding-left: 24px; }
+.report li { margin: 6px 0; }
+.report code {
+  font-family: var(--font-mono); font-size: .88em;
+  background: var(--surface); padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.report pre {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: .88rem; line-height: 1.5;
+}
+.report pre code { background: none; border: none; padding: 0; }
+.report blockquote {
+  border-left: 3px solid var(--accent); margin: 16px 0;
+  padding: 8px 16px; color: var(--text-muted); background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.report table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.report th, .report td {
+  border: 1px solid var(--border); padding: 8px 12px; text-align: left;
+}
+.report th { background: var(--surface); font-weight: 600; }
+.report hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.report strong { color: #f0f6fc; }
+.meta-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px;
+  display: flex; flex-wrap: wrap; gap: 24px; font-size: .88rem;
+}
+.meta-item label { color: var(--text-muted); display: block; font-size: .78rem; margin-bottom: 2px; }
+.meta-item span { font-family: var(--font-mono); }
+footer { text-align: center; color: var(--text-muted); font-size: .8rem; padding: 40px 0 20px;
+         border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+  <nav class="topbar">
+    <a href="../../index.html">← Histórico</a>
+    <span class="sep">|</span>
+    <span class="slug">2026-04-19_22-43-50_UTC__jrcosta__repo_alvo_api_simples</span>
+  </nav>
+  <div class="container">
+    <div class="meta-box">
+      <div class="meta-item"><label>Repositório</label><span>jrcosta/repo_alvo_api_simples</span></div>
+      <div class="meta-item"><label>Execução</label><span>19 Apr 2026 – 22:43:50 UTC</span></div>
+    </div>
+    <article class="report">
+      <h1 id="arquivo-analisado-java-apisrctestjavacomrepoalvojavaapiusercontrollerintegrationtestjava">Arquivo analisado: java-api/src/test/java/com/repoalvo/javaapi/UserControllerIntegrationTest.java</h1>
+<h1 id="tipo-da-mudanca">Tipo da mudança</h1>
+<p>Adição de testes de integração para validação de entrada no endpoint <code>POST /users</code>, focando em casos de campos obrigatórios (<code>name</code> e <code>email</code>) nulos ou vazios, com expectativa de resposta HTTP 400 BAD REQUEST.</p>
+<h1 id="evidencias-observadas">Evidências observadas</h1>
+<ul>
+<li>O diff adiciona quatro novos métodos de teste na classe <code>UserControllerIntegrationTest</code>:</li>
+<li><code>postUserShouldReturn400WhenNameIsNull</code></li>
+<li><code>postUserShouldReturn400WhenNameIsEmpty</code></li>
+<li><code>postUserShouldReturn400WhenEmailIsNull</code></li>
+<li><code>postUserShouldReturn400WhenEmailIsEmpty</code></li>
+<li>Cada teste realiza uma requisição POST para <code>/users</code> com payload JSON contendo <code>name</code> ou <code>email</code> nulo ou vazio e espera status HTTP 400.</li>
+<li>O arquivo já continha testes para o endpoint <code>POST /users</code> cobrindo casos de sucesso (201) e conflito de email (409).</li>
+<li>O contexto do repositório indica que a API Java expõe o endpoint <code>POST /users</code> e que testes de integração para esse endpoint já existem, porém não contemplavam explicitamente validação de campos obrigatórios com valores nulos ou vazios.</li>
+<li>O padrão de testes usa <code>MockMvc</code> para simular requisições HTTP e validação de status HTTP esperado.</li>
+</ul>
+<h1 id="impacto-provavel">Impacto provável</h1>
+<ul>
+<li>A mudança amplia a cobertura de testes de integração para o endpoint de criação de usuários, garantindo que a API rejeite corretamente requisições com campos obrigatórios ausentes ou vazios.</li>
+<li>Isso reforça a validação de entrada no controlador ou camada de serviço, prevenindo a criação de usuários com dados inválidos.</li>
+<li>A API passa a ter garantias explícitas de que o contrato de entrada para <code>POST /users</code> exige <code>name</code> e <code>email</code> não nulos e não vazios.</li>
+<li>Não há alteração no código de produção, apenas nos testes, portanto o impacto funcional direto é nulo, mas o impacto na qualidade e segurança da API é positivo.</li>
+</ul>
+<h1 id="riscos-identificados">Riscos identificados</h1>
+<ul>
+<li>Como a mudança é apenas adição de testes, o risco de regressão funcional é baixo.</li>
+<li>Caso a validação de entrada não esteja implementada no código de produção, os testes irão falhar, indicando uma possível inconsistência entre a especificação e a implementação.</li>
+<li>Se a validação for feita em outra camada (ex: DTO, serviço), a ausência de testes para esses casos poderia permitir dados inválidos; a adição destes testes ajuda a mitigar esse risco.</li>
+<li>Não há indicação no diff ou contexto se a API trata especificamente strings vazias como inválidas, portanto pode haver risco de falso positivo ou falso negativo se a regra de negócio não for clara.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais">Cenários de testes manuais</h1>
+<ul>
+<li>Enviar requisição POST para <code>/users</code> com JSON contendo <code>"name": null</code> e um email válido; verificar retorno 400.</li>
+<li>Enviar requisição POST para <code>/users</code> com JSON contendo <code>"name": ""</code> (string vazia) e um email válido; verificar retorno 400.</li>
+<li>Enviar requisição POST para <code>/users</code> com JSON contendo <code>"email": null</code> e um nome válido; verificar retorno 400.</li>
+<li>Enviar requisição POST para <code>/users</code> com JSON contendo <code>"email": ""</code> (string vazia) e um nome válido; verificar retorno 400.</li>
+<li>Enviar requisição POST para <code>/users</code> com ambos campos válidos; verificar retorno 201.</li>
+<li>Enviar requisição POST para <code>/users</code> com email duplicado; verificar retorno 409 (teste já existente).</li>
+<li>Testar limites de tamanho e formato dos campos <code>name</code> e <code>email</code> para verificar se outras validações são aplicadas (não coberto pelo diff, mas relevante para validação de entrada).</li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios">Sugestões de testes unitários</h1>
+<ul>
+<li>Testar o método de validação de entrada (se existir) no controlador ou serviço para:</li>
+<li>Rejeitar <code>name</code> nulo ou vazio.</li>
+<li>Rejeitar <code>email</code> nulo ou vazio.</li>
+<li>Testar que o controlador retorna <code>ResponseStatusException</code> ou equivalente com status 400 para payloads inválidos.</li>
+<li>Testar que o serviço não é chamado para criação de usuário quando a validação falha.</li>
+<li>Testar mensagens de erro específicas para cada tipo de validação (se aplicável).</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao">Sugestões de testes de integração</h1>
+<ul>
+<li>Além dos testes adicionados, incluir casos para:</li>
+<li><code>POST /users</code> com campos adicionais inesperados para verificar rejeição ou ignorância.</li>
+<li><code>POST /users</code> com campos <code>name</code> e <code>email</code> contendo apenas espaços em branco para verificar se são tratados como vazios.</li>
+<li>Testar limites mínimos e máximos de tamanho para <code>name</code> e <code>email</code>.</li>
+<li>Testar formato inválido de email para garantir validação adequada.</li>
+<li>Testar comportamento com payloads malformados JSON para verificar tratamento de erro.</li>
+<li>Validar que o corpo da resposta em caso de 400 contém mensagens de erro claras e úteis (se a API retornar).</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável, pois a mudança é exclusivamente de cobertura de testes para validação de entrada e não altera lógica de negócio ou performance.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>A regra de negócio considera strings vazias (<code>""</code>) para <code>name</code> e <code>email</code> como inválidas? O teste assume que sim, mas não há evidência explícita no código de produção.</li>
+<li>Qual o comportamento esperado para strings contendo apenas espaços em branco? São aceitas ou rejeitadas?</li>
+<li>A API retorna mensagens de erro detalhadas no corpo da resposta para requisições inválidas? Os testes atuais validam apenas o status HTTP.</li>
+<li>A validação de campos obrigatórios está implementada no controlador, serviço ou via anotações de validação (ex: Bean Validation)? Isso pode impactar a forma de testar e a cobertura.</li>
+<li>Há outras regras de validação para <code>email</code> além de não ser nulo ou vazio (ex: formato válido)? Se sim, testes adicionais seriam recomendados.</li>
+</ul>
+<hr />
+<p><strong>Resumo:</strong> A mudança adiciona testes de integração importantes para garantir que o endpoint <code>POST /users</code> rejeite corretamente requisições com campos obrigatórios <code>name</code> e <code>email</code> nulos ou vazios, reforçando a validação de entrada da API. Não há alteração no código de produção, portanto o impacto funcional é indireto, melhorando a qualidade e segurança da API. Recomenda-se complementar com testes unitários focados na validação e ampliar testes de integração para outros casos de entrada inválida. Pontos de negócio sobre tratamento de strings vazias e mensagens de erro precisam ser confirmados para garantir cobertura adequada.</p>
+<hr />
+<h1 id="arquivo-analisado-java-apisrctestjavacomrepoalvojavaapiusercontrollerunittestjava">Arquivo analisado: java-api/src/test/java/com/repoalvo/javaapi/UserControllerUnitTest.java</h1>
+<h1 id="tipo-da-mudanca_1">Tipo da mudança</h1>
+<ul>
+<li><strong>Adição de testes unitários</strong> para o <code>UserController</code>.</li>
+<li><strong>Cobertura ampliada de casos de borda e exceções</strong> em métodos já existentes.</li>
+<li><strong>Refatoração parcial de testes existentes</strong> (substituição e reorganização de alguns testes).</li>
+</ul>
+<h1 id="evidencias-observadas_1">Evidências observadas</h1>
+<ul>
+<li>Foram adicionados vários novos métodos de teste no arquivo <code>UserControllerUnitTest.java</code>, todos anotados com <code>@Test</code> e <code>@DisplayName</code>.</li>
+<li>Novos testes cobrem cenários como:</li>
+<li><code>listUsers</code> com <code>limit</code> zero e <code>offset</code> negativo, esperando lista vazia.</li>
+<li><code>createUser</code> quando <code>findByEmail</code> lança exceção inesperada, garantindo que <code>create</code> não é chamado.</li>
+<li><code>firstUserEmail</code> com múltiplos usuários, retornando o primeiro.</li>
+<li><code>getUserAgeEstimate</code> propagando exceção do serviço externo.</li>
+<li><code>findDuplicateUsers</code> retornando lista vazia quando não há duplicatas.</li>
+<li><code>searchUsers</code> retornando lista vazia quando não há correspondência.</li>
+<li>Alguns testes antigos foram removidos ou substituídos, por exemplo, o teste <code>firstUserEmailShouldReturnFirstUser</code> foi substituído por um que cobre múltiplos usuários.</li>
+<li>O conteúdo atual do arquivo mostra que os testes novos estão alinhados com a estrutura e estilo dos testes existentes.</li>
+<li>O contexto adicional do repositório indica que o projeto já possui uma boa cobertura de testes unitários e integração, e que o padrão de tratamento de exceções e retorno de listas vazias está consolidado.</li>
+</ul>
+<h1 id="impacto-provavel_1">Impacto provável</h1>
+<ul>
+<li><strong>Melhoria da robustez dos testes unitários do <code>UserController</code></strong>, especialmente em cenários de borda e tratamento de exceções.</li>
+<li><strong>Redução do risco de regressão</strong> em casos onde parâmetros inválidos são passados (<code>limit=0</code>, <code>offset&lt;0</code>).</li>
+<li><strong>Maior segurança no fluxo de criação de usuários</strong>, garantindo que exceções inesperadas em <code>findByEmail</code> não levam a chamadas indevidas a <code>create</code>.</li>
+<li><strong>Confirmação do comportamento esperado em métodos que retornam listas filtradas ou duplicadas</strong>, incluindo casos sem resultados.</li>
+<li><strong>Validação do comportamento do controlador frente a falhas do serviço externo</strong>, importante para estabilidade da API.</li>
+</ul>
+<h1 id="riscos-identificados_1">Riscos identificados</h1>
+<ul>
+<li><strong>Cobertura de exceções inesperadas</strong>: o teste que simula exceção em <code>findByEmail</code> e em <code>externalService.estimateAge</code> é importante, mas não garante que todos os tipos de exceções sejam tratados adequadamente na aplicação real. Pode haver risco se exceções específicas não forem capturadas.</li>
+<li><strong>Testes baseados em mocks</strong>: todos os testes usam mocks para <code>UserService</code> e <code>ExternalService</code>. Se a lógica interna desses serviços mudar, os testes podem não detectar problemas reais de integração.</li>
+<li><strong>Remoção de testes antigos</strong>: a substituição do teste <code>firstUserEmailShouldReturnFirstUser</code> por outro que cobre múltiplos usuários pode ter eliminado a cobertura do caso com lista vazia (que lançava 404). Isso pode ser um risco se o comportamento para lista vazia não estiver coberto em outro lugar.</li>
+<li><strong>Parâmetros inválidos em <code>listUsers</code></strong>: os testes assumem que o serviço retorna lista vazia para <code>limit=0</code> e <code>offset&lt;0</code>, mas o serviço real pode tratar esses casos de forma diferente (exemplo: sanitização para valores mínimos). Isso pode causar discrepância entre teste e produção.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_1">Cenários de testes manuais</h1>
+<ol>
+<li><strong>Listagem de usuários com <code>limit=0</code> e <code>offset=0</code></strong>:<br />
+   - Chamar endpoint correspondente e verificar que a resposta é uma lista vazia.</li>
+<li><strong>Listagem de usuários com <code>offset</code> negativo</strong>:<br />
+   - Chamar endpoint com <code>offset=-1</code> e verificar que a resposta é lista vazia ou comportamento definido.</li>
+<li><strong>Criação de usuário quando <code>findByEmail</code> lança exceção inesperada</strong>:<br />
+   - Simular falha no serviço de busca por email e verificar que a criação não ocorre e a exceção é propagada.</li>
+<li><strong>Obter primeiro usuário quando há múltiplos usuários cadastrados</strong>:<br />
+   - Verificar que o primeiro usuário da lista é retornado corretamente.</li>
+<li><strong>Obter estimativa de idade quando o serviço externo falha</strong>:<br />
+   - Simular falha no serviço externo e verificar que a exceção é propagada.</li>
+<li><strong>Buscar usuários duplicados quando não há duplicatas</strong>:<br />
+   - Verificar que a lista retornada está vazia.</li>
+<li><strong>Buscar usuários por termo que não corresponde a nenhum nome</strong>:<br />
+   - Verificar que a lista retornada está vazia.</li>
+</ol>
+<h1 id="sugestoes-de-testes-unitarios_1">Sugestões de testes unitários</h1>
+<ul>
+<li><strong>Testar comportamento de <code>firstUserEmail</code> quando a lista de usuários está vazia</strong>, garantindo que lança <code>ResponseStatusException</code> com status 404 (caso não esteja coberto).</li>
+<li><strong>Testar <code>createUser</code> com exceções específicas diferentes de <code>RuntimeException</code> em <code>findByEmail</code></strong>, para verificar tratamento adequado.</li>
+<li><strong>Testar <code>listUsers</code> com valores negativos para <code>limit</code> e <code>offset</code></strong>, para verificar se o controlador ou serviço sanitizam ou retornam erro.</li>
+<li><strong>Testar <code>getUserAgeEstimate</code> com usuário inexistente e falha no serviço externo simultaneamente</strong>, para verificar ordem de validação e tratamento.</li>
+<li><strong>Testar <code>searchUsers</code> com termos que contenham caracteres especiais ou maiúsculas/minúsculas</strong>, para validar filtro case-insensitive e sanitização.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_1">Sugestões de testes de integração</h1>
+<ul>
+<li><strong>Testar endpoint <code>/users</code> com parâmetros <code>limit=0</code> e <code>offset=-1</code></strong>, verificando resposta HTTP e corpo.</li>
+<li><strong>Testar fluxo de criação de usuário com falha simulada no serviço de busca por email</strong>, garantindo resposta adequada (ex: 500 ou mensagem de erro).</li>
+<li><strong>Testar endpoint <code>/users/1/age-estimate</code> simulando falha no serviço externo</strong>, verificando propagação da exceção e resposta HTTP.</li>
+<li><strong>Testar endpoint <code>/users/duplicates</code> quando não há duplicatas</strong>, garantindo retorno de lista vazia.</li>
+<li><strong>Testar endpoint <code>/users/search?q=xyz</code> com termo que não corresponde a nenhum usuário</strong>, garantindo lista vazia.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_1">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Nenhuma evidência no diff ou contexto justifica testes de carga ou desempenho para esta mudança.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_1">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>
+<p><strong>O comportamento esperado de <code>firstUserEmail</code> quando não há usuários está coberto?</strong><br />
+  O teste antigo que verificava lançamento de 404 para lista vazia foi removido. Existe outro teste ou cobertura para esse caso?</p>
+</li>
+<li>
+<p><strong>Como o serviço <code>listUsers</code> trata valores negativos para <code>limit</code> e <code>offset</code>?</strong><br />
+  Os testes unitários mockam retorno vazio para <code>offset</code> negativo, mas o serviço real pode sanitizar esses valores para mínimos (como indicado no <code>UserServiceUnitTest</code>). Isso pode causar divergência entre teste e produção.</p>
+</li>
+<li>
+<p><strong>Qual o tratamento esperado para exceções inesperadas em <code>createUser</code>?</strong><br />
+  O teste atual verifica propagação da exceção, mas não há validação de resposta HTTP. Isso está alinhado com a política de tratamento de erros da API?</p>
+</li>
+<li>
+<p><strong>O serviço externo de estimativa de idade pode lançar exceções específicas?</strong><br />
+  O teste cobre <code>RuntimeException</code>, mas há necessidade de tratar exceções específicas para melhorar a resiliência?</p>
+</li>
+</ul>
+<hr />
+<h1 id="resumo">Resumo</h1>
+<p>A mudança adiciona uma série de testes unitários importantes para o <code>UserController</code>, ampliando a cobertura para casos de borda e exceções, o que melhora a robustez da base de testes. Contudo, a remoção de testes antigos e a forma como os mocks simulam comportamentos podem deixar lacunas, especialmente no tratamento de listas vazias e parâmetros inválidos. Recomenda-se validar se esses casos estão cobertos em outros testes e alinhar o comportamento esperado com a implementação real do serviço. Testes manuais e de integração focados nesses pontos são recomendados para mitigar riscos.</p>
+    </article>
+  </div>
+  <footer>QAgent — análise automatizada de QA com IA</footer>
+</body>
+</html>
