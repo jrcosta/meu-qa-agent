@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>QAgent · jrcosta/repo_alvo_api_simples · 19 Apr 2026 – 19:38:45 UTC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-hover: #1c2129;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+  --purple: #bc8cff;
+  --radius: 10px;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  margin: 0; padding: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; transition: color .15s; }
+a:hover { color: var(--accent-hover); }
+.container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+}
+.topbar a { font-size: .9rem; }
+.topbar .sep { color: var(--border); }
+.topbar .slug { color: var(--text-muted); font-size: .85rem; font-family: var(--font-mono); }
+.report { padding-top: 16px; }
+.report h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.report h2 { font-size: 1.3rem; margin-top: 32px; color: var(--accent); }
+.report h3 { font-size: 1.1rem; margin-top: 24px; }
+.report p { margin: 12px 0; }
+.report ul, .report ol { padding-left: 24px; }
+.report li { margin: 6px 0; }
+.report code {
+  font-family: var(--font-mono); font-size: .88em;
+  background: var(--surface); padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.report pre {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: .88rem; line-height: 1.5;
+}
+.report pre code { background: none; border: none; padding: 0; }
+.report blockquote {
+  border-left: 3px solid var(--accent); margin: 16px 0;
+  padding: 8px 16px; color: var(--text-muted); background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.report table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.report th, .report td {
+  border: 1px solid var(--border); padding: 8px 12px; text-align: left;
+}
+.report th { background: var(--surface); font-weight: 600; }
+.report hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.report strong { color: #f0f6fc; }
+.meta-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px;
+  display: flex; flex-wrap: wrap; gap: 24px; font-size: .88rem;
+}
+.meta-item label { color: var(--text-muted); display: block; font-size: .78rem; margin-bottom: 2px; }
+.meta-item span { font-family: var(--font-mono); }
+footer { text-align: center; color: var(--text-muted); font-size: .8rem; padding: 40px 0 20px;
+         border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+  <nav class="topbar">
+    <a href="../../index.html">← Histórico</a>
+    <span class="sep">|</span>
+    <span class="slug">2026-04-19_19-38-45_UTC__jrcosta__repo_alvo_api_simples</span>
+  </nav>
+  <div class="container">
+    <div class="meta-box">
+      <div class="meta-item"><label>Repositório</label><span>jrcosta/repo_alvo_api_simples</span></div>
+      <div class="meta-item"><label>Execução</label><span>19 Apr 2026 – 19:38:45 UTC</span></div>
+    </div>
+    <article class="report">
+      <h1 id="arquivo-analisado-python-apiteststest_user_servicepy">Arquivo analisado: python-api/tests/test_user_service.py</h1>
+<h1 id="tipo-da-mudanca">Tipo da mudança</h1>
+<ul>
+<li><strong>Ampliação e fortalecimento da cobertura de testes unitários</strong> para o serviço de usuários (<code>UserService</code>), focando especialmente no método <code>reset()</code> e na criação de usuários após o reset.</li>
+<li><strong>Validação mais rigorosa do estado interno do serviço após reset</strong>, incluindo verificação detalhada dos usuários seed e do incremento correto do ID.</li>
+<li><strong>Inclusão de testes para cenários de múltiplos resets, criação múltipla de usuários após reset, comportamento em serviço vazio e validação de dados inválidos.</strong></li>
+</ul>
+<h1 id="evidencias-observadas">Evidências observadas</h1>
+<ul>
+<li>O diff mostra que o teste <code>test_user_service_reset</code> foi ampliado para validar não só a quantidade de usuários após o reset, mas também o conteúdo exato dos usuários remanescentes, comparando <code>id</code>, <code>name</code> e <code>email</code> com os usuários seed esperados.</li>
+<li>Foram adicionados vários novos testes:</li>
+<li><code>test_user_service_multiple_resets_do_not_alter_state</code>: verifica que múltiplos resets mantêm o estado consistente, tanto na lista de usuários quanto no <code>_next_id</code>.</li>
+<li><code>test_user_service_create_multiple_users_after_reset_increments_id_correctly</code>: valida que IDs são incrementados corretamente ao criar múltiplos usuários após um reset.</li>
+<li><code>test_user_service_reset_on_empty_service</code>: testa o comportamento do reset quando o serviço está vazio (sem usuários).</li>
+<li><code>test_user_service_create_user_raises_error_after_reset_with_invalid_data</code>: verifica que criar usuários com dados inválidos (nome ou email vazios) após reset lança exceção.</li>
+<li><code>test_user_service_reset_id_increment_after_multiple_resets</code>: testa o comportamento do incremento de ID após múltiplos resets e criações.</li>
+<li>O conteúdo atual do arquivo mostra que os testes usam diretamente atributos internos do serviço (<code>_users</code>, <code>_next_id</code>), o que indica que o teste está acoplado à implementação, mas é coerente com o padrão atual.</li>
+<li>O contexto adicional do repositório confirma que o serviço inicia com 2 usuários seed (Ana Silva e Bruno Lima) e que o ID inicial para novos usuários é 3 após reset.</li>
+</ul>
+<h1 id="impacto-provavel">Impacto provável</h1>
+<ul>
+<li>A mudança não altera código de produção, mas amplia significativamente a cobertura e a robustez dos testes unitários do serviço de usuários.</li>
+<li>A validação detalhada do conteúdo dos usuários após reset reduz o risco de regressão na restauração do estado inicial do serviço.</li>
+<li>Testes que verificam o comportamento do incremento de ID após múltiplos resets e criações ajudam a garantir que o serviço não gere IDs duplicados ou inconsistentes.</li>
+<li>A inclusão de testes para criação com dados inválidos após reset reforça a validação de entrada e a estabilidade do serviço.</li>
+<li>O teste do reset em serviço vazio cobre um cenário de borda importante, garantindo que o reset sempre restaure os usuários seed.</li>
+</ul>
+<h1 id="riscos-identificados">Riscos identificados</h1>
+<ul>
+<li><strong>Acoplamento aos atributos internos</strong> (<code>_users</code>, <code>_next_id</code>) pode causar falsos positivos ou negativos se a implementação interna mudar, mesmo que a interface pública permaneça correta.</li>
+<li>A comparação direta de listas de usuários (<code>assert first_reset_users == second_reset_users</code>) depende da implementação de igualdade dos objetos <code>UserResponse</code>. Se essa implementação mudar, o teste pode falhar indevidamente.</li>
+<li>O teste <code>test_user_service_reset_id_increment_after_multiple_resets</code> assume que o último usuário criado após reset terá ID 3, o que pode não ser verdade se a implementação do serviço mudar para incrementar IDs de forma diferente.</li>
+<li>Não há testes que validem explicitamente o comportamento do reset em relação a possíveis usuários duplicados ou conflitos de email após reset.</li>
+<li>A exceção esperada em <code>test_user_service_create_user_raises_error_after_reset_with_invalid_data</code> é genérica (<code>Exception</code>), o que pode mascarar erros inesperados.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais">Cenários de testes manuais</h1>
+<ol>
+<li>
+<p><strong>Reset do serviço com usuários criados:</strong><br />
+   - Criar um usuário adicional.<br />
+   - Executar reset.<br />
+   - Verificar que apenas os usuários seed (Ana Silva e Bruno Lima) permanecem.<br />
+   - Confirmar que o próximo ID para criação é 3.</p>
+</li>
+<li>
+<p><strong>Criação de múltiplos usuários após reset:</strong><br />
+   - Executar reset.<br />
+   - Criar três usuários sequencialmente.<br />
+   - Verificar IDs atribuídos (3, 4, 5).<br />
+   - Confirmar que a lista total de usuários tem 5 elementos (2 seed + 3 novos).</p>
+</li>
+<li>
+<p><strong>Múltiplos resets consecutivos:</strong><br />
+   - Criar um usuário.<br />
+   - Executar reset duas vezes seguidas.<br />
+   - Confirmar que a lista de usuários e o próximo ID permanecem constantes após cada reset.</p>
+</li>
+<li>
+<p><strong>Reset em serviço vazio:</strong><br />
+   - Limpar manualmente todos os usuários.<br />
+   - Confirmar que a lista está vazia e o próximo ID é 1.<br />
+   - Executar reset.<br />
+   - Confirmar que os usuários seed são restaurados e o próximo ID é 3.</p>
+</li>
+<li>
+<p><strong>Criação de usuário com dados inválidos após reset:</strong><br />
+   - Executar reset.<br />
+   - Tentar criar usuário com nome vazio e verificar erro.<br />
+   - Tentar criar usuário com email vazio e verificar erro.</p>
+</li>
+<li>
+<p><strong>Incremento de ID após múltiplos resets e criações:</strong><br />
+   - Executar reset.<br />
+   - Criar usuário A.<br />
+   - Executar reset.<br />
+   - Criar usuário B.<br />
+   - Executar reset.<br />
+   - Criar usuário C.<br />
+   - Confirmar que o ID do último usuário criado é 3 e o próximo ID é 4.</p>
+</li>
+</ol>
+<h1 id="sugestoes-de-testes-unitarios">Sugestões de testes unitários</h1>
+<ul>
+<li><strong>Testar igualdade dos objetos <code>UserResponse</code></strong> para garantir que comparações diretas em listas funcionem corretamente.</li>
+<li><strong>Testar criação de usuário com email duplicado após reset</strong>, para garantir que a regra de unicidade de email persista após reset.</li>
+<li><strong>Testar comportamento do método <code>reset()</code> em cenários com usuários parcialmente removidos</strong>, para verificar se o reset sempre restaura o estado seed corretamente.</li>
+<li><strong>Testar que exceções específicas são lançadas para dados inválidos</strong>, ao invés de capturar <code>Exception</code> genérico, para maior precisão.</li>
+<li><strong>Testar que o método <code>reset()</code> não altera outros atributos internos além de <code>_users</code> e <code>_next_id</code></strong>, caso existam.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao">Sugestões de testes de integração</h1>
+<ul>
+<li><strong>Fluxo completo de reset via API:</strong></li>
+<li>Criar usuários via endpoint.</li>
+<li>Executar reset via endpoint (se existir).</li>
+<li>Verificar via endpoint de listagem que apenas usuários seed permanecem.</li>
+<li>
+<p>Criar novos usuários e verificar IDs e dados.</p>
+</li>
+<li>
+<p><strong>Validação de rejeição de criação de usuário com dados inválidos via API após reset.</strong></p>
+</li>
+<li>
+<p><strong>Testar múltiplos resets consecutivos via API e validar consistência do estado.</strong></p>
+</li>
+<li>
+<p><strong>Testar que a criação de usuários após reset via API respeita a sequência de IDs esperada.</strong></p>
+</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não há evidências no diff ou no contexto que justifiquem testes de carga ou desempenho para esta mudança.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li><strong>Qual o comportamento esperado do método <code>reset()</code> em relação a usuários criados antes do reset?</strong> O teste assume que o reset sempre restaura exatamente os dois usuários seed e reseta o ID para 3, mas não há evidência se isso é regra de negócio fixa.</li>
+<li><strong>Existe alguma regra de negócio para tratamento de emails duplicados após reset?</strong> Os testes não cobrem esse cenário.</li>
+<li><strong>Qual o tipo exato de exceção que deve ser lançada para dados inválidos na criação de usuário?</strong> Os testes capturam <code>Exception</code> genérico, o que pode ser melhor especificado.</li>
+<li><strong>O serviço deve garantir que múltiplos resets não alterem o estado além do esperado?</strong> O teste <code>test_user_service_multiple_resets_do_not_alter_state</code> sugere isso, mas não há documentação explícita.</li>
+<li><strong>Há necessidade de testes para concorrência ou acesso simultâneo ao serviço?</strong> Não há evidência, mas pode ser relevante dependendo do uso.</li>
+</ul>
+<hr />
+<p><strong>Resumo:</strong> A mudança amplia e fortalece a cobertura dos testes unitários do serviço de usuários, especialmente em relação ao método <code>reset()</code> e à criação de usuários após reset. Os testes adicionados são detalhados e cobrem vários cenários importantes, reduzindo riscos de regressão. Contudo, há riscos relacionados ao acoplamento a atributos internos e à generalidade das exceções capturadas. Recomenda-se complementar com testes que validem regras de negócio específicas, como unicidade de email após reset, e esclarecer pontos sobre o comportamento esperado do reset.</p>
+    </article>
+  </div>
+  <footer>QAgent — análise automatizada de QA com IA</footer>
+</body>
+</html>
