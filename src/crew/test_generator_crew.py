@@ -2,12 +2,22 @@ from src.agent.test_generator_agent import TestGeneratorAgentFactory
 from src.config.settings import Settings
 from src.services.context_builder import RepoContextBuilder
 from src.tasks.test_generator_task import TestGeneratorTaskFactory
+from src.tools.memory_tools import QueryMemoriesTool
 from crewai import Crew, Process
 
 
 class TestGeneratorCrewRunner:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
+
+    def _load_memories(self, file_path: str) -> str:
+        """Query the memories DB for lessons relevant to the file being tested."""
+        try:
+            tool = QueryMemoriesTool()
+            return tool._run(query=file_path, limit=10)
+        except Exception as exc:
+            print(f"  ⚠️ Could not load memories: {exc}")
+            return ""
 
     def run(
         self,
@@ -22,6 +32,8 @@ class TestGeneratorCrewRunner:
             code_content=code_content,
         )
 
+        memories = self._load_memories(file_path)
+
         agent = TestGeneratorAgentFactory(self.settings).create()
         task = TestGeneratorTaskFactory.create(
             agent=agent,
@@ -29,6 +41,7 @@ class TestGeneratorCrewRunner:
             file_path=file_path,
             code_content=code_content,
             repo_context=repo_context,
+            memories=memories,
         )
 
         crew = Crew(

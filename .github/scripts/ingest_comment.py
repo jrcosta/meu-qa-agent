@@ -1,0 +1,134 @@
+#!/usr/bin/env python3
+"""Ingest a PR comment forwarded via repository_dispatch.
+
+Runs the memory summariser agent to extract lessons learned and persists them
+into data/memories.db (SQLite).  Designed to run inside a GitHub Actions
+workflow triggered by `repository_dispatch` with event_type `pr_comment_created`.
+
+Expected client_payload keys:
+  - comment_body (str)
+  - author       (str)
+  - repo         (str)  e.g. "owner/repo"
+  - pr_number    (str|int)
+"""
+
+import json
+import os
+import sqlite3
+import sys
+import uuid
+from datetime import datetime
+from pathlib import Path
+
+# Ensure the project root is in sys.path so `src.*` imports work.
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
+from rapidfuzz import fuzz, process as rfprocess  # noqa: E402
+from src.config.settings import get_settings  # noqa: E402
+from src.crew.memory_crew import MemoryCrewRunner  # noqa: E402
+from src.tools.memory_tools import DB_PATH, DATA_DIR, init_db  # noqa: E402
+
+
+def read_dispatch_payload() -> dict:
+    """Read client_payload from the GITHUB_EVENT_PATH JSON."""
+    path = os.environ.get("GITHUB_EVENT_PATH")
+    if not path:
+        print("GITHUB_EVENT_PATH not set", file=sys.stderr)
+        sys.exit(2)
+    with open(path, "r", encoding="utf-8") as f:
+        ev = json.load(f)
+    return ev.get("client_payload") or ev
+
+
+def is_duplicate(conn: sqlite3.Connection, lesson: str, threshold: int = 90) -> bool:
+    cur = conn.cursor()
+    cur.execute("SELECT lesson FROM memories")
+    rows = cur.fetchall()
+    if not rows:
+        return False
+    choices = {str(i): r[0] for i, r in enumerate(rows)}
+    results = rfprocess.extract(lesson, choices, scorer=fuzz.token_sort_ratio, limit=1)
+    for _text, score, _key in results:
+        if score >= threshold:
+            return True
+    return False
+
+
+def save_lesson(conn, repo, pr_number, lesson, original_comment, author):
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO memories(id,repo,pr_number,lesson,original_comment,author,created_at,tags) "
+        "VALUES (?,?,?,?,?,?,?,?)",
+        (
+            str(uuid.uuid4()),
+            repo,
+            int(pr_number),
+            lesson,
+            original_comment,
+            author,
+            datetime.utcnow().isoformat() + "Z",
+            "pr_comment",
+        ),
+    )
+    conn.commit()
+
+
+def parse_lessons(agent_output: str) -> list[str]:
+    lessons: list[str] = []
+    for line in agent_output.strip().splitlines():
+        line = line.strip()
+        if line.startswith("- "):
+            lesson = line[2:].strip()
+            if len(lesson) > 10:
+                lessons.append(lesson)
+    return lessons
+
+
+def main():
+    payload = read_dispatch_payload()
+
+    comment_body = payload.get("comment_body", "")
+    author = payload.get("author", "unknown")
+    repo = payload.get("repo", "unknown")
+    pr_number = payload.get("pr_number", 0)
+
+    if not comment_body or len(comment_body.strip()) < 10:
+        print("Comment too short or empty; exiting.")
+        return
+
+    print(f"🧠 Running memory summariser for PR #{pr_number} in {repo} ...")
+    settings = get_settings()
+    crew = MemoryCrewRunner(settings)
+    agent_output = crew.run(
+        comment_body=comment_body,
+        repo=repo,
+        pr_number=int(pr_number),
+    )
+
+    print(f"Agent output:\n{agent_output}\n")
+
+    lessons = parse_lessons(agent_output)
+    if not lessons:
+        print("No lessons extracted from the comment.")
+        return
+
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(str(DB_PATH), timeout=30, check_same_thread=False)
+    try:
+        init_db(conn)
+        saved = 0
+        for lesson in lessons:
+            if is_duplicate(conn, lesson):
+                print(f"  ⏭️  Duplicate skipped: {lesson[:60]}...")
+                continue
+            save_lesson(conn, repo, pr_number, lesson, comment_body, author)
+            print(f"  ✅ Saved: {lesson[:80]}")
+            saved += 1
+        print(f"\n💾 {saved} lesson(s) saved to {DB_PATH}")
+    finally:
+        conn.close()
+
+
+if __name__ == "__main__":
+    main()

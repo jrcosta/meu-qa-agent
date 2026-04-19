@@ -151,3 +151,22 @@ def get_current_branch(repo_path: Path) -> str:
     """Retorna o nome da branch atual."""
     result = run_git(["rev-parse", "--abbrev-ref", "HEAD"], repo_path)
     return result.stdout.strip()
+
+
+def add_pr_comment(
+    github_token: str,
+    repo_full_name: str,
+    branch_name: str,
+    comment_body: str,
+) -> None:
+    """Post a comment on the open PR whose head matches branch_name."""
+    gh = Github(github_token)
+    repo = gh.get_repo(repo_full_name)
+
+    # Find the PR by head branch
+    pulls = repo.get_pulls(state="open", head=f"{repo.owner.login}:{branch_name}")
+    for pr in pulls:
+        pr.create_issue_comment(comment_body)
+        return
+
+    raise RuntimeError(f"PR not found for branch {branch_name}")

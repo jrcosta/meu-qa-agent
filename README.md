@@ -1,5 +1,9 @@
 # QAgent
 
+> **Novo:** Sistema de memórias — captura comentários de revisão em PRs de testes
+> e extrai lições aprendidas para melhorar execuções futuras. Detalhes em
+> [`docs/memories.md`](docs/memories.md).
+
 Agente de IA com foco em **QA** para analisar mudanças de código, identificar riscos e sugerir cenários de teste de forma automatizada.
 
 ![Python](https://img.shields.io/badge/Python-3.14.7+-3776AB?logo=python&logoColor=white)

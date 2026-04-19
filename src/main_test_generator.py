@@ -12,6 +12,7 @@ from src.utils.pr_utils import (
     get_current_branch,
     get_repo_full_name,
     open_pull_request,
+    add_pr_comment,
     parse_test_files_from_output,
     push_branch,
     write_test_files,
@@ -196,6 +197,20 @@ def main() -> None:
     )
 
     print(f"\n✅ PR criado com sucesso: {pr_url}")
+
+    # Post review-request comment on the PR
+    try:
+        add_pr_comment(
+            github_token=github_token,
+            repo_full_name=repo_full_name,
+            branch_name=branch_name,
+            comment_body=(
+                "@copilot valide os testes deste pr, sua estrutura e aderência ao projeto."
+            ),
+        )
+        print("💬 Comentário de validação postado no PR.")
+    except Exception as exc:
+        print(f"⚠️ Não foi possível postar comentário no PR: {exc}")
 
 
 if __name__ == "__main__":
