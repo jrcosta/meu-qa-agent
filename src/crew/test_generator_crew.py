@@ -10,17 +10,19 @@ class TestGeneratorCrewRunner:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
 
-    def _load_memories(self, file_path: str) -> str:
-        """Query the memories DB for lessons relevant to the file being tested."""
+    def _load_memories(self, file_path: str, code_content: str) -> str:
+        """Find relevant memories from the DB using semantic search."""
         try:
             tool = QueryMemoriesTool()
-            result = tool._run(query=file_path, limit=10)
+            # Construct a rich query using path and code snippet to help semantic search
+            query = f"Testes para {file_path}. Código: {code_content[:200]}"
+            result = tool._run(query=query, limit=5)
             if result and "Nenhuma memória" not in result:
-                count = result.count("score=")
-                print(f"  🧠 Memories loaded: {count} lesson(s) found for '{file_path}'")
+                count = len(result.strip().split("\n\n"))
+                print(f"  🧠 Memories loaded: {count} relevant lesson(s) found for {file_path}")
                 print(f"  🧠 Memory content preview: {result[:200]}...")
             else:
-                print(f"  🧠 No relevant memories found for '{file_path}'")
+                print(f"  🧠 No relevant memories found in DB for {file_path}.")
             return result
         except Exception as exc:
             print(f"  ⚠️ Could not load memories: {exc}")
@@ -39,7 +41,7 @@ class TestGeneratorCrewRunner:
             code_content=code_content,
         )
 
-        memories = self._load_memories(file_path)
+        memories = self._load_memories(file_path, code_content)
 
         agent = TestGeneratorAgentFactory(self.settings).create()
         task = TestGeneratorTaskFactory.create(
