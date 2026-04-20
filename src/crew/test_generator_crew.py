@@ -2,7 +2,7 @@ from src.agent.test_generator_agent import TestGeneratorAgentFactory
 from src.config.settings import Settings
 from src.services.context_builder import RepoContextBuilder
 from src.tasks.test_generator_task import TestGeneratorTaskFactory
-from src.tools.memory_tools import QueryMemoriesTool
+from src.tools.memory_tools import ListAllMemoriesTool
 from crewai import Crew, Process
 
 
@@ -11,16 +11,16 @@ class TestGeneratorCrewRunner:
         self.settings = settings
 
     def _load_memories(self, file_path: str) -> str:
-        """Query the memories DB for lessons relevant to the file being tested."""
+        """List recent memories from the DB to provide broader context."""
         try:
-            tool = QueryMemoriesTool()
-            result = tool._run(query=file_path, limit=10)
+            tool = ListAllMemoriesTool()
+            result = tool._run(limit=15)
             if result and "Nenhuma memória" not in result:
-                count = result.count("score=")
-                print(f"  🧠 Memories loaded: {count} lesson(s) found for '{file_path}'")
+                count = len(result.strip().split("\n"))
+                print(f"  🧠 Memories loaded: {count} recent lesson(s) provided as context")
                 print(f"  🧠 Memory content preview: {result[:200]}...")
             else:
-                print(f"  🧠 No relevant memories found for '{file_path}'")
+                print(f"  🧠 No memories found in DB.")
             return result
         except Exception as exc:
             print(f"  ⚠️ Could not load memories: {exc}")
