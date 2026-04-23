@@ -6,6 +6,8 @@ from pathlib import Path
 from src.config.settings import get_settings
 from src.crew.test_generator_crew import TestGeneratorCrewRunner
 from src.utils.git_utils import get_changed_files
+from src.schemas.review_result import parse_review_markdown_to_review_result
+from src.services.test_strategy_builder import build_test_strategy_from_review
 from src.utils.pr_utils import (
     build_pr_body,
     create_branch_and_commit,
@@ -126,11 +128,19 @@ def main() -> None:
 
         section_report = report_sections[file_path]
 
+        # Gera ReviewResult e TestStrategyResult estruturados a partir do markdown de QA
+        review_result = parse_review_markdown_to_review_result(section_report)
+        test_strategy = build_test_strategy_from_review(
+            file_path=file_path,
+            review_result=review_result,
+        )
+
         result = crew_runner.run(
             qa_report=section_report,
             file_path=file_path,
             code_content=code_content,
             repo_path=str(repo_path),
+            test_strategy=test_strategy,
         )
 
         test_files = parse_test_files_from_output(result)

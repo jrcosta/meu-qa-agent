@@ -10,6 +10,7 @@ class TestGeneratorTaskFactory:
         code_content: str,
         repo_context: str,
         memories: str = "",
+        test_strategy_text: str = "",
     ) -> Task:
         memories_block = ""
         if memories and "Nenhuma memória" not in memories:
@@ -23,11 +24,21 @@ IMPORTANTE — Lições aprendidas de execuções anteriores (NÃO repita estes 
         else:
             print(f"  🧠 Memory block SKIPPED for '{file_path}' (no relevant memories)")
 
+        test_strategy_block = ""
+        if test_strategy_text:
+            test_strategy_block = f"""
+Estratégia de testes recomendada (use como guia principal para decidir quais testes gerar):
+[INICIO_ESTRATEGIA]
+{test_strategy_text}
+[FIM_ESTRATEGIA]
+"""
+
         description = f"""
 Você deve gerar testes unitários baseados no relatório de QA abaixo.
 
 Arquivo alvo: {file_path}
 {memories_block}
+{test_strategy_block}
 Relatório de QA:
 [INICIO_RELATORIO]
 {qa_report}
