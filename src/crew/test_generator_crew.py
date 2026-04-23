@@ -5,6 +5,8 @@ from src.tasks.test_generator_task import TestGeneratorTaskFactory
 from src.tools.memory_tools import QueryMemoriesTool
 from crewai import Crew, Process
 from src.schemas.context_result import render_context_result_for_prompt
+from src.schemas.test_strategy_result import TestStrategyResult, render_test_strategy_result_for_prompt
+
 
 
 
@@ -36,6 +38,7 @@ class TestGeneratorCrewRunner:
         file_path: str,
         code_content: str,
         repo_path: str,
+        test_strategy: TestStrategyResult | None = None,
     ) -> str:
         context_builder = RepoContextBuilder(repo_path)
         context_result = context_builder.build(
@@ -48,6 +51,10 @@ class TestGeneratorCrewRunner:
 
         memories = self._load_memories(file_path, code_content)
 
+        test_strategy_text = ""
+        if test_strategy is not None:
+            test_strategy_text = render_test_strategy_result_for_prompt(test_strategy)
+
         agent = TestGeneratorAgentFactory(self.settings).create()
         task = TestGeneratorTaskFactory.create(
             agent=agent,
@@ -56,6 +63,7 @@ class TestGeneratorCrewRunner:
             code_content=code_content,
             repo_context=repo_context_text,
             memories=memories,
+            test_strategy_text=test_strategy_text,
         )
 
         crew = Crew(

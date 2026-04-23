@@ -29,3 +29,27 @@ def parse_test_strategy_markdown_to_test_strategy_result(text: str) -> TestStrat
         recommended_tests=[],
         notes=text.strip()
     )
+
+
+def render_test_strategy_result_for_prompt(test_strategy: TestStrategyResult) -> str:
+    """
+    Renderiza um TestStrategyResult em texto legível para injeção no prompt
+    do agente gerador de testes.
+    """
+    lines: list[str] = []
+
+    if test_strategy.recommended_tests:
+        lines.append("## Testes recomendados pela estratégia")
+        for i, tc in enumerate(test_strategy.recommended_tests, 1):
+            lines.append(f"{i}. [{tc.priority}] ({tc.test_type}) {tc.name}")
+        lines.append("")
+
+    if test_strategy.notes:
+        lines.append("## Notas da estratégia")
+        lines.append(test_strategy.notes)
+        lines.append("")
+
+    if not lines:
+        return "Nenhuma recomendação de teste disponível na estratégia."
+
+    return "\n".join(lines)
