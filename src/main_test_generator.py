@@ -8,6 +8,7 @@ from src.crew.test_generator_crew import TestGeneratorCrewRunner
 from src.utils.git_utils import get_changed_files
 from src.schemas.review_result import parse_review_markdown_to_review_result
 from src.services.test_strategy_builder import build_test_strategy_from_review
+from src.schemas.file_analysis_artifact import FileAnalysisArtifact
 from src.utils.pr_utils import (
     build_pr_body,
     create_branch_and_commit,
@@ -135,12 +136,19 @@ def main() -> None:
             review_result=review_result,
         )
 
+        artifact = FileAnalysisArtifact(
+            file_path=file_path,
+            raw_review_markdown=section_report,
+            review_result=review_result,
+            test_strategy_result=test_strategy,
+        )
+
         result = crew_runner.run(
             qa_report=section_report,
             file_path=file_path,
             code_content=code_content,
             repo_path=str(repo_path),
-            test_strategy=test_strategy,
+            test_strategy=artifact.test_strategy_result,
         )
 
         test_files = parse_test_files_from_output(result)
