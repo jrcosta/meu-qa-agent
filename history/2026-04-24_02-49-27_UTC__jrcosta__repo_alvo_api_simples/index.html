@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>QAgent · jrcosta/repo_alvo_api_simples · 24 Apr 2026 – 02:49:27 UTC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-hover: #1c2129;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+  --purple: #bc8cff;
+  --radius: 10px;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  margin: 0; padding: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; transition: color .15s; }
+a:hover { color: var(--accent-hover); }
+.container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+}
+.topbar a { font-size: .9rem; }
+.topbar .sep { color: var(--border); }
+.topbar .slug { color: var(--text-muted); font-size: .85rem; font-family: var(--font-mono); }
+.report { padding-top: 16px; }
+.report h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.report h2 { font-size: 1.3rem; margin-top: 32px; color: var(--accent); }
+.report h3 { font-size: 1.1rem; margin-top: 24px; }
+.report p { margin: 12px 0; }
+.report ul, .report ol { padding-left: 24px; }
+.report li { margin: 6px 0; }
+.report code {
+  font-family: var(--font-mono); font-size: .88em;
+  background: var(--surface); padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.report pre {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: .88rem; line-height: 1.5;
+}
+.report pre code { background: none; border: none; padding: 0; }
+.report blockquote {
+  border-left: 3px solid var(--accent); margin: 16px 0;
+  padding: 8px 16px; color: var(--text-muted); background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.report table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.report th, .report td {
+  border: 1px solid var(--border); padding: 8px 12px; text-align: left;
+}
+.report th { background: var(--surface); font-weight: 600; }
+.report hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.report strong { color: #f0f6fc; }
+.meta-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px;
+  display: flex; flex-wrap: wrap; gap: 24px; font-size: .88rem;
+}
+.meta-item label { color: var(--text-muted); display: block; font-size: .78rem; margin-bottom: 2px; }
+.meta-item span { font-family: var(--font-mono); }
+footer { text-align: center; color: var(--text-muted); font-size: .8rem; padding: 40px 0 20px;
+         border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+  <nav class="topbar">
+    <a href="../../index.html">← Histórico</a>
+    <span class="sep">|</span>
+    <span class="slug">2026-04-24_02-49-27_UTC__jrcosta__repo_alvo_api_simples</span>
+  </nav>
+  <div class="container">
+    <div class="meta-box">
+      <div class="meta-item"><label>Repositório</label><span>jrcosta/repo_alvo_api_simples</span></div>
+      <div class="meta-item"><label>Execução</label><span>24 Apr 2026 – 02:49:27 UTC</span></div>
+    </div>
+    <div class="meta-box" style="margin-top:12px;font-size:.85rem"><a href="artifacts.json" style="margin-right:16px">📦 artifacts.json</a> <a href="run_summary.json">📊 run_summary.json</a></div>
+    <article class="report">
+      <h1 id="arquivo-analisado-java-apisrcmainjavacomrepoalvojavaapicontrollerusercontrollerjava">Arquivo analisado: java-api/src/main/java/com/repoalvo/javaapi/controller/UserController.java</h1>
+<h1 id="tipo-da-mudanca">Tipo da mudança</h1>
+<p>Implementação de um novo endpoint HTTP PUT para atualização parcial de usuários (<code>/users/{userId}</code>) no <code>UserController</code>.</p>
+<hr />
+<h1 id="evidencias-observadas">Evidências observadas</h1>
+<ul>
+<li>Inclusão do método <code>updateUser</code> anotado com <code>@PutMapping("/users/{userId}")</code> no <code>UserController</code>.</li>
+<li>O método recebe um <code>userId</code> via path variable e um payload do tipo <code>UserUpdateRequest</code> validado.</li>
+<li>Validação explícita para garantir que pelo menos um dos campos <code>name</code> ou <code>email</code> esteja presente no payload, caso contrário retorna <code>400 BAD_REQUEST</code>.</li>
+<li>Verificação de conflito de email: se o email informado já estiver cadastrado para outro usuário (diferente do <code>userId</code>), retorna <code>409 CONFLICT</code>.</li>
+<li>Chamada ao serviço <code>userService.update(userId, payload)</code> que retorna um <code>Optional&lt;UserResponse&gt;</code>, lançando <code>404 NOT_FOUND</code> se o usuário não existir.</li>
+<li>Importação de <code>UserUpdateRequest</code> e <code>PutMapping</code> adicionadas.</li>
+<li>Contexto do arquivo mostra que o controller já possui endpoints para criação, listagem, busca e outras operações com usuários, seguindo padrão REST.</li>
+<li>Testes existentes no repositório indicam boa cobertura para outros endpoints do <code>UserController</code>, mas não há evidência direta de testes para atualização de usuário.</li>
+</ul>
+<hr />
+<h1 id="impacto-provavel">Impacto provável</h1>
+<ul>
+<li>Novo comportamento para atualização parcial de usuários via HTTP PUT em <code>/users/{userId}</code>.</li>
+<li>Possibilidade de alterar nome e/ou email do usuário.</li>
+<li>Regras de negócio importantes:</li>
+<li>Não permite atualização sem pelo menos um campo informado.</li>
+<li>Garante unicidade do email entre usuários diferentes.</li>
+<li>Pode impactar clientes da API que desejam atualizar usuários.</li>
+<li>Pode afetar integridade dos dados se a validação de email não for consistente.</li>
+<li>Pode gerar erros 400, 404 e 409 conforme as validações e existência do usuário.</li>
+</ul>
+<hr />
+<h1 id="riscos-identificados">Riscos identificados</h1>
+<ul>
+<li><strong>Validação insuficiente do payload</strong>: o método só verifica se <code>name</code> e <code>email</code> são nulos, mas não valida formatos (ex: email válido) ou outros campos que possam existir em <code>UserUpdateRequest</code>.</li>
+<li><strong>Condição de corrida na verificação de email duplicado</strong>: entre a verificação <code>findByEmail</code> e a atualização, outro usuário pode ser criado com o mesmo email, causando possível inconsistência.</li>
+<li><strong>Dependência do serviço <code>userService.update</code></strong>: se o método <code>update</code> não tratar corretamente a atualização parcial, pode haver perda de dados ou comportamento inesperado.</li>
+<li><strong>Ausência de testes específicos para o novo endpoint</strong>: não há evidência de testes unitários ou integração cobrindo o fluxo de atualização, o que aumenta risco de regressão.</li>
+<li><strong>Possível impacto em dados sensíveis</strong>: embora o payload atual só tenha <code>name</code> e <code>email</code>, se futuramente o modelo for estendido, pode haver risco de exposição ou alteração indevida.</li>
+<li><strong>Tratamento de erros HTTP</strong>: mensagens de erro são genéricas, pode ser necessário padronizar para facilitar o consumo da API.</li>
+</ul>
+<hr />
+<h1 id="cenarios-de-testes-manuais">Cenários de testes manuais</h1>
+<ol>
+<li><strong>Atualização parcial com apenas nome</strong><br />
+   - Enviar PUT <code>/users/{userId}</code> com payload contendo apenas <code>name</code>.<br />
+   - Verificar retorno 200 e atualização correta do nome.</li>
+<li><strong>Atualização parcial com apenas email</strong><br />
+   - Enviar PUT <code>/users/{userId}</code> com payload contendo apenas <code>email</code>.<br />
+   - Verificar retorno 200 e atualização correta do email.</li>
+<li><strong>Atualização com nome e email</strong><br />
+   - Enviar PUT <code>/users/{userId}</code> com ambos os campos.<br />
+   - Verificar retorno 200 e atualização correta.</li>
+<li><strong>Atualização sem campos (payload com <code>name=null</code> e <code>email=null</code>)</strong><br />
+   - Enviar PUT com payload vazio ou com ambos campos nulos.<br />
+   - Verificar retorno 400 com mensagem "Informe ao menos um campo para atualizar".</li>
+<li><strong>Atualização com email já usado por outro usuário</strong><br />
+   - Enviar PUT com email que pertence a outro usuário.<br />
+   - Verificar retorno 409 com mensagem "E-mail já cadastrado por outro usuário".</li>
+<li><strong>Atualização de usuário inexistente</strong><br />
+   - Enviar PUT para <code>userId</code> que não existe.<br />
+   - Verificar retorno 404 com mensagem "Usuário não encontrado".</li>
+<li><strong>Atualização com email inválido (se aplicável)</strong><br />
+   - Testar envio de email com formato inválido (se validação existir no payload).<br />
+   - Verificar comportamento (idealmente 400).</li>
+<li><strong>Testar payload com campos extras (se possível)</strong><br />
+   - Enviar campos não esperados no JSON para verificar rejeição ou ignorância.</li>
+<li><strong>Testar comportamento com dados limite (ex: nomes muito longos)</strong><br />
+   - Verificar se há restrições e tratamento adequado.</li>
+</ol>
+<hr />
+<h1 id="sugestoes-de-testes-unitarios">Sugestões de testes unitários</h1>
+<ul>
+<li>Testar <code>updateUser</code> com payload contendo apenas <code>name</code> válido, mockando <code>userService.update</code> para retornar usuário atualizado.</li>
+<li>Testar <code>updateUser</code> com payload contendo apenas <code>email</code> válido, mockando <code>userService.findByEmail</code> para retornar vazio e <code>userService.update</code> para sucesso.</li>
+<li>Testar <code>updateUser</code> com payload contendo <code>email</code> já usado por outro usuário, esperando <code>ResponseStatusException</code> 409.</li>
+<li>Testar <code>updateUser</code> com payload sem campos <code>name</code> e <code>email</code>, esperando <code>ResponseStatusException</code> 400.</li>
+<li>Testar <code>updateUser</code> com <code>userService.update</code> retornando <code>Optional.empty()</code>, esperando <code>ResponseStatusException</code> 404.</li>
+<li>Testar que <code>userService.findByEmail</code> não bloqueia atualização se o email pertence ao mesmo usuário (<code>userId</code> igual).</li>
+<li>Testar comportamento com payload contendo campos nulos e não nulos.</li>
+<li>Testar que exceções inesperadas são propagadas ou tratadas conforme política.</li>
+</ul>
+<hr />
+<h1 id="sugestoes-de-testes-de-integracao">Sugestões de testes de integração</h1>
+<ul>
+<li>Testar fluxo completo de atualização:</li>
+<li>Criar usuário via POST <code>/users</code>.</li>
+<li>Atualizar nome via PUT <code>/users/{userId}</code>.</li>
+<li>Validar que GET <code>/users/{userId}</code> retorna nome atualizado.</li>
+<li>Testar atualização de email para um email não usado.</li>
+<li>Testar tentativa de atualização para email já existente em outro usuário, validar 409.</li>
+<li>Testar atualização com payload inválido (sem campos), validar 400.</li>
+<li>Testar atualização de usuário inexistente, validar 404.</li>
+<li>Testar concorrência: duas atualizações simultâneas com emails diferentes para verificar consistência (se possível).</li>
+<li>Validar que campos não atualizados permanecem inalterados.</li>
+<li>Testar integração com camada de persistência para garantir que atualização parcial funciona corretamente.</li>
+</ul>
+<hr />
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não há evidência na mudança que justifique testes de carga ou desempenho específicos para este endpoint.</li>
+</ul>
+<hr />
+<h1 id="pontos-que-precisam-de-esclarecimento">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>Qual o comportamento esperado se o payload contiver campos adicionais além de <code>name</code> e <code>email</code>? Devem ser ignorados ou rejeitados?</li>
+<li>Existe validação de formato para o campo <code>email</code> no <code>UserUpdateRequest</code>? Se não, seria recomendável incluir.</li>
+<li>O método <code>userService.update</code> realiza atualização parcial ou substituição completa? Como ele trata campos nulos?</li>
+<li>Há necessidade de controle de concorrência para evitar condições de corrida na verificação de email duplicado?</li>
+<li>Qual o comportamento esperado se o usuário tentar atualizar para o mesmo email que já possui? Atualmente parece permitido, mas confirmar.</li>
+<li>Existe política para campos obrigatórios no update além de pelo menos um campo informado?</li>
+<li>Como é o tratamento de logs e auditoria para atualizações de usuário? Isso pode impactar testes e riscos.</li>
+</ul>
+<hr />
+<h1 id="resumo">Resumo</h1>
+<p>A mudança introduz um endpoint PUT para atualização parcial de usuários, com validações básicas para campos obrigatórios e unicidade de email. O impacto é direto na API de usuários, com riscos relacionados à validação, concorrência e ausência de testes específicos. Recomenda-se focar em testes que cubram os fluxos de sucesso e erro, especialmente conflitos de email e ausência de campos no payload. Pontos de negócio e implementação precisam ser esclarecidos para garantir robustez e evitar regressões.</p>
+<hr />
+<h1 id="arquivo-analisado-java-apisrcmainjavacomrepoalvojavaapimodeluserupdaterequestjava">Arquivo analisado: java-api/src/main/java/com/repoalvo/javaapi/model/UserUpdateRequest.java</h1>
+<h1 id="tipo-da-mudanca_1">Tipo da mudança</h1>
+<ul>
+<li><strong>Adição de nova classe/modelo (record) para requisição de atualização de usuário</strong></li>
+</ul>
+<h1 id="evidencias-observadas_1">Evidências observadas</h1>
+<ul>
+<li>O diff mostra a criação do arquivo <code>UserUpdateRequest.java</code> contendo um <code>record</code> Java com dois campos: <code>name</code> e <code>email</code>.</li>
+<li>Ambos os campos possuem anotações de validação Jakarta Bean Validation: <code>@Size(min=3, max=100)</code> para <code>name</code> e <code>@Email</code> para <code>email</code>.</li>
+<li>O contexto do repositório mostra que <code>UserUpdateRequest</code> já é referenciado em <code>UserService</code> no método <code>update(int userId, UserUpdateRequest payload)</code>, que atualiza um usuário existente.</li>
+<li>O <code>UserService</code> usa esse objeto para atualizar nome e email, permitindo que os campos sejam nulos para manter valores antigos.</li>
+<li>Não há evidência no diff de alteração em controladores ou serviços que modifiquem o comportamento atual, apenas a introdução do modelo.</li>
+<li>Testes existentes para <code>UserService</code> e <code>UserController</code> indicam cobertura para operações de usuário, mas não há testes específicos para <code>UserUpdateRequest</code> ainda.</li>
+</ul>
+<h1 id="impacto-provavel_1">Impacto provável</h1>
+<ul>
+<li>Introdução formal do modelo <code>UserUpdateRequest</code> para encapsular dados de atualização de usuário.</li>
+<li>Provável padronização e validação automática dos dados de atualização via Bean Validation.</li>
+<li>Pode impactar endpoints que aceitam atualização de usuário, especialmente se passarem a usar esse record para validação e transporte dos dados.</li>
+<li>Facilita a manutenção e evolução do payload de atualização, garantindo restrições mínimas (nome entre 3 e 100 caracteres, email válido).</li>
+<li>Pode afetar fluxos de atualização de usuário no backend, especialmente se o controlador ou serviço passar a usar esse record para validação.</li>
+</ul>
+<h1 id="riscos-identificados_1">Riscos identificados</h1>
+<ul>
+<li><strong>Validação parcial:</strong> O record permite que <code>name</code> e <code>email</code> sejam nulos (não há anotação <code>@NotNull</code>), o que pode levar a atualizações parciais. Se o controlador ou serviço não tratar corretamente campos nulos, pode haver inconsistência.</li>
+<li><strong>Validação insuficiente:</strong> A anotação <code>@Size(min=3, max=100)</code> no nome pode rejeitar nomes curtos legítimos (ex: "Al"), o que pode impactar usuários reais.</li>
+<li><strong>Ausência de validação explícita para campos nulos:</strong> Se o controlador não usar <code>@Valid</code> ou não tratar corretamente a validação, dados inválidos podem passar.</li>
+<li><strong>Possível incompatibilidade com payloads JSON:</strong> Se o cliente enviar campos vazios ou ausentes, pode haver problemas de desserialização ou validação.</li>
+<li><strong>Falta de testes específicos:</strong> Não há evidência de testes unitários ou de integração cobrindo o uso do <code>UserUpdateRequest</code>, o que pode levar a regressões não detectadas.</li>
+<li><strong>Impacto em endpoints existentes:</strong> Se o controlador que manipula atualização de usuário não for ajustado para usar esse record, pode haver inconsistência ou falha na validação.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_1">Cenários de testes manuais</h1>
+<ol>
+<li>
+<p><strong>Atualização de usuário com nome válido e email válido</strong><br />
+   - Enviar payload com <code>name</code> entre 3 e 100 caracteres e email válido.<br />
+   - Verificar atualização correta dos dados.</p>
+</li>
+<li>
+<p><strong>Atualização de usuário com nome menor que 3 caracteres</strong><br />
+   - Enviar payload com <code>name</code> com 1 ou 2 caracteres.<br />
+   - Verificar rejeição da requisição com erro de validação.</p>
+</li>
+<li>
+<p><strong>Atualização de usuário com email inválido</strong><br />
+   - Enviar payload com email mal formatado (ex: "email@invalido").<br />
+   - Verificar rejeição da requisição com erro de validação.</p>
+</li>
+<li>
+<p><strong>Atualização parcial com apenas nome ou apenas email</strong><br />
+   - Enviar payload com apenas <code>name</code> preenchido e <code>email</code> nulo/ausente.<br />
+   - Enviar payload com apenas <code>email</code> preenchido e <code>name</code> nulo/ausente.<br />
+   - Verificar que o campo não enviado permanece inalterado.</p>
+</li>
+<li>
+<p><strong>Atualização com campos nulos explicitamente</strong><br />
+   - Enviar payload com <code>name</code> e <code>email</code> nulos.<br />
+   - Verificar comportamento do sistema (provável rejeição ou nenhuma alteração).</p>
+</li>
+<li>
+<p><strong>Atualização com campos ausentes no JSON</strong><br />
+   - Enviar payload JSON sem o campo <code>name</code> ou <code>email</code>.<br />
+   - Verificar se o sistema trata corretamente como atualização parcial.</p>
+</li>
+<li>
+<p><strong>Testar limites de tamanho do nome</strong><br />
+   - Enviar nome com exatamente 3 caracteres e 100 caracteres.<br />
+   - Verificar aceitação.</p>
+</li>
+<li>
+<p><strong>Testar atualização com dados inválidos e verificar mensagens de erro</strong><br />
+   - Confirmar que mensagens de erro são claras e indicam o campo inválido.</p>
+</li>
+</ol>
+<h1 id="sugestoes-de-testes-unitarios_1">Sugestões de testes unitários</h1>
+<ul>
+<li>Testar criação de <code>UserUpdateRequest</code> com:</li>
+<li>Nome válido dentro dos limites.</li>
+<li>Nome menor que 3 caracteres (esperar falha de validação).</li>
+<li>Nome maior que 100 caracteres (esperar falha de validação).</li>
+<li>Email válido.</li>
+<li>Email inválido (ex: sem '@', com espaços).</li>
+<li>
+<p>Campos nulos (verificar comportamento da validação).</p>
+</li>
+<li>
+<p>Testar método <code>UserService.update</code> com:</p>
+</li>
+<li>Payload com nome e email válidos.</li>
+<li>Payload com nome nulo e email válido.</li>
+<li>Payload com email nulo e nome válido.</li>
+<li>Payload com ambos nulos (deve manter dados antigos).</li>
+<li>
+<p>Verificar que o usuário é atualizado corretamente no <code>List&lt;UserResponse&gt;</code>.</p>
+</li>
+<li>
+<p>Testar integração da validação Bean Validation no controlador (se aplicável):</p>
+</li>
+<li>Simular requisição com payload inválido e verificar que a validação falha.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_1">Sugestões de testes de integração</h1>
+<ul>
+<li>Testar endpoint HTTP que utiliza <code>UserUpdateRequest</code> para atualizar usuário:</li>
+<li>Enviar requisição PUT/PATCH com payload válido e verificar resposta 200 e dados atualizados.</li>
+<li>Enviar payload com nome inválido e verificar resposta 400 com mensagem de erro.</li>
+<li>Enviar payload com email inválido e verificar resposta 400.</li>
+<li>Enviar payload parcial (apenas nome ou email) e verificar atualização parcial.</li>
+<li>Enviar payload com campos nulos e verificar comportamento (erro ou sem alteração).</li>
+<li>
+<p>Testar atualização de usuário inexistente e verificar resposta adequada (404 ou similar).</p>
+</li>
+<li>
+<p>Testar fluxo completo de atualização:</p>
+</li>
+<li>Criar usuário.</li>
+<li>Atualizar usuário com <code>UserUpdateRequest</code>.</li>
+<li>Buscar usuário e verificar dados atualizados.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_1">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li><strong>Não aplicável</strong>: A mudança é estrutural e de modelo, sem impacto direto em performance ou carga.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_1">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>
+<p>O <code>UserUpdateRequest</code> permite campos nulos? O sistema deve aceitar atualização parcial?<br />
+  (O código do serviço sugere sim, mas não há anotação explícita para <code>@NotNull</code>.)</p>
+</li>
+<li>
+<p>Como o controlador que recebe <code>UserUpdateRequest</code> trata a validação? Usa <code>@Valid</code>?<br />
+  (Não há diff nem evidência direta do controlador atual.)</p>
+</li>
+<li>
+<p>Qual o comportamento esperado se ambos os campos forem nulos?<br />
+  (O serviço mantém dados antigos, mas o controlador deve permitir isso?)</p>
+</li>
+<li>
+<p>Há necessidade de validação adicional, como evitar atualização para email já existente?<br />
+  (No <code>UserCreateRequest</code> há verificação de email duplicado, mas não está claro para atualização.)</p>
+</li>
+<li>
+<p>O limite mínimo de 3 caracteres para nome é adequado para todos os casos de uso?<br />
+  (Pode rejeitar nomes legítimos muito curtos.)</p>
+</li>
+</ul>
+<hr />
+<h1 id="resumo_1">Resumo</h1>
+<p>A mudança introduz um novo record <code>UserUpdateRequest</code> com validação para nome e email, que será usado para atualizar usuários. Isso formaliza o payload de atualização e adiciona restrições básicas. O impacto funcional está na validação e no transporte dos dados de atualização. Riscos reais incluem validação parcial e ausência de testes específicos. Recomenda-se testes manuais e automatizados focados em validação, atualização parcial e limites dos campos. Pontos de negócio e implementação precisam ser esclarecidos para garantir comportamento consistente e evitar regressões.</p>
+<hr />
+<h1 id="arquivo-analisado-java-apisrcmainjavacomrepoalvojavaapiserviceuserservicejava">Arquivo analisado: java-api/src/main/java/com/repoalvo/javaapi/service/UserService.java</h1>
+<h1 id="tipo-da-mudanca_2">Tipo da mudança</h1>
+<p>Implementação de nova funcionalidade: adição do método <code>update</code> para atualização parcial de usuários na classe <code>UserService</code>.</p>
+<hr />
+<h1 id="evidencias-observadas_2">Evidências observadas</h1>
+<ul>
+<li><strong>Diff</strong>: Inclusão do método <code>update(int userId, UserUpdateRequest payload)</code> na classe <code>UserService</code>.</li>
+<li><strong>Implementação</strong>: O método é <code>synchronized</code> e percorre a lista interna <code>users</code> para localizar o usuário pelo <code>id</code>. Se encontrado, cria um novo objeto <code>UserResponse</code> com os campos atualizados (nome e email), preservando os valores antigos caso o payload não forneça novos valores (<code>null</code>).</li>
+<li><strong>Contexto do arquivo</strong>: A classe <code>UserService</code> mantém uma lista em memória (<code>users</code>) de objetos <code>UserResponse</code> e já possui métodos sincronizados para listagem, busca, criação e busca por email.</li>
+<li><strong>Contexto do repositório</strong>: </li>
+<li>Existe um modelo <code>UserUpdateRequest</code> importado, presumivelmente com campos <code>name</code> e <code>email</code> que podem ser nulos para indicar atualização parcial.</li>
+<li>Testes unitários para <code>UserService</code> existem (<code>UserServiceUnitTest.java</code>), mas não há evidência de testes para o método <code>update</code>.</li>
+<li>A API REST em <code>UserController</code> e testes relacionados indicam que a camada de serviço é consumida por controladores REST, mas não há evidência direta de endpoint para atualização de usuário (PUT/PATCH) no trecho fornecido.</li>
+</ul>
+<hr />
+<h1 id="impacto-provavel_2">Impacto provável</h1>
+<ul>
+<li><strong>Funcionalidade adicionada</strong>: Permite atualizar parcialmente os dados de um usuário existente, alterando nome e/ou email.</li>
+<li><strong>Estado interno</strong>: A lista <code>users</code> é modificada substituindo o objeto antigo pelo novo atualizado, mantendo a imutabilidade do objeto <code>UserResponse</code>.</li>
+<li><strong>Concorrência</strong>: O método é sincronizado, mantendo a consistência da lista em ambiente multithread.</li>
+<li><strong>Possível uso futuro</strong>: Pode ser utilizado por um endpoint REST para atualização de usuário, ainda que não esteja visível no contexto atual.</li>
+<li><strong>Sem alteração em outras funcionalidades</strong>: Métodos existentes não foram alterados, portanto, comportamento atual de listagem, criação e busca permanece inalterado.</li>
+</ul>
+<hr />
+<h1 id="riscos-identificados_2">Riscos identificados</h1>
+<ul>
+<li><strong>Ausência de validação de dados</strong>: O método aceita <code>UserUpdateRequest</code> com campos possivelmente nulos, mas não valida formatos (ex: email válido) ou regras de negócio (ex: email duplicado). Isso pode permitir atualização para dados inválidos ou duplicados.</li>
+<li><strong>Atualização de email para valor já existente</strong>: Não há checagem para evitar que o email atualizado conflite com outro usuário já cadastrado, o que pode quebrar a regra de unicidade observada na criação.</li>
+<li><strong>Retorno de Optional.empty()</strong>: Caso o usuário não exista, o método retorna <code>Optional.empty()</code>. Se o controlador não tratar isso adequadamente, pode gerar erros ou respostas inconsistentes.</li>
+<li><strong>Imutabilidade parcial</strong>: O método cria novo objeto <code>UserResponse</code> para substituir o antigo, mas se houver referências externas ao objeto antigo, podem ficar desatualizadas.</li>
+<li><strong>Falta de testes específicos</strong>: Não há evidência de testes unitários ou de integração cobrindo o novo método, o que aumenta o risco de regressão ou comportamento inesperado.</li>
+<li><strong>Possível inconsistência com outras camadas</strong>: Se o controlador ou outras camadas não estiverem preparadas para lidar com atualização parcial, pode haver falhas ou erros.</li>
+</ul>
+<hr />
+<h1 id="cenarios-de-testes-manuais_2">Cenários de testes manuais</h1>
+<ol>
+<li>
+<p><strong>Atualização parcial com nome apenas</strong><br />
+   - Atualizar usuário existente passando somente o campo <code>name</code> no payload.<br />
+   - Verificar que o nome foi alterado e o email permaneceu o mesmo.</p>
+</li>
+<li>
+<p><strong>Atualização parcial com email apenas</strong><br />
+   - Atualizar usuário existente passando somente o campo <code>email</code>.<br />
+   - Verificar que o email foi alterado e o nome permaneceu o mesmo.</p>
+</li>
+<li>
+<p><strong>Atualização completa com nome e email</strong><br />
+   - Atualizar usuário existente passando ambos os campos.<br />
+   - Verificar que ambos foram atualizados corretamente.</p>
+</li>
+<li>
+<p><strong>Atualização com campos nulos (sem alteração)</strong><br />
+   - Passar payload com <code>name</code> e <code>email</code> nulos.<br />
+   - Verificar que o usuário permanece inalterado.</p>
+</li>
+<li>
+<p><strong>Atualização de usuário inexistente</strong><br />
+   - Tentar atualizar usuário com <code>userId</code> que não existe.<br />
+   - Verificar que o retorno é vazio (Optional.empty) e que o sistema responde adequadamente (ex: 404 se via API).</p>
+</li>
+<li>
+<p><strong>Atualização com email já existente em outro usuário</strong><br />
+   - Tentar atualizar o email para um valor que já está cadastrado em outro usuário.<br />
+   - Verificar se o sistema permite ou bloqueia (atualmente não bloqueia, risco identificado).</p>
+</li>
+<li>
+<p><strong>Concorrência</strong><br />
+   - Simular múltiplas atualizações simultâneas para o mesmo usuário.<br />
+   - Verificar se o estado final é consistente e sem erros.</p>
+</li>
+</ol>
+<hr />
+<h1 id="sugestoes-de-testes-unitarios_2">Sugestões de testes unitários</h1>
+<ol>
+<li>
+<p><strong>update_shouldReturnUpdatedUser_whenUserExistsAndPayloadHasNameAndEmail</strong><br />
+   - Criar usuário, atualizar com nome e email novos.<br />
+   - Verificar que o objeto retornado tem os valores atualizados.</p>
+</li>
+<li>
+<p><strong>update_shouldReturnUpdatedUser_whenPayloadHasOnlyName</strong><br />
+   - Atualizar usuário com apenas nome.<br />
+   - Verificar que email permanece o mesmo.</p>
+</li>
+<li>
+<p><strong>update_shouldReturnUpdatedUser_whenPayloadHasOnlyEmail</strong><br />
+   - Atualizar usuário com apenas email.<br />
+   - Verificar que nome permanece o mesmo.</p>
+</li>
+<li>
+<p><strong>update_shouldReturnEmpty_whenUserDoesNotExist</strong><br />
+   - Tentar atualizar usuário inexistente.<br />
+   - Verificar retorno Optional.empty().</p>
+</li>
+<li>
+<p><strong>update_shouldNotModifyUser_whenPayloadHasNullFields</strong><br />
+   - Passar payload com campos nulos.<br />
+   - Verificar que usuário não é alterado.</p>
+</li>
+<li>
+<p><strong>update_shouldReplaceUserInList</strong><br />
+   - Verificar que o usuário na lista interna é substituído pelo novo objeto atualizado.</p>
+</li>
+<li>
+<p><strong>update_shouldBeThreadSafe</strong><br />
+   - Testar concorrência com múltiplas threads atualizando usuários.</p>
+</li>
+</ol>
+<hr />
+<h1 id="sugestoes-de-testes-de-integracao_2">Sugestões de testes de integração</h1>
+<ol>
+<li>
+<p><strong>PUT /users/{id} com payload parcial atualiza usuário</strong><br />
+   - Se existir endpoint REST para update, testar atualização parcial via API.<br />
+   - Verificar resposta HTTP 200 e dados atualizados.</p>
+</li>
+<li>
+<p><strong>PUT /users/{id} com usuário inexistente retorna 404</strong><br />
+   - Testar atualização para id não cadastrado.</p>
+</li>
+<li>
+<p><strong>PUT /users/{id} com email duplicado retorna erro</strong><br />
+   - Se regra de negócio for implementada, testar conflito de email.</p>
+</li>
+<li>
+<p><strong>Fluxo completo: criar usuário → atualizar parcialmente → buscar e validar</strong><br />
+   - Criar usuário via API, atualizar parcialmente, buscar e validar dados.</p>
+</li>
+<li>
+<p><strong>Atualização com payload inválido (ex: email mal formatado)</strong><br />
+   - Testar validação e resposta adequada (400 Bad Request).</p>
+</li>
+</ol>
+<hr />
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_2">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li><strong>Não aplicável</strong>: A mudança não indica impacto direto em performance ou carga, pois é uma operação simples em lista em memória com sincronização.</li>
+</ul>
+<hr />
+<h1 id="pontos-que-precisam-de-esclarecimento_2">Pontos que precisam de esclarecimento</h1>
+<ol>
+<li>
+<p><strong>Existe endpoint REST para atualização de usuário?</strong><br />
+   - O controlador <code>UserController</code> não mostra método para update. Será que o método <code>update</code> será exposto via API? Se sim, qual o verbo HTTP e rota?</p>
+</li>
+<li>
+<p><strong>Validação de dados no update</strong><br />
+   - Deve o método validar formato de email ou outras regras? Atualmente não há validação.</p>
+</li>
+<li>
+<p><strong>Regra de unicidade de email na atualização</strong><br />
+   - Deve o método impedir atualização para email já existente em outro usuário? Atualmente não há essa checagem.</p>
+</li>
+<li>
+<p><strong>Comportamento esperado para campos nulos no payload</strong><br />
+   - A implementação atual mantém valores antigos se o campo for nulo. Isso está alinhado com a regra de negócio?</p>
+</li>
+<li>
+<p><strong>Imutabilidade e referências externas</strong><br />
+   - O objeto <code>UserResponse</code> é substituído na lista. Há risco de referências externas ficarem desatualizadas? Isso é aceitável?</p>
+</li>
+</ol>
+<hr />
+<h1 id="resumo_2">Resumo</h1>
+<p>A mudança adiciona um método <code>update</code> para atualização parcial de usuários na lista em memória, com sincronização para segurança de thread. O método substitui o objeto antigo por um novo com campos atualizados, preservando valores antigos quando o payload não fornece novos dados. Não há validação de dados nem checagem de unicidade de email, o que pode gerar inconsistências. Não há evidência de testes cobrindo essa funcionalidade nem de endpoint REST para expô-la. Recomenda-se criar testes unitários e de integração específicos para validar comportamento correto, tratar casos de erro e definir regras de negócio claras para validação e unicidade.</p>
+    </article>
+  </div>
+  <footer>QAgent — análise automatizada de QA com IA</footer>
+</body>
+</html>

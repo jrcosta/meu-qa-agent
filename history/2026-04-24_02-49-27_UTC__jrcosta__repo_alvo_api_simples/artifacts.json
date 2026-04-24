@@ -1,0 +1,2053 @@
+[
+  {
+    "file_path": "java-api/src/main/java/com/repoalvo/javaapi/controller/UserController.java",
+    "context_result": null,
+    "raw_review_markdown": "# Tipo da mudança\n\nImplementação de um novo endpoint HTTP PUT para atualização parcial de usuários (`/users/{userId}`) no `UserController`.\n\n---\n\n# Evidências observadas\n\n- Inclusão do método `updateUser` anotado com `@PutMapping(\"/users/{userId}\")` no `UserController`.\n- O método recebe um `userId` via path variable e um payload do tipo `UserUpdateRequest` validado.\n- Validação explícita para garantir que pelo menos um dos campos `name` ou `email` esteja presente no payload, caso contrário retorna `400 BAD_REQUEST`.\n- Verificação de conflito de email: se o email informado já estiver cadastrado para outro usuário (diferente do `userId`), retorna `409 CONFLICT`.\n- Chamada ao serviço `userService.update(userId, payload)` que retorna um `Optional<UserResponse>`, lançando `404 NOT_FOUND` se o usuário não existir.\n- Importação de `UserUpdateRequest` e `PutMapping` adicionadas.\n- Contexto do arquivo mostra que o controller já possui endpoints para criação, listagem, busca e outras operações com usuários, seguindo padrão REST.\n- Testes existentes no repositório indicam boa cobertura para outros endpoints do `UserController`, mas não há evidência direta de testes para atualização de usuário.\n\n---\n\n# Impacto provável\n\n- Novo comportamento para atualização parcial de usuários via HTTP PUT em `/users/{userId}`.\n- Possibilidade de alterar nome e/ou email do usuário.\n- Regras de negócio importantes:\n  - Não permite atualização sem pelo menos um campo informado.\n  - Garante unicidade do email entre usuários diferentes.\n- Pode impactar clientes da API que desejam atualizar usuários.\n- Pode afetar integridade dos dados se a validação de email não for consistente.\n- Pode gerar erros 400, 404 e 409 conforme as validações e existência do usuário.\n\n---\n\n# Riscos identificados\n\n- **Validação insuficiente do payload**: o método só verifica se `name` e `email` são nulos, mas não valida formatos (ex: email válido) ou outros campos que possam existir em `UserUpdateRequest`.\n- **Condição de corrida na verificação de email duplicado**: entre a verificação `findByEmail` e a atualização, outro usuário pode ser criado com o mesmo email, causando possível inconsistência.\n- **Dependência do serviço `userService.update`**: se o método `update` não tratar corretamente a atualização parcial, pode haver perda de dados ou comportamento inesperado.\n- **Ausência de testes específicos para o novo endpoint**: não há evidência de testes unitários ou integração cobrindo o fluxo de atualização, o que aumenta risco de regressão.\n- **Possível impacto em dados sensíveis**: embora o payload atual só tenha `name` e `email`, se futuramente o modelo for estendido, pode haver risco de exposição ou alteração indevida.\n- **Tratamento de erros HTTP**: mensagens de erro são genéricas, pode ser necessário padronizar para facilitar o consumo da API.\n\n---\n\n# Cenários de testes manuais\n\n1. **Atualização parcial com apenas nome**\n   - Enviar PUT `/users/{userId}` com payload contendo apenas `name`.\n   - Verificar retorno 200 e atualização correta do nome.\n2. **Atualização parcial com apenas email**\n   - Enviar PUT `/users/{userId}` com payload contendo apenas `email`.\n   - Verificar retorno 200 e atualização correta do email.\n3. **Atualização com nome e email**\n   - Enviar PUT `/users/{userId}` com ambos os campos.\n   - Verificar retorno 200 e atualização correta.\n4. **Atualização sem campos (payload com `name=null` e `email=null`)**\n   - Enviar PUT com payload vazio ou com ambos campos nulos.\n   - Verificar retorno 400 com mensagem \"Informe ao menos um campo para atualizar\".\n5. **Atualização com email já usado por outro usuário**\n   - Enviar PUT com email que pertence a outro usuário.\n   - Verificar retorno 409 com mensagem \"E-mail já cadastrado por outro usuário\".\n6. **Atualização de usuário inexistente**\n   - Enviar PUT para `userId` que não existe.\n   - Verificar retorno 404 com mensagem \"Usuário não encontrado\".\n7. **Atualização com email inválido (se aplicável)**\n   - Testar envio de email com formato inválido (se validação existir no payload).\n   - Verificar comportamento (idealmente 400).\n8. **Testar payload com campos extras (se possível)**\n   - Enviar campos não esperados no JSON para verificar rejeição ou ignorância.\n9. **Testar comportamento com dados limite (ex: nomes muito longos)**\n   - Verificar se há restrições e tratamento adequado.\n\n---\n\n# Sugestões de testes unitários\n\n- Testar `updateUser` com payload contendo apenas `name` válido, mockando `userService.update` para retornar usuário atualizado.\n- Testar `updateUser` com payload contendo apenas `email` válido, mockando `userService.findByEmail` para retornar vazio e `userService.update` para sucesso.\n- Testar `updateUser` com payload contendo `email` já usado por outro usuário, esperando `ResponseStatusException` 409.\n- Testar `updateUser` com payload sem campos `name` e `email`, esperando `ResponseStatusException` 400.\n- Testar `updateUser` com `userService.update` retornando `Optional.empty()`, esperando `ResponseStatusException` 404.\n- Testar que `userService.findByEmail` não bloqueia atualização se o email pertence ao mesmo usuário (`userId` igual).\n- Testar comportamento com payload contendo campos nulos e não nulos.\n- Testar que exceções inesperadas são propagadas ou tratadas conforme política.\n\n---\n\n# Sugestões de testes de integração\n\n- Testar fluxo completo de atualização:\n  - Criar usuário via POST `/users`.\n  - Atualizar nome via PUT `/users/{userId}`.\n  - Validar que GET `/users/{userId}` retorna nome atualizado.\n- Testar atualização de email para um email não usado.\n- Testar tentativa de atualização para email já existente em outro usuário, validar 409.\n- Testar atualização com payload inválido (sem campos), validar 400.\n- Testar atualização de usuário inexistente, validar 404.\n- Testar concorrência: duas atualizações simultâneas com emails diferentes para verificar consistência (se possível).\n- Validar que campos não atualizados permanecem inalterados.\n- Testar integração com camada de persistência para garantir que atualização parcial funciona corretamente.\n\n---\n\n# Sugestões de testes de carga ou desempenho\n\n- Não há evidência na mudança que justifique testes de carga ou desempenho específicos para este endpoint.\n\n---\n\n# Pontos que precisam de esclarecimento\n\n- Qual o comportamento esperado se o payload contiver campos adicionais além de `name` e `email`? Devem ser ignorados ou rejeitados?\n- Existe validação de formato para o campo `email` no `UserUpdateRequest`? Se não, seria recomendável incluir.\n- O método `userService.update` realiza atualização parcial ou substituição completa? Como ele trata campos nulos?\n- Há necessidade de controle de concorrência para evitar condições de corrida na verificação de email duplicado?\n- Qual o comportamento esperado se o usuário tentar atualizar para o mesmo email que já possui? Atualmente parece permitido, mas confirmar.\n- Existe política para campos obrigatórios no update além de pelo menos um campo informado?\n- Como é o tratamento de logs e auditoria para atualizações de usuário? Isso pode impactar testes e riscos.\n\n---\n\n# Resumo\n\nA mudança introduz um endpoint PUT para atualização parcial de usuários, com validações básicas para campos obrigatórios e unicidade de email. O impacto é direto na API de usuários, com riscos relacionados à validação, concorrência e ausência de testes específicos. Recomenda-se focar em testes que cubram os fluxos de sucesso e erro, especialmente conflitos de email e ausência de campos no payload. Pontos de negócio e implementação precisam ser esclarecidos para garantir robustez e evitar regressões.\n\n---",
+    "review_result": {
+      "summary": "Implementação de um novo endpoint HTTP PUT para atualização parcial de usuários (`/users/{userId}`) no `UserController`.\n\n---\n\n- Novo comportamento para atualização parcial de usuários via HTTP PUT em `/users/{userId}`.\n- Possibilidade de alterar nome e/ou email do usuário.\n- Regras de negócio importantes:\n  - Não permite atualização sem pelo menos um campo informado.\n  - Garante unicidade do email entre usuários diferentes.\n- Pode impactar clientes da API que desejam atualizar usuários.\n- Pode afetar integridade dos dados se a validação de email não for consistente.\n- Pode gerar erros 400, 404 e 409 conforme as validações e existência do usuário.\n\n---",
+      "findings": [
+        {
+          "description": "**Validação insuficiente do payload**: o método só verifica se `name` e `email` são nulos, mas não valida formatos (ex: email válido) ou outros campos que possam existir em `UserUpdateRequest`.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Condição de corrida na verificação de email duplicado**: entre a verificação `findByEmail` e a atualização, outro usuário pode ser criado com o mesmo email, causando possível inconsistência.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Dependência do serviço `userService.update`**: se o método `update` não tratar corretamente a atualização parcial, pode haver perda de dados ou comportamento inesperado.",
+          "severity": "WARN",
+          "line_number": null
+        },
+        {
+          "description": "**Ausência de testes específicos para o novo endpoint**: não há evidência de testes unitários ou integração cobrindo o fluxo de atualização, o que aumenta risco de regressão.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Possível impacto em dados sensíveis**: embora o payload atual só tenha `name` e `email`, se futuramente o modelo for estendido, pode haver risco de exposição ou alteração indevida.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Tratamento de erros HTTP**: mensagens de erro são genéricas, pode ser necessário padronizar para facilitar o consumo da API.",
+          "severity": "ERROR",
+          "line_number": null
+        },
+        {
+          "description": "Inclusão do método `updateUser` anotado com `@PutMapping(\"/users/{userId}\")` no `UserController`.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "O método recebe um `userId` via path variable e um payload do tipo `UserUpdateRequest` validado.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Validação explícita para garantir que pelo menos um dos campos `name` ou `email` esteja presente no payload, caso contrário retorna `400 BAD_REQUEST`.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Verificação de conflito de email: se o email informado já estiver cadastrado para outro usuário (diferente do `userId`), retorna `409 CONFLICT`.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Chamada ao serviço `userService.update(userId, payload)` que retorna um `Optional<UserResponse>`, lançando `404 NOT_FOUND` se o usuário não existir.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Importação de `UserUpdateRequest` e `PutMapping` adicionadas.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Contexto do arquivo mostra que o controller já possui endpoints para criação, listagem, busca e outras operações com usuários, seguindo padrão REST.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Testes existentes no repositório indicam boa cobertura para outros endpoints do `UserController`, mas não há evidência direta de testes para atualização de usuário.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Novo comportamento para atualização parcial de usuários via HTTP PUT em `/users/{userId}`.",
+          "severity": "WARN",
+          "line_number": null
+        },
+        {
+          "description": "Possibilidade de alterar nome e/ou email do usuário.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Regras de negócio importantes:",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Não permite atualização sem pelo menos um campo informado.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Garante unicidade do email entre usuários diferentes.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Pode impactar clientes da API que desejam atualizar usuários.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Pode afetar integridade dos dados se a validação de email não for consistente.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Pode gerar erros 400, 404 e 409 conforme as validações e existência do usuário.",
+          "severity": "ERROR",
+          "line_number": null
+        },
+        {
+          "description": "Qual o comportamento esperado se o payload contiver campos adicionais além de `name` e `email`? Devem ser ignorados ou rejeitados?",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Existe validação de formato para o campo `email` no `UserUpdateRequest`? Se não, seria recomendável incluir.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "O método `userService.update` realiza atualização parcial ou substituição completa? Como ele trata campos nulos?",
+          "severity": "WARN",
+          "line_number": null
+        },
+        {
+          "description": "Há necessidade de controle de concorrência para evitar condições de corrida na verificação de email duplicado?",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Qual o comportamento esperado se o usuário tentar atualizar para o mesmo email que já possui? Atualmente parece permitido, mas confirmar.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Existe política para campos obrigatórios no update além de pelo menos um campo informado?",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Como é o tratamento de logs e auditoria para atualizações de usuário? Isso pode impactar testes e riscos.",
+          "severity": "INFO",
+          "line_number": null
+        }
+      ],
+      "test_needs": [
+        "**Atualização parcial com apenas nome**",
+        "Enviar PUT `/users/{userId}` com payload contendo apenas `name`.",
+        "Verificar retorno 200 e atualização correta do nome.",
+        "**Atualização parcial com apenas email**",
+        "Enviar PUT `/users/{userId}` com payload contendo apenas `email`.",
+        "Verificar retorno 200 e atualização correta do email.",
+        "**Atualização com nome e email**",
+        "Enviar PUT `/users/{userId}` com ambos os campos.",
+        "Verificar retorno 200 e atualização correta.",
+        "**Atualização sem campos (payload com `name=null` e `email=null`)**",
+        "Enviar PUT com payload vazio ou com ambos campos nulos.",
+        "Verificar retorno 400 com mensagem \"Informe ao menos um campo para atualizar\".",
+        "**Atualização com email já usado por outro usuário**",
+        "Enviar PUT com email que pertence a outro usuário.",
+        "Verificar retorno 409 com mensagem \"E-mail já cadastrado por outro usuário\".",
+        "**Atualização de usuário inexistente**",
+        "Enviar PUT para `userId` que não existe.",
+        "Verificar retorno 404 com mensagem \"Usuário não encontrado\".",
+        "**Atualização com email inválido (se aplicável)**",
+        "Testar envio de email com formato inválido (se validação existir no payload).",
+        "Verificar comportamento (idealmente 400).",
+        "**Testar payload com campos extras (se possível)**",
+        "Enviar campos não esperados no JSON para verificar rejeição ou ignorância.",
+        "**Testar comportamento com dados limite (ex: nomes muito longos)**",
+        "Verificar se há restrições e tratamento adequado.",
+        "Testar `updateUser` com payload contendo apenas `name` válido, mockando `userService.update` para retornar usuário atualizado.",
+        "Testar `updateUser` com payload contendo apenas `email` válido, mockando `userService.findByEmail` para retornar vazio e `userService.update` para sucesso.",
+        "Testar `updateUser` com payload contendo `email` já usado por outro usuário, esperando `ResponseStatusException` 409.",
+        "Testar `updateUser` com payload sem campos `name` e `email`, esperando `ResponseStatusException` 400.",
+        "Testar `updateUser` com `userService.update` retornando `Optional.empty()`, esperando `ResponseStatusException` 404.",
+        "Testar que `userService.findByEmail` não bloqueia atualização se o email pertence ao mesmo usuário (`userId` igual).",
+        "Testar comportamento com payload contendo campos nulos e não nulos.",
+        "Testar que exceções inesperadas são propagadas ou tratadas conforme política.",
+        "Testar fluxo completo de atualização:",
+        "Criar usuário via POST `/users`.",
+        "Atualizar nome via PUT `/users/{userId}`.",
+        "Validar que GET `/users/{userId}` retorna nome atualizado.",
+        "Testar atualização de email para um email não usado.",
+        "Testar tentativa de atualização para email já existente em outro usuário, validar 409.",
+        "Testar atualização com payload inválido (sem campos), validar 400.",
+        "Testar atualização de usuário inexistente, validar 404.",
+        "Testar concorrência: duas atualizações simultâneas com emails diferentes para verificar consistência (se possível).",
+        "Validar que campos não atualizados permanecem inalterados.",
+        "Testar integração com camada de persistência para garantir que atualização parcial funciona corretamente.",
+        "Não há evidência na mudança que justifique testes de carga ou desempenho específicos para este endpoint."
+      ]
+    },
+    "test_strategy_result": {
+      "recommended_tests": [
+        {
+          "name": "**Atualização parcial com apenas nome**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar PUT `/users/{userId}` com payload contendo apenas `name`.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar retorno 200 e atualização correta do nome.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Atualização parcial com apenas email**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar PUT `/users/{userId}` com payload contendo apenas `email`.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar retorno 200 e atualização correta do email.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Atualização com nome e email**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar PUT `/users/{userId}` com ambos os campos.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar retorno 200 e atualização correta.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Atualização sem campos (payload com `name=null` e `email=null`)**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar PUT com payload vazio ou com ambos campos nulos.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar retorno 400 com mensagem \"Informe ao menos um campo para atualizar\".",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Atualização com email já usado por outro usuário**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar PUT com email que pertence a outro usuário.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar retorno 409 com mensagem \"E-mail já cadastrado por outro usuário\".",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Atualização de usuário inexistente**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar PUT para `userId` que não existe.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar retorno 404 com mensagem \"Usuário não encontrado\".",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Atualização com email inválido (se aplicável)**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar envio de email com formato inválido (se validação existir no payload).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar comportamento (idealmente 400).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Testar payload com campos extras (se possível)**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar campos não esperados no JSON para verificar rejeição ou ignorância.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Testar comportamento com dados limite (ex: nomes muito longos)**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar se há restrições e tratamento adequado.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar `updateUser` com payload contendo apenas `name` válido, mockando `userService.update` para retornar usuário atualizado.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar `updateUser` com payload contendo apenas `email` válido, mockando `userService.findByEmail` para retornar vazio e `userService.update` para sucesso.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar `updateUser` com payload contendo `email` já usado por outro usuário, esperando `ResponseStatusException` 409.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar `updateUser` com payload sem campos `name` e `email`, esperando `ResponseStatusException` 400.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar `updateUser` com `userService.update` retornando `Optional.empty()`, esperando `ResponseStatusException` 404.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar que `userService.findByEmail` não bloqueia atualização se o email pertence ao mesmo usuário (`userId` igual).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar comportamento com payload contendo campos nulos e não nulos.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar que exceções inesperadas são propagadas ou tratadas conforme política.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar fluxo completo de atualização:",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Criar usuário via POST `/users`.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Atualizar nome via PUT `/users/{userId}`.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Validar que GET `/users/{userId}` retorna nome atualizado.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização de email para um email não usado.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar tentativa de atualização para email já existente em outro usuário, validar 409.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização com payload inválido (sem campos), validar 400.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização de usuário inexistente, validar 404.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar concorrência: duas atualizações simultâneas com emails diferentes para verificar consistência (se possível).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Validar que campos não atualizados permanecem inalterados.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar integração com camada de persistência para garantir que atualização parcial funciona corretamente.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Não há evidência na mudança que justifique testes de carga ou desempenho específicos para este endpoint.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Validação insuficiente do payload**: o método só verifica se `name` e `email` são nulos, mas não valida formatos (ex: email válido) ou outros campos que possam existir em `UserUpdateRequest`.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Condição de corrida na verificação de email duplicado**: entre a verificação `findByEmail` e a atualização, outro usuário pode ser criado com o mesmo email, causando possível inconsistência.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Dependência do serviço `userService.update`**: se o método `update` não tratar corretamente a atualização parcial, pode haver perda de dados ou comportamento inesperado.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Ausência de testes específicos para o novo endpoint**: não há evidência de testes unitários ou integração cobrindo o fluxo de atualização, o que aumenta risco de regressão.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Possível impacto em dados sensíveis**: embora o payload atual só tenha `name` e `email`, se futuramente o modelo for estendido, pode haver risco de exposição ou alteração indevida.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Tratamento de erros HTTP**: mensagens de erro são genéricas, pode ser necessário padronizar para facilitar o consumo da API.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Inclusão do método `updateUser` anotado com `@PutMapping(\"/users/{userId}\")` no `UserController`.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O método recebe um `userId` via path variable e um payload do tipo `UserUpdateRequest` validado.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Validação explícita para garantir que pelo menos um dos campos `name` ou `email` esteja presente no payload, caso contrário retorna `400 BAD_REQUEST`.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Verificação de conflito de email: se o email informado já estiver cadastrado para outro usuário (diferente do `userId`), retorna `409 CONFLICT`.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Chamada ao serviço `userService.update(userId, payload)` que retorna um `Optional<UserResponse>`, lançando `404 NOT_FOUND` se o usuário não existir.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Importação de `UserUpdateRequest` e `PutMapping` adicionadas.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Contexto do arquivo mostra que o controller já possui endpoints para criação, listagem, busca e outras operações com usuários, seguindo padrão REST.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Testes existentes no repositório indicam boa cobertura para outros endpoints do `UserController`, mas não há evidência direta de testes para atualização de usuário.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Novo comportamento para atualização parcial de usuários via HTTP PUT em `/users/{userId}`.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Possibilidade de alterar nome e/ou email do usuário.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Regras de negócio importantes:",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Não permite atualização sem pelo menos um campo informado.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Garante unicidade do email entre usuários diferentes.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Pode impactar clientes da API que desejam atualizar usuários.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Pode afetar integridade dos dados se a validação de email não for consistente.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Pode gerar erros 400, 404 e 409 conforme as validações e existência do usuário.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Qual o comportamento esperado se o payload contiver campos adicionais além de `name` e `email`? Devem ser ignorados ou rejeitados?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Existe validação de formato para o campo `email` no `UserUpdateRequest`? Se não, seria recomendável incluir.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O método `userService.update` realiza atualização parcial ou substituição completa? Como ele trata campos nulos?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Há necessidade de controle de concorrência para evitar condições de corrida na verificação de email duplicado?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Qual o comportamento esperado se o usuário tentar atualizar para o mesmo email que já possui? Atualmente parece permitido, mas confirmar.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Existe política para campos obrigatórios no update além de pelo menos um campo informado?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Como é o tratamento de logs e auditoria para atualizações de usuário? Isso pode impactar testes e riscos.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Teste de regressão geral para 'java-api/src/main/java/com/repoalvo/javaapi/controller/UserController.java'",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização parcial com campos `name` e `email` contendo apenas espaços em branco ou strings vazias, verificando se são tratados como ausência de campo e retornam erro 400.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização com `userId` inválido (ex: formato incorreto, string vazia, caracteres especiais) para verificar tratamento e retorno adequado (400 ou 404).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização com payload contendo campos extras inesperados e verificar se são ignorados sem impactar a atualização dos campos válidos.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização com payload contendo `email` com caracteres especiais válidos e verificar aceitação conforme padrão RFC.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização com payload contendo `email` com domínio inexistente ou inválido para verificar se há validação além do formato básico.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar comportamento do método `updateUser` quando `userService.update` lança exceção de banco de dados (ex: violação de chave única) para garantir tratamento adequado e retorno 409 ou 500 conforme política.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar concorrência com múltiplas requisições PUT simultâneas para o mesmo `userId` com emails diferentes para validar controle de condição de corrida e integridade dos dados.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar fluxo completo de atualização parcial com auditoria/log ativado para garantir que alterações são registradas corretamente.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar integração do endpoint PUT `/users/{userId}` com camada de segurança/autenticação para validar que apenas usuários autorizados podem atualizar dados.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar comportamento do endpoint quando payload JSON está mal formado (ex: sintaxe inválida) para garantir retorno 400 com mensagem clara.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização parcial com campos nulos explícitos (ex: `\"email\": null`) para verificar se o sistema interpreta como ausência de alteração ou como remoção do valor.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar cenário de regressão onde um cliente externo atualiza usuário via PUT e depois realiza GET para validar consistência dos dados atualizados.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização parcial com payload contendo campos extras não documentados para validar comportamento do endpoint em ambiente real.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização parcial com payload contendo apenas espaços em campos `name` e `email` para validar rejeição ou aceitação conforme regras de negócio.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização parcial com `userId` inexistente e verificar retorno 404 e mensagem padronizada para facilitar consumo da API.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização parcial com email já usado por outro usuário em ambiente com dados reais para validar consistência da regra de unicidade.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        }
+      ],
+      "notes": "⚠️ Política HIGH aplicada para 'java-api/src/main/java/com/repoalvo/javaapi/controller/UserController.java'.\nTodos os cenários foram priorizados como críticos.\nResumo do QA: Implementação de um novo endpoint HTTP PUT para atualização parcial de usuários (`/users/{userId}`) no `UserController`.\n\n---\n\n- Novo comportamento para atualização parcial de usuários via HTTP PUT em...\n\n--- Refinamento HIGH risk (via LLM) ---\n- A estratégia base já cobre amplamente os cenários principais, porém a inclusão de testes para campos vazios, espaços em branco e formatos de email mais complexos reforça a robustez da validação.\n- Testes de concorrência e tratamento de exceções inesperadas no serviço são críticos para evitar inconsistências e falhas silenciosas em produção.\n- A validação do comportamento com payloads mal formados e campos extras ajuda a garantir a resiliência do endpoint contra inputs inválidos ou maliciosos.\n- Testes de integração com segurança/autenticação são importantes para garantir que o endpoint não seja vulnerável a acessos indevidos.\n- Testes E2E de regressão e consistência garantem que o novo endpoint não quebre fluxos existentes e que a API mantenha comportamento esperado para clientes externos.\n- Recomenda-se padronizar mensagens de erro para facilitar o consumo da API e a automação de testes."
+    },
+    "risk_level": "HIGH",
+    "review_quality": "OK",
+    "test_generation_recommendation": "RECOMMENDED",
+    "executed_steps": [
+      "parse_review",
+      "evaluate_risk",
+      "build_strategy",
+      "high_risk_enrichment",
+      "evaluate_final",
+      "test_generation"
+    ],
+    "skipped_steps": [],
+    "applied_policies": [
+      "strategy_HIGH",
+      "high_risk_llm_enrichment"
+    ],
+    "fallbacks_triggered": [],
+    "step_durations_ms": {
+      "evaluate_risk": 0.04,
+      "build_strategy": 0.24,
+      "high_risk_enrichment": 10881.4,
+      "test_generation": 31492.43
+    },
+    "diagnostic_notes": []
+  },
+  {
+    "file_path": "java-api/src/main/java/com/repoalvo/javaapi/model/UserUpdateRequest.java",
+    "context_result": null,
+    "raw_review_markdown": "# Tipo da mudança\n\n- **Adição de nova classe/modelo (record) para requisição de atualização de usuário**\n\n# Evidências observadas\n\n- O diff mostra a criação do arquivo `UserUpdateRequest.java` contendo um `record` Java com dois campos: `name` e `email`.\n- Ambos os campos possuem anotações de validação Jakarta Bean Validation: `@Size(min=3, max=100)` para `name` e `@Email` para `email`.\n- O contexto do repositório mostra que `UserUpdateRequest` já é referenciado em `UserService` no método `update(int userId, UserUpdateRequest payload)`, que atualiza um usuário existente.\n- O `UserService` usa esse objeto para atualizar nome e email, permitindo que os campos sejam nulos para manter valores antigos.\n- Não há evidência no diff de alteração em controladores ou serviços que modifiquem o comportamento atual, apenas a introdução do modelo.\n- Testes existentes para `UserService` e `UserController` indicam cobertura para operações de usuário, mas não há testes específicos para `UserUpdateRequest` ainda.\n\n# Impacto provável\n\n- Introdução formal do modelo `UserUpdateRequest` para encapsular dados de atualização de usuário.\n- Provável padronização e validação automática dos dados de atualização via Bean Validation.\n- Pode impactar endpoints que aceitam atualização de usuário, especialmente se passarem a usar esse record para validação e transporte dos dados.\n- Facilita a manutenção e evolução do payload de atualização, garantindo restrições mínimas (nome entre 3 e 100 caracteres, email válido).\n- Pode afetar fluxos de atualização de usuário no backend, especialmente se o controlador ou serviço passar a usar esse record para validação.\n\n# Riscos identificados\n\n- **Validação parcial:** O record permite que `name` e `email` sejam nulos (não há anotação `@NotNull`), o que pode levar a atualizações parciais. Se o controlador ou serviço não tratar corretamente campos nulos, pode haver inconsistência.\n- **Validação insuficiente:** A anotação `@Size(min=3, max=100)` no nome pode rejeitar nomes curtos legítimos (ex: \"Al\"), o que pode impactar usuários reais.\n- **Ausência de validação explícita para campos nulos:** Se o controlador não usar `@Valid` ou não tratar corretamente a validação, dados inválidos podem passar.\n- **Possível incompatibilidade com payloads JSON:** Se o cliente enviar campos vazios ou ausentes, pode haver problemas de desserialização ou validação.\n- **Falta de testes específicos:** Não há evidência de testes unitários ou de integração cobrindo o uso do `UserUpdateRequest`, o que pode levar a regressões não detectadas.\n- **Impacto em endpoints existentes:** Se o controlador que manipula atualização de usuário não for ajustado para usar esse record, pode haver inconsistência ou falha na validação.\n\n# Cenários de testes manuais\n\n1. **Atualização de usuário com nome válido e email válido**\n   - Enviar payload com `name` entre 3 e 100 caracteres e email válido.\n   - Verificar atualização correta dos dados.\n\n2. **Atualização de usuário com nome menor que 3 caracteres**\n   - Enviar payload com `name` com 1 ou 2 caracteres.\n   - Verificar rejeição da requisição com erro de validação.\n\n3. **Atualização de usuário com email inválido**\n   - Enviar payload com email mal formatado (ex: \"email@invalido\").\n   - Verificar rejeição da requisição com erro de validação.\n\n4. **Atualização parcial com apenas nome ou apenas email**\n   - Enviar payload com apenas `name` preenchido e `email` nulo/ausente.\n   - Enviar payload com apenas `email` preenchido e `name` nulo/ausente.\n   - Verificar que o campo não enviado permanece inalterado.\n\n5. **Atualização com campos nulos explicitamente**\n   - Enviar payload com `name` e `email` nulos.\n   - Verificar comportamento do sistema (provável rejeição ou nenhuma alteração).\n\n6. **Atualização com campos ausentes no JSON**\n   - Enviar payload JSON sem o campo `name` ou `email`.\n   - Verificar se o sistema trata corretamente como atualização parcial.\n\n7. **Testar limites de tamanho do nome**\n   - Enviar nome com exatamente 3 caracteres e 100 caracteres.\n   - Verificar aceitação.\n\n8. **Testar atualização com dados inválidos e verificar mensagens de erro**\n   - Confirmar que mensagens de erro são claras e indicam o campo inválido.\n\n# Sugestões de testes unitários\n\n- Testar criação de `UserUpdateRequest` com:\n  - Nome válido dentro dos limites.\n  - Nome menor que 3 caracteres (esperar falha de validação).\n  - Nome maior que 100 caracteres (esperar falha de validação).\n  - Email válido.\n  - Email inválido (ex: sem '@', com espaços).\n  - Campos nulos (verificar comportamento da validação).\n\n- Testar método `UserService.update` com:\n  - Payload com nome e email válidos.\n  - Payload com nome nulo e email válido.\n  - Payload com email nulo e nome válido.\n  - Payload com ambos nulos (deve manter dados antigos).\n  - Verificar que o usuário é atualizado corretamente no `List<UserResponse>`.\n\n- Testar integração da validação Bean Validation no controlador (se aplicável):\n  - Simular requisição com payload inválido e verificar que a validação falha.\n\n# Sugestões de testes de integração\n\n- Testar endpoint HTTP que utiliza `UserUpdateRequest` para atualizar usuário:\n  - Enviar requisição PUT/PATCH com payload válido e verificar resposta 200 e dados atualizados.\n  - Enviar payload com nome inválido e verificar resposta 400 com mensagem de erro.\n  - Enviar payload com email inválido e verificar resposta 400.\n  - Enviar payload parcial (apenas nome ou email) e verificar atualização parcial.\n  - Enviar payload com campos nulos e verificar comportamento (erro ou sem alteração).\n  - Testar atualização de usuário inexistente e verificar resposta adequada (404 ou similar).\n\n- Testar fluxo completo de atualização:\n  - Criar usuário.\n  - Atualizar usuário com `UserUpdateRequest`.\n  - Buscar usuário e verificar dados atualizados.\n\n# Sugestões de testes de carga ou desempenho\n\n- **Não aplicável**: A mudança é estrutural e de modelo, sem impacto direto em performance ou carga.\n\n# Pontos que precisam de esclarecimento\n\n- O `UserUpdateRequest` permite campos nulos? O sistema deve aceitar atualização parcial?  \n  (O código do serviço sugere sim, mas não há anotação explícita para `@NotNull`.)\n\n- Como o controlador que recebe `UserUpdateRequest` trata a validação? Usa `@Valid`?  \n  (Não há diff nem evidência direta do controlador atual.)\n\n- Qual o comportamento esperado se ambos os campos forem nulos?  \n  (O serviço mantém dados antigos, mas o controlador deve permitir isso?)\n\n- Há necessidade de validação adicional, como evitar atualização para email já existente?  \n  (No `UserCreateRequest` há verificação de email duplicado, mas não está claro para atualização.)\n\n- O limite mínimo de 3 caracteres para nome é adequado para todos os casos de uso?  \n  (Pode rejeitar nomes legítimos muito curtos.)\n\n---\n\n# Resumo\n\nA mudança introduz um novo record `UserUpdateRequest` com validação para nome e email, que será usado para atualizar usuários. Isso formaliza o payload de atualização e adiciona restrições básicas. O impacto funcional está na validação e no transporte dos dados de atualização. Riscos reais incluem validação parcial e ausência de testes específicos. Recomenda-se testes manuais e automatizados focados em validação, atualização parcial e limites dos campos. Pontos de negócio e implementação precisam ser esclarecidos para garantir comportamento consistente e evitar regressões.\n\n---",
+    "review_result": {
+      "summary": "- **Adição de nova classe/modelo (record) para requisição de atualização de usuário**\n\n- Introdução formal do modelo `UserUpdateRequest` para encapsular dados de atualização de usuário.\n- Provável padronização e validação automática dos dados de atualização via Bean Validation.\n- Pode impactar endpoints que aceitam atualização de usuário, especialmente se passarem a usar esse record para validação e transporte dos dados.\n- Facilita a manutenção e evolução do payload de atualização, garantindo restrições mínimas (nome entre 3 e 100 caracteres, email válido).\n- Pode afetar fluxos de atualização de usuário no backend, especialmente se o controlador ou serviço passar a usar esse record para validação.",
+      "findings": [
+        {
+          "description": "**Validação parcial:** O record permite que `name` e `email` sejam nulos (não há anotação `@NotNull`), o que pode levar a atualizações parciais. Se o controlador ou serviço não tratar corretamente campos nulos, pode haver inconsistência.",
+          "severity": "WARN",
+          "line_number": null
+        },
+        {
+          "description": "**Validação insuficiente:** A anotação `@Size(min=3, max=100)` no nome pode rejeitar nomes curtos legítimos (ex: \"Al\"), o que pode impactar usuários reais.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Ausência de validação explícita para campos nulos:** Se o controlador não usar `@Valid` ou não tratar corretamente a validação, dados inválidos podem passar.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Possível incompatibilidade com payloads JSON:** Se o cliente enviar campos vazios ou ausentes, pode haver problemas de desserialização ou validação.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Falta de testes específicos:** Não há evidência de testes unitários ou de integração cobrindo o uso do `UserUpdateRequest`, o que pode levar a regressões não detectadas.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Impacto em endpoints existentes:** Se o controlador que manipula atualização de usuário não for ajustado para usar esse record, pode haver inconsistência ou falha na validação.",
+          "severity": "ERROR",
+          "line_number": null
+        },
+        {
+          "description": "O diff mostra a criação do arquivo `UserUpdateRequest.java` contendo um `record` Java com dois campos: `name` e `email`.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Ambos os campos possuem anotações de validação Jakarta Bean Validation: `@Size(min=3, max=100)` para `name` e `@Email` para `email`.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "O contexto do repositório mostra que `UserUpdateRequest` já é referenciado em `UserService` no método `update(int userId, UserUpdateRequest payload)`, que atualiza um usuário existente.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "O `UserService` usa esse objeto para atualizar nome e email, permitindo que os campos sejam nulos para manter valores antigos.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Não há evidência no diff de alteração em controladores ou serviços que modifiquem o comportamento atual, apenas a introdução do modelo.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Testes existentes para `UserService` e `UserController` indicam cobertura para operações de usuário, mas não há testes específicos para `UserUpdateRequest` ainda.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Introdução formal do modelo `UserUpdateRequest` para encapsular dados de atualização de usuário.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Provável padronização e validação automática dos dados de atualização via Bean Validation.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Pode impactar endpoints que aceitam atualização de usuário, especialmente se passarem a usar esse record para validação e transporte dos dados.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Facilita a manutenção e evolução do payload de atualização, garantindo restrições mínimas (nome entre 3 e 100 caracteres, email válido).",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Pode afetar fluxos de atualização de usuário no backend, especialmente se o controlador ou serviço passar a usar esse record para validação.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "O `UserUpdateRequest` permite campos nulos? O sistema deve aceitar atualização parcial?",
+          "severity": "WARN",
+          "line_number": null
+        },
+        {
+          "description": "Como o controlador que recebe `UserUpdateRequest` trata a validação? Usa `@Valid`?",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Qual o comportamento esperado se ambos os campos forem nulos?",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Há necessidade de validação adicional, como evitar atualização para email já existente?",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "O limite mínimo de 3 caracteres para nome é adequado para todos os casos de uso?",
+          "severity": "INFO",
+          "line_number": null
+        }
+      ],
+      "test_needs": [
+        "**Atualização de usuário com nome válido e email válido**",
+        "Enviar payload com `name` entre 3 e 100 caracteres e email válido.",
+        "Verificar atualização correta dos dados.",
+        "**Atualização de usuário com nome menor que 3 caracteres**",
+        "Enviar payload com `name` com 1 ou 2 caracteres.",
+        "Verificar rejeição da requisição com erro de validação.",
+        "**Atualização de usuário com email inválido**",
+        "Enviar payload com email mal formatado (ex: \"email@invalido\").",
+        "Verificar rejeição da requisição com erro de validação.",
+        "**Atualização parcial com apenas nome ou apenas email**",
+        "Enviar payload com apenas `name` preenchido e `email` nulo/ausente.",
+        "Enviar payload com apenas `email` preenchido e `name` nulo/ausente.",
+        "Verificar que o campo não enviado permanece inalterado.",
+        "**Atualização com campos nulos explicitamente**",
+        "Enviar payload com `name` e `email` nulos.",
+        "Verificar comportamento do sistema (provável rejeição ou nenhuma alteração).",
+        "**Atualização com campos ausentes no JSON**",
+        "Enviar payload JSON sem o campo `name` ou `email`.",
+        "Verificar se o sistema trata corretamente como atualização parcial.",
+        "**Testar limites de tamanho do nome**",
+        "Enviar nome com exatamente 3 caracteres e 100 caracteres.",
+        "Verificar aceitação.",
+        "**Testar atualização com dados inválidos e verificar mensagens de erro**",
+        "Confirmar que mensagens de erro são claras e indicam o campo inválido.",
+        "Testar criação de `UserUpdateRequest` com:",
+        "Nome válido dentro dos limites.",
+        "Nome menor que 3 caracteres (esperar falha de validação).",
+        "Nome maior que 100 caracteres (esperar falha de validação).",
+        "Email válido.",
+        "Email inválido (ex: sem '@', com espaços).",
+        "Campos nulos (verificar comportamento da validação).",
+        "Testar método `UserService.update` com:",
+        "Payload com nome e email válidos.",
+        "Payload com nome nulo e email válido.",
+        "Payload com email nulo e nome válido.",
+        "Payload com ambos nulos (deve manter dados antigos).",
+        "Verificar que o usuário é atualizado corretamente no `List<UserResponse>`.",
+        "Testar integração da validação Bean Validation no controlador (se aplicável):",
+        "Simular requisição com payload inválido e verificar que a validação falha.",
+        "Testar endpoint HTTP que utiliza `UserUpdateRequest` para atualizar usuário:",
+        "Enviar requisição PUT/PATCH com payload válido e verificar resposta 200 e dados atualizados.",
+        "Enviar payload com nome inválido e verificar resposta 400 com mensagem de erro.",
+        "Enviar payload com email inválido e verificar resposta 400.",
+        "Enviar payload parcial (apenas nome ou email) e verificar atualização parcial.",
+        "Enviar payload com campos nulos e verificar comportamento (erro ou sem alteração).",
+        "Testar atualização de usuário inexistente e verificar resposta adequada (404 ou similar).",
+        "Testar fluxo completo de atualização:",
+        "Criar usuário.",
+        "Atualizar usuário com `UserUpdateRequest`.",
+        "Buscar usuário e verificar dados atualizados.",
+        "**Não aplicável**: A mudança é estrutural e de modelo, sem impacto direto em performance ou carga."
+      ]
+    },
+    "test_strategy_result": {
+      "recommended_tests": [
+        {
+          "name": "**Atualização de usuário com nome válido e email válido**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar payload com `name` entre 3 e 100 caracteres e email válido.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar atualização correta dos dados.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Atualização de usuário com nome menor que 3 caracteres**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar payload com `name` com 1 ou 2 caracteres.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar rejeição da requisição com erro de validação.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Atualização de usuário com email inválido**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar payload com email mal formatado (ex: \"email@invalido\").",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar rejeição da requisição com erro de validação.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Atualização parcial com apenas nome ou apenas email**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar payload com apenas `name` preenchido e `email` nulo/ausente.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar payload com apenas `email` preenchido e `name` nulo/ausente.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar que o campo não enviado permanece inalterado.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Atualização com campos nulos explicitamente**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar payload com `name` e `email` nulos.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar comportamento do sistema (provável rejeição ou nenhuma alteração).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Atualização com campos ausentes no JSON**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar payload JSON sem o campo `name` ou `email`.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar se o sistema trata corretamente como atualização parcial.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Testar limites de tamanho do nome**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar nome com exatamente 3 caracteres e 100 caracteres.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar aceitação.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Testar atualização com dados inválidos e verificar mensagens de erro**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Confirmar que mensagens de erro são claras e indicam o campo inválido.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar criação de `UserUpdateRequest` com:",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Nome válido dentro dos limites.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Nome menor que 3 caracteres (esperar falha de validação).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Nome maior que 100 caracteres (esperar falha de validação).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Email válido.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Email inválido (ex: sem '@', com espaços).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Campos nulos (verificar comportamento da validação).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar método `UserService.update` com:",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Payload com nome e email válidos.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Payload com nome nulo e email válido.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Payload com email nulo e nome válido.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Payload com ambos nulos (deve manter dados antigos).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar que o usuário é atualizado corretamente no `List<UserResponse>`.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar integração da validação Bean Validation no controlador (se aplicável):",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Simular requisição com payload inválido e verificar que a validação falha.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar endpoint HTTP que utiliza `UserUpdateRequest` para atualizar usuário:",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar requisição PUT/PATCH com payload válido e verificar resposta 200 e dados atualizados.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar payload com nome inválido e verificar resposta 400 com mensagem de erro.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar payload com email inválido e verificar resposta 400.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar payload parcial (apenas nome ou email) e verificar atualização parcial.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Enviar payload com campos nulos e verificar comportamento (erro ou sem alteração).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização de usuário inexistente e verificar resposta adequada (404 ou similar).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar fluxo completo de atualização:",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Criar usuário.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Atualizar usuário com `UserUpdateRequest`.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Buscar usuário e verificar dados atualizados.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Não aplicável**: A mudança é estrutural e de modelo, sem impacto direto em performance ou carga.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Validação parcial:** O record permite que `name` e `email` sejam nulos (não há anotação `@NotNull`), o que pode levar a atualizações parciais. Se o controlador ou serviço não tratar corretamente campos nulos, pode haver inconsistência.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Validação insuficiente:** A anotação `@Size(min=3, max=100)` no nome pode rejeitar nomes curtos legítimos (ex: \"Al\"), o que pode impactar usuários reais.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Ausência de validação explícita para campos nulos:** Se o controlador não usar `@Valid` ou não tratar corretamente a validação, dados inválidos podem passar.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Possível incompatibilidade com payloads JSON:** Se o cliente enviar campos vazios ou ausentes, pode haver problemas de desserialização ou validação.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Falta de testes específicos:** Não há evidência de testes unitários ou de integração cobrindo o uso do `UserUpdateRequest`, o que pode levar a regressões não detectadas.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Impacto em endpoints existentes:** Se o controlador que manipula atualização de usuário não for ajustado para usar esse record, pode haver inconsistência ou falha na validação.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O diff mostra a criação do arquivo `UserUpdateRequest.java` contendo um `record` Java com dois campos: `name` e `email`.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Ambos os campos possuem anotações de validação Jakarta Bean Validation: `@Size(min=3, max=100)` para `name` e `@Email` para `email`.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O contexto do repositório mostra que `UserUpdateRequest` já é referenciado em `UserService` no método `update(int userId, UserUpdateRequest payload)`, que atualiza um usuário existente.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O `UserService` usa esse objeto para atualizar nome e email, permitindo que os campos sejam nulos para manter valores antigos.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Não há evidência no diff de alteração em controladores ou serviços que modifiquem o comportamento atual, apenas a introdução do modelo.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Testes existentes para `UserService` e `UserController` indicam cobertura para operações de usuário, mas não há testes específicos para `UserUpdateRequest` ainda.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Introdução formal do modelo `UserUpdateRequest` para encapsular dados de atualização de usuário.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Provável padronização e validação automática dos dados de atualização via Bean Validation.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Pode impactar endpoints que aceitam atualização de usuário, especialmente se passarem a usar esse record para validação e transporte dos dados.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Facilita a manutenção e evolução do payload de atualização, garantindo restrições mínimas (nome entre 3 e 100 caracteres, email válido).",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Pode afetar fluxos de atualização de usuário no backend, especialmente se o controlador ou serviço passar a usar esse record para validação.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O `UserUpdateRequest` permite campos nulos? O sistema deve aceitar atualização parcial?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Como o controlador que recebe `UserUpdateRequest` trata a validação? Usa `@Valid`?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Qual o comportamento esperado se ambos os campos forem nulos?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Há necessidade de validação adicional, como evitar atualização para email já existente?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O limite mínimo de 3 caracteres para nome é adequado para todos os casos de uso?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Teste de regressão geral para 'java-api/src/main/java/com/repoalvo/javaapi/model/UserUpdateRequest.java'",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar criação de `UserUpdateRequest` com campos `name` e `email` vazios (\"\") para verificar comportamento da validação.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar criação de `UserUpdateRequest` com espaços em branco nos campos `name` e `email` para validar rejeição ou tratamento correto.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização com `name` contendo caracteres especiais ou acentuação para garantir aceitação ou rejeição conforme regras de negócio.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização com `email` contendo subdomínios e domínios internacionais para validar aceitação do formato.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização com `email` já existente no sistema para verificar se há validação de unicidade e resposta adequada.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar comportamento do método `UserService.update` quando o `UserUpdateRequest` contém campos nulos e o usuário não existe (verificar resposta e exceção).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar integração do controlador com `@Valid` aplicado no parâmetro `UserUpdateRequest` para garantir que a validação Bean Validation é disparada corretamente.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar endpoint de atualização de usuário com payload contendo campos vazios (\"\") e verificar resposta e mensagens de erro.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar endpoint de atualização com payload contendo campos com espaços em branco para verificar se o sistema normaliza ou rejeita.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização parcial com campos ausentes e campos explicitamente nulos para verificar comportamento consistente e esperado.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização com `UserUpdateRequest` contendo campos inválidos e verificar se mensagens de erro retornadas pelo endpoint são claras e específicas.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização de usuário com `UserUpdateRequest` em cenário concorrente para verificar se não há condições de corrida ou inconsistências.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar fluxo completo de atualização de usuário via API REST com payloads válidos, inválidos, parciais, nulos e vazios, validando respostas HTTP, mensagens e estado final do usuário.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar regressão geral para garantir que a introdução do `UserUpdateRequest` não impactou negativamente outros endpoints relacionados a usuários (criação, busca, deleção).",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização de usuário com payload contendo campos extras não definidos no `UserUpdateRequest` para verificar se são ignorados ou causam erro.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        }
+      ],
+      "notes": "⚠️ Política HIGH aplicada para 'java-api/src/main/java/com/repoalvo/javaapi/model/UserUpdateRequest.java'.\nTodos os cenários foram priorizados como críticos.\nResumo do QA: - **Adição de nova classe/modelo (record) para requisição de atualização de usuário**\n\n- Introdução formal do modelo `UserUpdateRequest` para encapsular dados de atualização de usuário.\n- Provável pad...\n\n--- Refinamento HIGH risk (via LLM) ---\n- A estratégia base cobre amplamente os cenários principais de validação e atualização, porém faltam testes específicos para campos vazios e espaços em branco, que são casos comuns de borda e podem causar falhas silenciosas.\n- É fundamental validar a integração do controlador com a Bean Validation para garantir que o uso do `record` com anotações funcione corretamente no fluxo HTTP.\n- Testes de unicidade de email são críticos para evitar inconsistências no sistema, especialmente em atualizações parciais.\n- Cenários concorrentes e de payloads com campos extras ajudam a garantir robustez e segurança contra inputs inesperados.\n- A inclusão de testes E2E reforça a cobertura de regressão e valida a integração completa do novo modelo no sistema.\n- Recomenda-se atenção especial à documentação das mensagens de erro para garantir clareza ao usuário final e facilitar a manutenção futura."
+    },
+    "risk_level": "HIGH",
+    "review_quality": "OK",
+    "test_generation_recommendation": "RECOMMENDED",
+    "executed_steps": [
+      "parse_review",
+      "evaluate_risk",
+      "build_strategy",
+      "high_risk_enrichment",
+      "evaluate_final",
+      "test_generation"
+    ],
+    "skipped_steps": [],
+    "applied_policies": [
+      "strategy_HIGH",
+      "high_risk_llm_enrichment"
+    ],
+    "fallbacks_triggered": [],
+    "step_durations_ms": {
+      "evaluate_risk": 0.01,
+      "build_strategy": 0.15,
+      "high_risk_enrichment": 19793.11,
+      "test_generation": 32305.54
+    },
+    "diagnostic_notes": []
+  },
+  {
+    "file_path": "java-api/src/main/java/com/repoalvo/javaapi/service/UserService.java",
+    "context_result": null,
+    "raw_review_markdown": "# Tipo da mudança\n\nImplementação de nova funcionalidade: adição do método `update` para atualização parcial de usuários na classe `UserService`.\n\n---\n\n# Evidências observadas\n\n- **Diff**: Inclusão do método `update(int userId, UserUpdateRequest payload)` na classe `UserService`.\n- **Implementação**: O método é `synchronized` e percorre a lista interna `users` para localizar o usuário pelo `id`. Se encontrado, cria um novo objeto `UserResponse` com os campos atualizados (nome e email), preservando os valores antigos caso o payload não forneça novos valores (`null`).\n- **Contexto do arquivo**: A classe `UserService` mantém uma lista em memória (`users`) de objetos `UserResponse` e já possui métodos sincronizados para listagem, busca, criação e busca por email.\n- **Contexto do repositório**: \n  - Existe um modelo `UserUpdateRequest` importado, presumivelmente com campos `name` e `email` que podem ser nulos para indicar atualização parcial.\n  - Testes unitários para `UserService` existem (`UserServiceUnitTest.java`), mas não há evidência de testes para o método `update`.\n  - A API REST em `UserController` e testes relacionados indicam que a camada de serviço é consumida por controladores REST, mas não há evidência direta de endpoint para atualização de usuário (PUT/PATCH) no trecho fornecido.\n\n---\n\n# Impacto provável\n\n- **Funcionalidade adicionada**: Permite atualizar parcialmente os dados de um usuário existente, alterando nome e/ou email.\n- **Estado interno**: A lista `users` é modificada substituindo o objeto antigo pelo novo atualizado, mantendo a imutabilidade do objeto `UserResponse`.\n- **Concorrência**: O método é sincronizado, mantendo a consistência da lista em ambiente multithread.\n- **Possível uso futuro**: Pode ser utilizado por um endpoint REST para atualização de usuário, ainda que não esteja visível no contexto atual.\n- **Sem alteração em outras funcionalidades**: Métodos existentes não foram alterados, portanto, comportamento atual de listagem, criação e busca permanece inalterado.\n\n---\n\n# Riscos identificados\n\n- **Ausência de validação de dados**: O método aceita `UserUpdateRequest` com campos possivelmente nulos, mas não valida formatos (ex: email válido) ou regras de negócio (ex: email duplicado). Isso pode permitir atualização para dados inválidos ou duplicados.\n- **Atualização de email para valor já existente**: Não há checagem para evitar que o email atualizado conflite com outro usuário já cadastrado, o que pode quebrar a regra de unicidade observada na criação.\n- **Retorno de Optional.empty()**: Caso o usuário não exista, o método retorna `Optional.empty()`. Se o controlador não tratar isso adequadamente, pode gerar erros ou respostas inconsistentes.\n- **Imutabilidade parcial**: O método cria novo objeto `UserResponse` para substituir o antigo, mas se houver referências externas ao objeto antigo, podem ficar desatualizadas.\n- **Falta de testes específicos**: Não há evidência de testes unitários ou de integração cobrindo o novo método, o que aumenta o risco de regressão ou comportamento inesperado.\n- **Possível inconsistência com outras camadas**: Se o controlador ou outras camadas não estiverem preparadas para lidar com atualização parcial, pode haver falhas ou erros.\n\n---\n\n# Cenários de testes manuais\n\n1. **Atualização parcial com nome apenas**\n   - Atualizar usuário existente passando somente o campo `name` no payload.\n   - Verificar que o nome foi alterado e o email permaneceu o mesmo.\n\n2. **Atualização parcial com email apenas**\n   - Atualizar usuário existente passando somente o campo `email`.\n   - Verificar que o email foi alterado e o nome permaneceu o mesmo.\n\n3. **Atualização completa com nome e email**\n   - Atualizar usuário existente passando ambos os campos.\n   - Verificar que ambos foram atualizados corretamente.\n\n4. **Atualização com campos nulos (sem alteração)**\n   - Passar payload com `name` e `email` nulos.\n   - Verificar que o usuário permanece inalterado.\n\n5. **Atualização de usuário inexistente**\n   - Tentar atualizar usuário com `userId` que não existe.\n   - Verificar que o retorno é vazio (Optional.empty) e que o sistema responde adequadamente (ex: 404 se via API).\n\n6. **Atualização com email já existente em outro usuário**\n   - Tentar atualizar o email para um valor que já está cadastrado em outro usuário.\n   - Verificar se o sistema permite ou bloqueia (atualmente não bloqueia, risco identificado).\n\n7. **Concorrência**\n   - Simular múltiplas atualizações simultâneas para o mesmo usuário.\n   - Verificar se o estado final é consistente e sem erros.\n\n---\n\n# Sugestões de testes unitários\n\n1. **update_shouldReturnUpdatedUser_whenUserExistsAndPayloadHasNameAndEmail**\n   - Criar usuário, atualizar com nome e email novos.\n   - Verificar que o objeto retornado tem os valores atualizados.\n\n2. **update_shouldReturnUpdatedUser_whenPayloadHasOnlyName**\n   - Atualizar usuário com apenas nome.\n   - Verificar que email permanece o mesmo.\n\n3. **update_shouldReturnUpdatedUser_whenPayloadHasOnlyEmail**\n   - Atualizar usuário com apenas email.\n   - Verificar que nome permanece o mesmo.\n\n4. **update_shouldReturnEmpty_whenUserDoesNotExist**\n   - Tentar atualizar usuário inexistente.\n   - Verificar retorno Optional.empty().\n\n5. **update_shouldNotModifyUser_whenPayloadHasNullFields**\n   - Passar payload com campos nulos.\n   - Verificar que usuário não é alterado.\n\n6. **update_shouldReplaceUserInList**\n   - Verificar que o usuário na lista interna é substituído pelo novo objeto atualizado.\n\n7. **update_shouldBeThreadSafe**\n   - Testar concorrência com múltiplas threads atualizando usuários.\n\n---\n\n# Sugestões de testes de integração\n\n1. **PUT /users/{id} com payload parcial atualiza usuário**\n   - Se existir endpoint REST para update, testar atualização parcial via API.\n   - Verificar resposta HTTP 200 e dados atualizados.\n\n2. **PUT /users/{id} com usuário inexistente retorna 404**\n   - Testar atualização para id não cadastrado.\n\n3. **PUT /users/{id} com email duplicado retorna erro**\n   - Se regra de negócio for implementada, testar conflito de email.\n\n4. **Fluxo completo: criar usuário → atualizar parcialmente → buscar e validar**\n   - Criar usuário via API, atualizar parcialmente, buscar e validar dados.\n\n5. **Atualização com payload inválido (ex: email mal formatado)**\n   - Testar validação e resposta adequada (400 Bad Request).\n\n---\n\n# Sugestões de testes de carga ou desempenho\n\n- **Não aplicável**: A mudança não indica impacto direto em performance ou carga, pois é uma operação simples em lista em memória com sincronização.\n\n---\n\n# Pontos que precisam de esclarecimento\n\n1. **Existe endpoint REST para atualização de usuário?**\n   - O controlador `UserController` não mostra método para update. Será que o método `update` será exposto via API? Se sim, qual o verbo HTTP e rota?\n\n2. **Validação de dados no update**\n   - Deve o método validar formato de email ou outras regras? Atualmente não há validação.\n\n3. **Regra de unicidade de email na atualização**\n   - Deve o método impedir atualização para email já existente em outro usuário? Atualmente não há essa checagem.\n\n4. **Comportamento esperado para campos nulos no payload**\n   - A implementação atual mantém valores antigos se o campo for nulo. Isso está alinhado com a regra de negócio?\n\n5. **Imutabilidade e referências externas**\n   - O objeto `UserResponse` é substituído na lista. Há risco de referências externas ficarem desatualizadas? Isso é aceitável?\n\n---\n\n# Resumo\n\nA mudança adiciona um método `update` para atualização parcial de usuários na lista em memória, com sincronização para segurança de thread. O método substitui o objeto antigo por um novo com campos atualizados, preservando valores antigos quando o payload não fornece novos dados. Não há validação de dados nem checagem de unicidade de email, o que pode gerar inconsistências. Não há evidência de testes cobrindo essa funcionalidade nem de endpoint REST para expô-la. Recomenda-se criar testes unitários e de integração específicos para validar comportamento correto, tratar casos de erro e definir regras de negócio claras para validação e unicidade.",
+    "review_result": {
+      "summary": "Implementação de nova funcionalidade: adição do método `update` para atualização parcial de usuários na classe `UserService`.\n\n---\n\n- **Funcionalidade adicionada**: Permite atualizar parcialmente os dados de um usuário existente, alterando nome e/ou email.\n- **Estado interno**: A lista `users` é modificada substituindo o objeto antigo pelo novo atualizado, mantendo a imutabilidade do objeto `UserResponse`.\n- **Concorrência**: O método é sincronizado, mantendo a consistência da lista em ambiente multithread.\n- **Possível uso futuro**: Pode ser utilizado por um endpoint REST para atualização de usuário, ainda que não esteja visível no contexto atual.\n- **Sem alteração em outras funcionalidades**: Métodos existentes não foram alterados, portanto, comportamento atual de listagem, criação e busca permanece inalterado.\n\n---",
+      "findings": [
+        {
+          "description": "**Ausência de validação de dados**: O método aceita `UserUpdateRequest` com campos possivelmente nulos, mas não valida formatos (ex: email válido) ou regras de negócio (ex: email duplicado). Isso pode permitir atualização para dados inválidos ou duplicados.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Atualização de email para valor já existente**: Não há checagem para evitar que o email atualizado conflite com outro usuário já cadastrado, o que pode quebrar a regra de unicidade observada na criação.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Retorno de Optional.empty()**: Caso o usuário não exista, o método retorna `Optional.empty()`. Se o controlador não tratar isso adequadamente, pode gerar erros ou respostas inconsistentes.",
+          "severity": "ERROR",
+          "line_number": null
+        },
+        {
+          "description": "**Imutabilidade parcial**: O método cria novo objeto `UserResponse` para substituir o antigo, mas se houver referências externas ao objeto antigo, podem ficar desatualizadas.",
+          "severity": "WARN",
+          "line_number": null
+        },
+        {
+          "description": "**Falta de testes específicos**: Não há evidência de testes unitários ou de integração cobrindo o novo método, o que aumenta o risco de regressão ou comportamento inesperado.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Possível inconsistência com outras camadas**: Se o controlador ou outras camadas não estiverem preparadas para lidar com atualização parcial, pode haver falhas ou erros.",
+          "severity": "ERROR",
+          "line_number": null
+        },
+        {
+          "description": "**Diff**: Inclusão do método `update(int userId, UserUpdateRequest payload)` na classe `UserService`.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Implementação**: O método é `synchronized` e percorre a lista interna `users` para localizar o usuário pelo `id`. Se encontrado, cria um novo objeto `UserResponse` com os campos atualizados (nome e email), preservando os valores antigos caso o payload não forneça novos valores (`null`).",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Contexto do arquivo**: A classe `UserService` mantém uma lista em memória (`users`) de objetos `UserResponse` e já possui métodos sincronizados para listagem, busca, criação e busca por email.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Contexto do repositório**:",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Existe um modelo `UserUpdateRequest` importado, presumivelmente com campos `name` e `email` que podem ser nulos para indicar atualização parcial.",
+          "severity": "WARN",
+          "line_number": null
+        },
+        {
+          "description": "Testes unitários para `UserService` existem (`UserServiceUnitTest.java`), mas não há evidência de testes para o método `update`.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "A API REST em `UserController` e testes relacionados indicam que a camada de serviço é consumida por controladores REST, mas não há evidência direta de endpoint para atualização de usuário (PUT/PATCH) no trecho fornecido.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Funcionalidade adicionada**: Permite atualizar parcialmente os dados de um usuário existente, alterando nome e/ou email.",
+          "severity": "WARN",
+          "line_number": null
+        },
+        {
+          "description": "**Estado interno**: A lista `users` é modificada substituindo o objeto antigo pelo novo atualizado, mantendo a imutabilidade do objeto `UserResponse`.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Concorrência**: O método é sincronizado, mantendo a consistência da lista em ambiente multithread.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Possível uso futuro**: Pode ser utilizado por um endpoint REST para atualização de usuário, ainda que não esteja visível no contexto atual.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Sem alteração em outras funcionalidades**: Métodos existentes não foram alterados, portanto, comportamento atual de listagem, criação e busca permanece inalterado.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Existe endpoint REST para atualização de usuário?**",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "O controlador `UserController` não mostra método para update. Será que o método `update` será exposto via API? Se sim, qual o verbo HTTP e rota?",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Validação de dados no update**",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Deve o método validar formato de email ou outras regras? Atualmente não há validação.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Regra de unicidade de email na atualização**",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Deve o método impedir atualização para email já existente em outro usuário? Atualmente não há essa checagem.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Comportamento esperado para campos nulos no payload**",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "A implementação atual mantém valores antigos se o campo for nulo. Isso está alinhado com a regra de negócio?",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Imutabilidade e referências externas**",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "O objeto `UserResponse` é substituído na lista. Há risco de referências externas ficarem desatualizadas? Isso é aceitável?",
+          "severity": "INFO",
+          "line_number": null
+        }
+      ],
+      "test_needs": [
+        "**Atualização parcial com nome apenas**",
+        "Atualizar usuário existente passando somente o campo `name` no payload.",
+        "Verificar que o nome foi alterado e o email permaneceu o mesmo.",
+        "**Atualização parcial com email apenas**",
+        "Atualizar usuário existente passando somente o campo `email`.",
+        "Verificar que o email foi alterado e o nome permaneceu o mesmo.",
+        "**Atualização completa com nome e email**",
+        "Atualizar usuário existente passando ambos os campos.",
+        "Verificar que ambos foram atualizados corretamente.",
+        "**Atualização com campos nulos (sem alteração)**",
+        "Passar payload com `name` e `email` nulos.",
+        "Verificar que o usuário permanece inalterado.",
+        "**Atualização de usuário inexistente**",
+        "Tentar atualizar usuário com `userId` que não existe.",
+        "Verificar que o retorno é vazio (Optional.empty) e que o sistema responde adequadamente (ex: 404 se via API).",
+        "**Atualização com email já existente em outro usuário**",
+        "Tentar atualizar o email para um valor que já está cadastrado em outro usuário.",
+        "Verificar se o sistema permite ou bloqueia (atualmente não bloqueia, risco identificado).",
+        "**Concorrência**",
+        "Simular múltiplas atualizações simultâneas para o mesmo usuário.",
+        "Verificar se o estado final é consistente e sem erros.",
+        "**update_shouldReturnUpdatedUser_whenUserExistsAndPayloadHasNameAndEmail**",
+        "Criar usuário, atualizar com nome e email novos.",
+        "Verificar que o objeto retornado tem os valores atualizados.",
+        "**update_shouldReturnUpdatedUser_whenPayloadHasOnlyName**",
+        "Atualizar usuário com apenas nome.",
+        "Verificar que email permanece o mesmo.",
+        "**update_shouldReturnUpdatedUser_whenPayloadHasOnlyEmail**",
+        "Atualizar usuário com apenas email.",
+        "Verificar que nome permanece o mesmo.",
+        "**update_shouldReturnEmpty_whenUserDoesNotExist**",
+        "Tentar atualizar usuário inexistente.",
+        "Verificar retorno Optional.empty().",
+        "**update_shouldNotModifyUser_whenPayloadHasNullFields**",
+        "Passar payload com campos nulos.",
+        "Verificar que usuário não é alterado.",
+        "**update_shouldReplaceUserInList**",
+        "Verificar que o usuário na lista interna é substituído pelo novo objeto atualizado.",
+        "**update_shouldBeThreadSafe**",
+        "Testar concorrência com múltiplas threads atualizando usuários.",
+        "**PUT /users/{id} com payload parcial atualiza usuário**",
+        "Se existir endpoint REST para update, testar atualização parcial via API.",
+        "Verificar resposta HTTP 200 e dados atualizados.",
+        "**PUT /users/{id} com usuário inexistente retorna 404**",
+        "Testar atualização para id não cadastrado.",
+        "**PUT /users/{id} com email duplicado retorna erro**",
+        "Se regra de negócio for implementada, testar conflito de email.",
+        "**Fluxo completo: criar usuário → atualizar parcialmente → buscar e validar**",
+        "Criar usuário via API, atualizar parcialmente, buscar e validar dados.",
+        "**Atualização com payload inválido (ex: email mal formatado)**",
+        "Testar validação e resposta adequada (400 Bad Request).",
+        "**Não aplicável**: A mudança não indica impacto direto em performance ou carga, pois é uma operação simples em lista em memória com sincronização."
+      ]
+    },
+    "test_strategy_result": {
+      "recommended_tests": [
+        {
+          "name": "**Atualização parcial com nome apenas**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Atualizar usuário existente passando somente o campo `name` no payload.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar que o nome foi alterado e o email permaneceu o mesmo.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Atualização parcial com email apenas**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Atualizar usuário existente passando somente o campo `email`.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar que o email foi alterado e o nome permaneceu o mesmo.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Atualização completa com nome e email**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Atualizar usuário existente passando ambos os campos.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar que ambos foram atualizados corretamente.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Atualização com campos nulos (sem alteração)**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Passar payload com `name` e `email` nulos.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar que o usuário permanece inalterado.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Atualização de usuário inexistente**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Tentar atualizar usuário com `userId` que não existe.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar que o retorno é vazio (Optional.empty) e que o sistema responde adequadamente (ex: 404 se via API).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Atualização com email já existente em outro usuário**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Tentar atualizar o email para um valor que já está cadastrado em outro usuário.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar se o sistema permite ou bloqueia (atualmente não bloqueia, risco identificado).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Concorrência**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Simular múltiplas atualizações simultâneas para o mesmo usuário.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar se o estado final é consistente e sem erros.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**update_shouldReturnUpdatedUser_whenUserExistsAndPayloadHasNameAndEmail**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Criar usuário, atualizar com nome e email novos.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar que o objeto retornado tem os valores atualizados.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**update_shouldReturnUpdatedUser_whenPayloadHasOnlyName**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Atualizar usuário com apenas nome.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar que email permanece o mesmo.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**update_shouldReturnUpdatedUser_whenPayloadHasOnlyEmail**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Atualizar usuário com apenas email.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar que nome permanece o mesmo.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**update_shouldReturnEmpty_whenUserDoesNotExist**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Tentar atualizar usuário inexistente.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar retorno Optional.empty().",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**update_shouldNotModifyUser_whenPayloadHasNullFields**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Passar payload com campos nulos.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar que usuário não é alterado.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**update_shouldReplaceUserInList**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar que o usuário na lista interna é substituído pelo novo objeto atualizado.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**update_shouldBeThreadSafe**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar concorrência com múltiplas threads atualizando usuários.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**PUT /users/{id} com payload parcial atualiza usuário**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Se existir endpoint REST para update, testar atualização parcial via API.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar resposta HTTP 200 e dados atualizados.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**PUT /users/{id} com usuário inexistente retorna 404**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização para id não cadastrado.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**PUT /users/{id} com email duplicado retorna erro**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Se regra de negócio for implementada, testar conflito de email.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Fluxo completo: criar usuário → atualizar parcialmente → buscar e validar**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Criar usuário via API, atualizar parcialmente, buscar e validar dados.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Atualização com payload inválido (ex: email mal formatado)**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar validação e resposta adequada (400 Bad Request).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Não aplicável**: A mudança não indica impacto direto em performance ou carga, pois é uma operação simples em lista em memória com sincronização.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Ausência de validação de dados**: O método aceita `UserUpdateRequest` com campos possivelmente nulos, mas não valida formatos (ex: email válido) ou regras de negócio (ex: email duplicado). Isso pode permitir atualização para dados inválidos ou duplicados.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Atualização de email para valor já existente**: Não há checagem para evitar que o email atualizado conflite com outro usuário já cadastrado, o que pode quebrar a regra de unicidade observada na criação.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Retorno de Optional.empty()**: Caso o usuário não exista, o método retorna `Optional.empty()`. Se o controlador não tratar isso adequadamente, pode gerar erros ou respostas inconsistentes.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Imutabilidade parcial**: O método cria novo objeto `UserResponse` para substituir o antigo, mas se houver referências externas ao objeto antigo, podem ficar desatualizadas.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Falta de testes específicos**: Não há evidência de testes unitários ou de integração cobrindo o novo método, o que aumenta o risco de regressão ou comportamento inesperado.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Possível inconsistência com outras camadas**: Se o controlador ou outras camadas não estiverem preparadas para lidar com atualização parcial, pode haver falhas ou erros.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Diff**: Inclusão do método `update(int userId, UserUpdateRequest payload)` na classe `UserService`.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Implementação**: O método é `synchronized` e percorre a lista interna `users` para localizar o usuário pelo `id`. Se encontrado, cria um novo objeto `UserResponse` com os campos atualizados (nome e email), preservando os valores antigos caso o payload não forneça novos valores (`null`).",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Contexto do arquivo**: A classe `UserService` mantém uma lista em memória (`users`) de objetos `UserResponse` e já possui métodos sincronizados para listagem, busca, criação e busca por email.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Contexto do repositório**:",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Existe um modelo `UserUpdateRequest` importado, presumivelmente com campos `name` e `email` que podem ser nulos para indicar atualização parcial.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Testes unitários para `UserService` existem (`UserServiceUnitTest.java`), mas não há evidência de testes para o método `update`.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: A API REST em `UserController` e testes relacionados indicam que a camada de serviço é consumida por controladores REST, mas não há evidência direta de endpoint para atualização de usuário (PUT/PATCH) no trecho fornecido.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Funcionalidade adicionada**: Permite atualizar parcialmente os dados de um usuário existente, alterando nome e/ou email.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Estado interno**: A lista `users` é modificada substituindo o objeto antigo pelo novo atualizado, mantendo a imutabilidade do objeto `UserResponse`.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Concorrência**: O método é sincronizado, mantendo a consistência da lista em ambiente multithread.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Possível uso futuro**: Pode ser utilizado por um endpoint REST para atualização de usuário, ainda que não esteja visível no contexto atual.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Sem alteração em outras funcionalidades**: Métodos existentes não foram alterados, portanto, comportamento atual de listagem, criação e busca permanece inalterado.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Existe endpoint REST para atualização de usuário?**",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O controlador `UserController` não mostra método para update. Será que o método `update` será exposto via API? Se sim, qual o verbo HTTP e rota?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Validação de dados no update**",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Deve o método validar formato de email ou outras regras? Atualmente não há validação.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Regra de unicidade de email na atualização**",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Deve o método impedir atualização para email já existente em outro usuário? Atualmente não há essa checagem.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Comportamento esperado para campos nulos no payload**",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: A implementação atual mantém valores antigos se o campo for nulo. Isso está alinhado com a regra de negócio?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Imutabilidade e referências externas**",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O objeto `UserResponse` é substituído na lista. Há risco de referências externas ficarem desatualizadas? Isso é aceitável?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Teste de regressão geral para 'java-api/src/main/java/com/repoalvo/javaapi/service/UserService.java'",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Atualizar usuário com payload contendo campos extras inesperados (ex: telefone, endereço) e verificar que são ignorados sem impacto.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Atualizar usuário com payload vazio (sem campos name ou email) e verificar que o usuário permanece inalterado.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Atualizar usuário com campos name e email contendo strings vazias (\"\") e verificar comportamento esperado (alteração para vazio ou rejeição).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Atualizar usuário com email em formato inválido e verificar se método aceita ou rejeita (atualmente aceita, risco identificado).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Atualizar usuário com nome contendo caracteres especiais ou muito longos para verificar comportamento.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar que a lista interna `users` não é modificada se o usuário não for encontrado (sem efeitos colaterais).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Atualizar múltiplos usuários diferentes em sequência e verificar integridade da lista.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar integração do método `update` com camada REST simulada, incluindo tratamento de Optional.empty() para usuário inexistente.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar integração do método `update` com camada REST simulada para payload com email duplicado, verificando resposta de erro ou aceitação.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar integração do método `update` com camada REST simulada para payload com email inválido, verificando resposta adequada.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar impacto da atualização parcial na imutabilidade e referências externas, simulando acesso concorrente a objetos antigos e novos.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Fluxo completo via API (se existir endpoint futuro): criar usuário → atualizar parcialmente com nome e email → buscar usuário e validar dados atualizados.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Fluxo de atualização concorrente via API simulada, com múltiplas requisições simultâneas para o mesmo usuário, verificando consistência final.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização parcial via API com payload inválido (ex: JSON mal formado, campos extras, tipos errados) e verificar resposta HTTP 400.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização parcial via API para usuário inexistente e verificar retorno HTTP 404.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar atualização parcial via API com email duplicado e verificar resposta de conflito (ex: HTTP 409) caso regra seja implementada no futuro.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        }
+      ],
+      "notes": "⚠️ Política HIGH aplicada para 'java-api/src/main/java/com/repoalvo/javaapi/service/UserService.java'.\nTodos os cenários foram priorizados como críticos.\nResumo do QA: Implementação de nova funcionalidade: adição do método `update` para atualização parcial de usuários na classe `UserService`.\n\n---\n\n- **Funcionalidade adicionada**: Permite atualizar parcialmente os d...\n\n--- Refinamento HIGH risk (via LLM) ---\n- A estratégia base cobre amplamente os cenários funcionais e de concorrência, porém faltam testes para payloads inválidos, campos extras e strings vazias, que são comuns em APIs REST e podem causar falhas ou comportamentos inesperados.\n- É importante reforçar testes de integração simulando a camada REST, especialmente para tratamento correto do Optional.empty() e validação de dados, pois o método pode ser exposto futuramente via API.\n- Testes E2E são recomendados para validar o fluxo completo e garantir que a atualização parcial funcione corretamente em ambiente real, incluindo concorrência e tratamento de erros.\n- A imutabilidade parcial e substituição do objeto na lista interna podem causar inconsistências em referências externas; testes que simulem esse cenário ajudam a identificar riscos ocultos.\n- A ausência de validação de formato de email e unicidade na atualização é um risco crítico identificado; testes que confirmem o comportamento atual e documentem esse risco são essenciais para futuras melhorias.\n- Testes com payloads contendo campos extras ou inesperados ajudam a garantir robustez e evitar falhas por dados malformados ou inesperados.\n- A estratégia mantém a priorização HIGH para todos os testes adicionais, condizente com o risco alto do arquivo e impacto potencial da funcionalidade."
+    },
+    "risk_level": "HIGH",
+    "review_quality": "OK",
+    "test_generation_recommendation": "RECOMMENDED",
+    "executed_steps": [
+      "parse_review",
+      "evaluate_risk",
+      "build_strategy",
+      "high_risk_enrichment",
+      "evaluate_final",
+      "test_generation"
+    ],
+    "skipped_steps": [],
+    "applied_policies": [
+      "strategy_HIGH",
+      "high_risk_llm_enrichment"
+    ],
+    "fallbacks_triggered": [],
+    "step_durations_ms": {
+      "evaluate_risk": 0.01,
+      "build_strategy": 0.14,
+      "high_risk_enrichment": 10404.13,
+      "test_generation": 22724.55
+    },
+    "diagnostic_notes": []
+  }
+]
