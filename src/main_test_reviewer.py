@@ -7,7 +7,7 @@ from pathlib import Path
 from src.config.settings import get_settings
 from src.crew.test_reviewer_crew import TestReviewerCrewRunner
 from src.schemas.file_analysis_artifact import FileAnalysisArtifact
-from src.utils.pr_utils import add_pr_comment, get_repo_full_name, get_current_branch, get_file_diff
+from src.utils.pr_utils import add_pr_comment, get_repo_full_name, get_current_branch
 
 
 def parse_args():
