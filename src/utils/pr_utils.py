@@ -84,7 +84,7 @@ def build_pr_body(
     files_list = "\n".join(f"- `{f}`" for f in test_files)
     analyzed_list = "\n".join(f"- `{f}`" for f in analyzed_files)
 
-    return f"""## 🧪 Testes Unitários Gerados Automaticamente
+    body = f"""## 🧪 Testes Unitários Gerados Automaticamente
 
 ### Arquivos analisados
 {analyzed_list}
@@ -105,6 +105,13 @@ a cobertura de testes e prevenir regressões.
 
 </details>
 """
+    # Limite do GitHub é 65536 caracteres. Deixamos uma margem de segurança.
+    MAX_LENGTH = 60000
+    if len(body) > MAX_LENGTH:
+        trunc_msg = "\n\n---\n⚠️ **Nota:** O conteúdo original era muito longo e foi truncado para respeitar os limites do GitHub."
+        body = body[:MAX_LENGTH - len(trunc_msg)] + trunc_msg
+
+    return body
 
 
 def open_pull_request(
