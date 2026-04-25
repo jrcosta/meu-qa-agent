@@ -163,6 +163,9 @@ def main() -> None:
             repo_path=str(repo_path),
             test_strategy=artifact.test_strategy_result,
         )
+        artifact.memory_query = crew_runner.last_memory_query
+        artifact.memories_used_raw = crew_runner.last_memories_raw
+        artifact.memories_used = crew_runner.last_memories_used
         artifact.record_duration("test_generation", (time.perf_counter() - t0) * 1000)
         artifact.mark_step_executed("test_generation")
 

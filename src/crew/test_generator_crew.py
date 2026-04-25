@@ -1,3 +1,5 @@
+import re
+
 from src.agent.test_generator_agent import TestGeneratorAgentFactory
 from src.config.settings import Settings
 from src.services.context_builder import RepoContextBuilder
@@ -13,16 +15,24 @@ from src.schemas.test_strategy_result import TestStrategyResult, render_test_str
 class TestGeneratorCrewRunner:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
+        self.last_memory_query = ""
+        self.last_memories_raw = ""
+        self.last_memories_used: list[dict] = []
 
     def _load_memories(self, file_path: str, code_content: str) -> str:
         """Find relevant memories from the DB using semantic search."""
+        self.last_memory_query = f"Testes para {file_path}. Código: {code_content[:200]}"
+        self.last_memories_raw = ""
+        self.last_memories_used = []
+
         try:
             tool = QueryMemoriesTool()
-            # Construct a rich query using path and code snippet to help semantic search
-            query = f"Testes para {file_path}. Código: {code_content[:200]}"
-            result = tool._run(query=query, limit=5)
+            result = tool._run(query=self.last_memory_query, limit=5)
+            self.last_memories_raw = result
+            self.last_memories_used = _parse_memory_result(result)
+
             if result and "Nenhuma memória" not in result:
-                count = len(result.strip().split("\n\n"))
+                count = len(self.last_memories_used)
                 print(f"  🧠 Memories loaded: {count} relevant lesson(s) found for {file_path}")
                 print(f"  🧠 Memory content preview: {result[:200]}...")
             else:
@@ -84,3 +94,36 @@ class TestGeneratorCrewRunner:
             return result.raw
 
         return str(result)
+
+
+def _parse_memory_result(result: str) -> list[dict]:
+    if not result or "Nenhuma memória" in result:
+        return []
+
+    memories: list[dict] = []
+    blocks = [block.strip() for block in result.strip().split("\n\n") if block.strip()]
+    pattern = re.compile(
+        r"^\[distance=(?P<distance>[0-9.]+)\]\s+"
+        r"\(PR #(?P<pr_number>\d+) em (?P<repo>.*?), por (?P<author>.*?)\)\n"
+        r"\s*Lição:\s*(?P<lesson>.*)$",
+        re.DOTALL,
+    )
+
+    for block in blocks:
+        match = pattern.match(block)
+        if not match:
+            memories.append({"lesson": block})
+            continue
+
+        data = match.groupdict()
+        memories.append(
+            {
+                "distance": float(data["distance"]),
+                "pr_number": int(data["pr_number"]),
+                "repo": data["repo"],
+                "author": data["author"],
+                "lesson": data["lesson"].strip(),
+            }
+        )
+
+    return memories

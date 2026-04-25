@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, Field
 
 from src.schemas.context_result import ContextResult
@@ -53,6 +53,16 @@ class FileAnalysisArtifact(BaseModel):
     generated_test_files: Dict[str, str] = Field(
         default_factory=dict,
         description="Arquivos de teste gerados, indexados pelo caminho relativo",
+    )
+    memory_query: Optional[str] = Field(
+        None, description="Consulta usada para buscar memórias no banco vetorial"
+    )
+    memories_used_raw: Optional[str] = Field(
+        None, description="Texto bruto das memórias recuperadas para o prompt"
+    )
+    memories_used: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="Memórias recuperadas do banco vetorial e usadas na geração",
     )
 
     # --- Campos de orquestração ---
@@ -113,4 +123,3 @@ class FileAnalysisArtifact(BaseModel):
     def record_duration(self, step: str, duration_ms: float) -> None:
         """Registra a duração de uma etapa em milissegundos."""
         self.step_durations_ms[step] = round(duration_ms, 2)
-
