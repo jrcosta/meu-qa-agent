@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>QAgent · jrcosta/repo_alvo_api_simples · 25 Apr 2026 – 05:18:06 UTC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-hover: #1c2129;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+  --purple: #bc8cff;
+  --radius: 10px;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  margin: 0; padding: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; transition: color .15s; }
+a:hover { color: var(--accent-hover); }
+.container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+}
+.topbar a { font-size: .9rem; }
+.topbar .sep { color: var(--border); }
+.topbar .slug { color: var(--text-muted); font-size: .85rem; font-family: var(--font-mono); }
+.report { padding-top: 16px; }
+.report h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.report h2 { font-size: 1.3rem; margin-top: 32px; color: var(--accent); }
+.report h3 { font-size: 1.1rem; margin-top: 24px; }
+.report p { margin: 12px 0; }
+.report ul, .report ol { padding-left: 24px; }
+.report li { margin: 6px 0; }
+.report code {
+  font-family: var(--font-mono); font-size: .88em;
+  background: var(--surface); padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.report pre {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: .88rem; line-height: 1.5;
+}
+.report pre code { background: none; border: none; padding: 0; }
+.report blockquote {
+  border-left: 3px solid var(--accent); margin: 16px 0;
+  padding: 8px 16px; color: var(--text-muted); background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.report table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.report th, .report td {
+  border: 1px solid var(--border); padding: 8px 12px; text-align: left;
+}
+.report th { background: var(--surface); font-weight: 600; }
+.report hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.report strong { color: #f0f6fc; }
+.meta-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px;
+  display: flex; flex-wrap: wrap; gap: 24px; font-size: .88rem;
+}
+.meta-item label { color: var(--text-muted); display: block; font-size: .78rem; margin-bottom: 2px; }
+.meta-item span { font-family: var(--font-mono); }
+
+/* Novas seções de artefatos */
+.section-title { font-size: 1.4rem; margin: 40px 0 20px; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; }
+.stat-value { font-size: 1.8rem; font-weight: 700; color: var(--accent); display: block; }
+.stat-label { color: var(--text-muted); font-size: .8rem; text-transform: uppercase; letter-spacing: 1px; }
+
+.artifact-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px; }
+.artifact-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.artifact-header { padding: 12px 20px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background .15s; }
+.artifact-header:hover { background: var(--surface-hover); }
+.artifact-title { font-family: var(--font-mono); font-size: .9rem; display: flex; align-items: center; gap: 8px; }
+.artifact-content { padding: 0 20px 20px; border-top: 1px solid var(--border); background: #161b2255; }
+
+.sub-section { margin-top: 20px; }
+.sub-section-title { font-size: .9rem; font-weight: 600; margin-bottom: 10px; color: var(--text-muted); text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.data-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.data-item { background: #0d111755; padding: 10px 14px; border-radius: 6px; border: 1px solid var(--border); }
+.data-label { font-size: .75rem; color: var(--text-muted); display: block; }
+.data-value { font-size: .9rem; }
+
+.badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: .75rem; font-weight: 600; }
+.badge-low { background: #23863633; color: #3fb950; border: 1px solid #238636; }
+.badge-medium { background: #9e6a0333; color: #d29922; border: 1px solid #9e6a03; }
+.badge-high { background: #da363333; color: #f85149; border: 1px solid #da3633; }
+.badge-info { background: #388bfd33; color: #58a6ff; border: 1px solid #388bfd; }
+.badge-policy { background: #8957e533; color: #bc8cff; border: 1px solid #8957e5; }
+
+details summary { cursor: pointer; padding: 8px 0; color: var(--accent); font-size: .9rem; font-weight: 500; }
+details summary:hover { color: var(--accent-hover); }
+.raw-json { font-family: var(--font-mono); font-size: .8rem; background: #00000044; padding: 12px; border-radius: 6px; overflow-x: auto; margin-top: 10px; border: 1px solid var(--border); }
+
+.error-msg { background: #f8514922; border: 1px solid var(--red); color: var(--red); padding: 12px; border-radius: var(--radius); margin: 20px 0; font-size: .9rem; }
+footer { text-align: center; color: var(--text-muted); font-size: .8rem; padding: 40px 0 20px;
+         border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+  <nav class="topbar">
+    <a href="../../index.html">← Histórico</a>
+    <span class="sep">|</span>
+    <span class="slug">2026-04-25_05-18-06_UTC__jrcosta__repo_alvo_api_simples</span>
+  </nav>
+  <div class="container">
+    <div class="meta-box">
+      <div class="meta-item"><label>Repositório</label><span>jrcosta/repo_alvo_api_simples</span></div>
+      <div class="meta-item"><label>Execução</label><span>25 Apr 2026 – 05:18:06 UTC</span></div>
+    </div>
+    <div class="meta-box" style="margin-top:12px;font-size:.85rem"><a href="artifacts.json" style="margin-right:16px">📦 artifacts.json</a> <a href="run_summary.json">📊 run_summary.json</a></div>
+    <div id="run-summary-container"></div>
+    <div id="artifacts-container"></div>
+    <article class="report">
+      <h1 id="arquivo-analisado-java-apisrcmainjavacomrepoalvojavaapimodelusercreaterequestjava">Arquivo analisado: java-api/src/main/java/com/repoalvo/javaapi/model/UserCreateRequest.java</h1>
+<h1 id="tipo-da-mudanca">Tipo da mudança</h1>
+<p>Adição de campo no modelo de dados (record) <code>UserCreateRequest</code>.</p>
+<h1 id="evidencias-observadas">Evidências observadas</h1>
+<ul>
+<li>No diff, foi adicionado o campo <code>phoneNumber</code> do tipo <code>String</code> no record <code>UserCreateRequest</code>:<br />
+  ```java</li>
+<li>String role</li>
+<li>String role,</li>
+<li>String phoneNumber<br />
+  ```</li>
+<li>O arquivo <code>UserCreateRequest.java</code> é um record que representa o payload para criação de usuário.</li>
+<li>No contexto do repositório, o serviço <code>UserService</code> já utiliza o campo <code>phoneNumber</code> do <code>UserCreateRequest</code> no método <code>create</code>:<br />
+<code>java
+  UserResponse user = new UserResponse(
+          nextId.getAndIncrement(),
+          payload.name(),
+          payload.email(),
+          "ACTIVE",
+          role,
+          payload.phoneNumber()
+  );</code></li>
+<li>O controller <code>UserController</code> usa <code>UserCreateRequest</code> para criar usuários via endpoint POST <code>/users</code>.</li>
+<li>Testes unitários e de integração existentes focam em criação e atualização de usuários, mas não há evidência de testes cobrindo o campo <code>phoneNumber</code> no payload.</li>
+</ul>
+<h1 id="impacto-provavel">Impacto provável</h1>
+<ul>
+<li>O campo <code>phoneNumber</code> passa a ser parte do payload aceito para criação de usuários.</li>
+<li>O serviço <code>UserService</code> já suporta o campo, então a inclusão no record formaliza o contrato da API para aceitar telefone no momento da criação.</li>
+<li>Pode impactar clientes da API que precisam enviar o telefone no JSON de criação.</li>
+<li>Pode afetar validações e persistência, embora não haja validação explícita no record para <code>phoneNumber</code>.</li>
+<li>A resposta da criação (<code>UserResponse</code>) já inclui telefone, então a consistência do dado é mantida.</li>
+</ul>
+<h1 id="riscos-identificados">Riscos identificados</h1>
+<ul>
+<li><strong>Ausência de validação para <code>phoneNumber</code></strong>: O campo não possui anotações de validação (ex: formato, tamanho, obrigatoriedade). Pode permitir dados inválidos ou mal formatados.</li>
+<li><strong>Incompatibilidade com clientes antigos</strong>: Clientes que não enviam <code>phoneNumber</code> podem continuar funcionando, mas clientes que esperam o campo podem ter problemas se não atualizarem.</li>
+<li><strong>Possível falta de testes cobrindo o novo campo</strong>: Não há evidência clara de testes unitários ou integração que validem o envio e processamento do <code>phoneNumber</code> no momento da criação.</li>
+<li><strong>Impacto em documentação e contratos da API</strong>: Se a documentação não for atualizada, pode gerar confusão.</li>
+<li><strong>Possível impacto em camadas posteriores (banco, front-end)</strong>: Não há evidência no contexto, mas se o campo não for tratado corretamente, pode causar erros.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais">Cenários de testes manuais</h1>
+<ul>
+<li>Criar usuário via endpoint POST <code>/users</code> enviando JSON com o campo <code>phoneNumber</code> preenchido com:</li>
+<li>Número válido (ex: "+55 11 90000-0001")</li>
+<li>Número inválido (ex: texto aleatório, número muito curto, caracteres especiais)</li>
+<li>Campo <code>phoneNumber</code> ausente no JSON</li>
+<li>Campo <code>phoneNumber</code> vazio (<code>""</code>)</li>
+<li>Verificar se o usuário é criado com o telefone correto refletido na resposta.</li>
+<li>Verificar comportamento ao criar usuário com telefone nulo ou ausente (deve aceitar sem erro).</li>
+<li>Testar criação com telefone e verificar se o telefone aparece corretamente em listagens e buscas de usuário.</li>
+<li>Testar criação com telefone e verificar se não há regressão na criação sem telefone.</li>
+<li>Validar mensagens de erro ou comportamento inesperado ao enviar telefone mal formatado (mesmo que não haja validação explícita, observar comportamento).</li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios">Sugestões de testes unitários</h1>
+<ul>
+<li>Testar a criação de <code>UserCreateRequest</code> com telefone válido e nulo.</li>
+<li>Testar o método <code>UserService.create</code> com <code>UserCreateRequest</code> contendo telefone e verificar se o <code>UserResponse</code> resultante tem o telefone correto.</li>
+<li>Testar criação de usuário com telefone vazio ou nulo e garantir que não cause exceção.</li>
+<li>Testar que o campo <code>phoneNumber</code> é corretamente repassado do <code>UserCreateRequest</code> para <code>UserResponse</code>.</li>
+<li>Caso haja validação futura, criar testes para validar formatos aceitos e rejeitados.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao">Sugestões de testes de integração</h1>
+<ul>
+<li>Testar o endpoint POST <code>/users</code> enviando payload JSON com o campo <code>phoneNumber</code>:</li>
+<li>Confirmar retorno HTTP 201 e que o telefone está presente na resposta.</li>
+<li>Confirmar que o telefone pode ser recuperado em chamadas subsequentes (ex: GET <code>/users</code> ou <code>/users/{id}</code>).</li>
+<li>Testar criação sem o campo <code>phoneNumber</code> para garantir compatibilidade retroativa.</li>
+<li>Testar criação com telefone inválido para observar comportamento (mesmo que não haja validação, garantir que não cause erro inesperado).</li>
+<li>Testar fluxo completo de criação → listagem → busca por telefone (se aplicável).</li>
+<li>Validar que a documentação da API (se existir) está atualizada para refletir o novo campo.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável. A mudança é apenas adição de campo no modelo de dados, sem alteração de lógica que impacte performance ou carga.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>Qual o formato esperado para o campo <code>phoneNumber</code>? Existe alguma regra de validação ou máscara que deve ser aplicada?</li>
+<li>O campo <code>phoneNumber</code> é opcional ou obrigatório? Atualmente não há anotação de validação.</li>
+<li>Há impacto esperado em outras camadas (banco de dados, front-end, documentação) que não foram mostrados no contexto?</li>
+<li>Existe algum requisito de segurança ou privacidade específico para o armazenamento e exposição do telefone?</li>
+<li>O campo <code>phoneNumber</code> deve ser indexado ou pesquisável? Há endpoints que permitam busca por telefone?</li>
+<li>Há necessidade de atualizar testes existentes para incluir o novo campo explicitamente?</li>
+</ul>
+<hr />
+<p><strong>Resumo:</strong><br />
+A mudança adiciona o campo <code>phoneNumber</code> ao payload de criação de usuário, que já é utilizado no serviço para criar o usuário com telefone. O principal risco é a ausência de validação e a possível falta de testes cobrindo esse campo. Recomenda-se testes manuais e automatizados focados na criação com telefone, validação de formatos e compatibilidade retroativa. Esclarecimentos sobre regras de negócio e validação do telefone são importantes para garantir qualidade e evitar regressões.</p>
+<hr />
+<h1 id="arquivo-analisado-java-apisrcmainjavacomrepoalvojavaapimodeluserresponsejava">Arquivo analisado: java-api/src/main/java/com/repoalvo/javaapi/model/UserResponse.java</h1>
+<h1 id="tipo-da-mudanca_1">Tipo da mudança</h1>
+<p>Adição de campo no modelo de dados (record) <code>UserResponse</code> com adaptação do construtor.</p>
+<h1 id="evidencias-observadas_1">Evidências observadas</h1>
+<ul>
+<li>O diff mostra que foi adicionado o campo <code>phoneNumber</code> do tipo <code>String</code> ao record <code>UserResponse</code>:<br />
+<code>java
+  public record UserResponse(int id, String name, String email, String status, String role, String phoneNumber) {</code></li>
+<li>Foi criado um construtor secundário que mantém compatibilidade com chamadas antigas, inicializando <code>phoneNumber</code> como <code>null</code>:<br />
+<code>java
+  public UserResponse(int id, String name, String email, String status, String role) {
+      this(id, name, email, status, role, null);
+  }</code></li>
+<li>No contexto do repositório, o <code>UserService</code> já cria usuários com <code>phoneNumber</code> preenchido (exemplo no construtor padrão):<br />
+<code>java
+  users.add(new UserResponse(1, "Ana Silva", "ana@example.com", "ACTIVE", "ADMIN", "+55 11 90000-0001"));</code></li>
+<li>O método <code>create</code> do <code>UserService</code> também usa o novo construtor com <code>phoneNumber</code>:<br />
+<code>java
+  UserResponse user = new UserResponse(
+      nextId.getAndIncrement(),
+      payload.name(),
+      payload.email(),
+      "ACTIVE",
+      role,
+      payload.phoneNumber()
+  );</code></li>
+<li>A documentação dos endpoints (em <code>docs/endpoints.md</code>) mostra exemplos de <code>UserResponse</code> sem o campo <code>phoneNumber</code>, indicando que a API pode precisar ser atualizada para refletir essa nova propriedade.</li>
+</ul>
+<h1 id="impacto-provavel_1">Impacto provável</h1>
+<ul>
+<li><strong>Modelagem de dados:</strong> O objeto <code>UserResponse</code> agora inclui o campo <code>phoneNumber</code>, o que altera a estrutura dos dados retornados pela API.</li>
+<li><strong>Serialização/Deserialização:</strong> Respostas JSON que usam <code>UserResponse</code> passarão a incluir o campo <code>phoneNumber</code> (possivelmente <code>null</code> em casos antigos).</li>
+<li><strong>Compatibilidade:</strong> O construtor secundário garante compatibilidade com código que usa o construtor antigo, evitando erros de compilação.</li>
+<li><strong>API e documentação:</strong> Endpoints que retornam <code>UserResponse</code> podem expor o novo campo, o que pode impactar clientes que consomem a API.</li>
+<li><strong>Testes existentes:</strong> Testes que validam a estrutura de <code>UserResponse</code> podem falhar se esperam um número fixo de campos ou não consideram <code>phoneNumber</code>.</li>
+</ul>
+<h1 id="riscos-identificados_1">Riscos identificados</h1>
+<ul>
+<li><strong>Inconsistência na API:</strong> Se a documentação e os contratos da API não forem atualizados, clientes podem não esperar o campo <code>phoneNumber</code> e falhar ao processar a resposta.</li>
+<li><strong>Testes quebrados:</strong> Testes unitários e de integração que validam a estrutura JSON de <code>UserResponse</code> podem falhar por não reconhecerem o novo campo.</li>
+<li><strong>Dados nulos:</strong> Em casos onde <code>phoneNumber</code> não for fornecido, o valor será <code>null</code>. Se o front-end ou consumidores da API não lidarem bem com <code>null</code>, pode haver erros.</li>
+<li><strong>Falta de validação:</strong> Não há evidência de validação ou regras para <code>phoneNumber</code> no <code>UserService</code> ou nos requests, o que pode permitir dados inválidos ou inconsistentes.</li>
+<li><strong>Atualização parcial:</strong> Se outras partes do sistema (ex: Python API, front-end) não forem atualizadas para suportar o novo campo, pode haver divergência de dados.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_1">Cenários de testes manuais</h1>
+<ul>
+<li><strong>Verificar retorno do endpoint GET /users/{user_id}:</strong></li>
+<li>Confirmar que o campo <code>phoneNumber</code> está presente no JSON de resposta.</li>
+<li>Validar que o valor é o esperado para usuários existentes (ex: "+55 11 90000-0001").</li>
+<li><strong>Criar usuário via POST /users com e sem <code>phoneNumber</code>:</strong></li>
+<li>Confirmar que o usuário criado retorna o campo <code>phoneNumber</code> corretamente.</li>
+<li>Confirmar que, se <code>phoneNumber</code> não for enviado, o campo vem como <code>null</code> ou ausente.</li>
+<li><strong>Atualizar usuário e verificar se <code>phoneNumber</code> permanece inalterado:</strong></li>
+<li>Como o update atual não altera <code>phoneNumber</code>, verificar que o valor permanece o mesmo após atualização.</li>
+<li><strong>Testar listagem de usuários (GET /users) para verificar inclusão do campo <code>phoneNumber</code> em todos os itens.</strong></li>
+<li><strong>Testar comportamento do front-end (se aplicável) para exibir ou lidar com o novo campo.</strong></li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios_1">Sugestões de testes unitários</h1>
+<ul>
+<li><strong>Testar criação de <code>UserResponse</code> com o novo construtor:</strong></li>
+<li>Criar instância com todos os campos, incluindo <code>phoneNumber</code>.</li>
+<li>Criar instância usando construtor antigo e verificar que <code>phoneNumber</code> é <code>null</code>.</li>
+<li><strong>Testar método <code>UserService.create</code> para garantir que <code>phoneNumber</code> do payload é corretamente atribuído ao <code>UserResponse</code>.</strong></li>
+<li><strong>Testar métodos que retornam <code>UserResponse</code> para garantir que o campo <code>phoneNumber</code> está presente e correto.</strong></li>
+<li><strong>Testar serialização JSON de <code>UserResponse</code> para garantir que <code>phoneNumber</code> é incluído na saída.</strong></li>
+<li><strong>Testar atualização de usuário para garantir que <code>phoneNumber</code> não é alterado inadvertidamente.</strong></li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_1">Sugestões de testes de integração</h1>
+<ul>
+<li><strong>Testar endpoints que retornam <code>UserResponse</code> (ex: GET /users, GET /users/{user_id}, GET /users/by-email):</strong></li>
+<li>Validar que o campo <code>phoneNumber</code> está presente e correto na resposta JSON.</li>
+<li><strong>Testar criação de usuário via API (POST /users) com <code>phoneNumber</code> no payload:</strong></li>
+<li>Confirmar que o usuário criado retorna o campo <code>phoneNumber</code>.</li>
+<li><strong>Testar criação de usuário sem <code>phoneNumber</code> para garantir que o campo vem como <code>null</code> ou ausente.</strong></li>
+<li><strong>Testar atualização de usuário para garantir que <code>phoneNumber</code> não é modificado.</strong></li>
+<li><strong>Verificar se a documentação da API (Swagger ou docs/endpoints.md) foi atualizada para incluir <code>phoneNumber</code> em <code>UserResponse</code>.</strong></li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_1">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável. A mudança é estrutural e não altera lógica de negócio ou performance.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_1">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li><strong>O campo <code>phoneNumber</code> é obrigatório ou opcional?</strong><br />
+  Atualmente, o construtor secundário o define como <code>null</code> por padrão, mas não há validação explícita.</li>
+<li><strong>Há regras de validação para <code>phoneNumber</code>?</strong><br />
+  Ex: formato, tamanho, caracteres permitidos.</li>
+<li><strong>O campo <code>phoneNumber</code> deve ser exposto em todos os endpoints que retornam <code>UserResponse</code>?</strong><br />
+  É necessário confirmar se todos os consumidores da API esperam esse campo.</li>
+<li><strong>O payload de criação e atualização de usuário já suporta <code>phoneNumber</code>?</strong><br />
+  No <code>UserCreateRequest</code> e <code>UserUpdateRequest</code> não foi mostrado no contexto, mas o <code>UserService.create</code> usa <code>payload.phoneNumber()</code>.</li>
+<li><strong>A documentação da API foi atualizada para refletir essa mudança?</strong><br />
+  O arquivo <code>docs/endpoints.md</code> mostra exemplos sem <code>phoneNumber</code>.</li>
+<li><strong>O front-end e outras integrações estão preparadas para lidar com o novo campo?</strong></li>
+</ul>
+<hr />
+<p><strong>Resumo:</strong><br />
+A mudança adiciona o campo <code>phoneNumber</code> ao record <code>UserResponse</code> com um construtor secundário para compatibilidade. Isso impacta a estrutura dos dados retornados pela API, exigindo atualização dos testes, documentação e validação do uso do novo campo. Riscos reais envolvem inconsistência na API, falhas em testes e problemas de compatibilidade com clientes. Testes manuais e automatizados devem focar na presença, valor e comportamento do novo campo em todos os fluxos que usam <code>UserResponse</code>.</p>
+<hr />
+<h1 id="arquivo-analisado-java-apisrcmainjavacomrepoalvojavaapiserviceuserservicejava">Arquivo analisado: java-api/src/main/java/com/repoalvo/javaapi/service/UserService.java</h1>
+<h1 id="tipo-da-mudanca_2">Tipo da mudança</h1>
+<p>Melhoria funcional com extensão do modelo de dados e adaptação do serviço para suportar novo campo (telefone).</p>
+<h1 id="evidencias-observadas_2">Evidências observadas</h1>
+<ul>
+<li>No construtor <code>UserService()</code>, os usuários iniciais foram alterados para incluir um novo parâmetro <code>phoneNumber</code>:<br />
+<code>java
+  users.add(new UserResponse(1, "Ana Silva", "ana@example.com", "ACTIVE", "ADMIN", "+55 11 90000-0001"));
+  users.add(new UserResponse(2, "Bruno Lima", "bruno@example.com", "ACTIVE", "USER", "+55 11 90000-0002"));</code></li>
+<li>No método <code>create(UserCreateRequest payload)</code>, a criação do objeto <code>UserResponse</code> agora inclui <code>payload.phoneNumber()</code>:<br />
+<code>java
+  UserResponse user = new UserResponse(
+      nextId.getAndIncrement(),
+      payload.name(),
+      payload.email(),
+      "ACTIVE",
+      role,
+      payload.phoneNumber()
+  );</code></li>
+<li>No método <code>update(int userId, UserUpdateRequest payload)</code>, o objeto atualizado mantém o campo <code>phoneNumber</code> do usuário existente, sem permitir atualização via payload:<br />
+<code>java
+  UserResponse updated = new UserResponse(
+      existing.id(),
+      updatedName,
+      updatedEmail,
+      existing.status(),
+      existing.role(),
+      existing.phoneNumber()
+  );</code></li>
+<li>O construtor e métodos foram adaptados para a nova assinatura de <code>UserResponse</code> que inclui o campo telefone.</li>
+<li>O contexto do repositório mostra que o modelo <code>UserResponse</code> e as requisições <code>UserCreateRequest</code> e <code>UserUpdateRequest</code> são usados para manipulação dos dados do usuário.</li>
+<li>Testes unitários existentes (exemplo em <code>UserServiceUnitTest.java</code>) cobrem criação e atualização, mas não mencionam telefone.</li>
+<li>O código do serviço é sincronizado (<code>synchronized</code>), mantendo a thread safety.</li>
+</ul>
+<h1 id="impacto-provavel_2">Impacto provável</h1>
+<ul>
+<li>O serviço agora suporta armazenar e retornar o número de telefone do usuário.</li>
+<li>Usuários criados via <code>create</code> podem ter telefone associado, desde que o payload contenha esse dado.</li>
+<li>Atualizações via <code>update</code> <strong>não</strong> alteram o telefone, pois o campo não é atualizado a partir do payload.</li>
+<li>O campo telefone passa a fazer parte do modelo <code>UserResponse</code>, impactando qualquer consumidor da API que utilize esse objeto (ex: controladores, serialização JSON).</li>
+<li>Possível impacto em camadas superiores (controller, front-end, clientes) que precisam lidar com o novo campo.</li>
+<li>Dados existentes (usuários seed) já possuem telefone, garantindo consistência inicial.</li>
+</ul>
+<h1 id="riscos-identificados_2">Riscos identificados</h1>
+<ul>
+<li><strong>Inconsistência na atualização do telefone:</strong> O método <code>update</code> não permite alterar o telefone, mesmo que o payload possa conter essa informação (não mostrado no diff se <code>UserUpdateRequest</code> tem telefone). Isso pode causar confusão ou bugs se o front-end tentar atualizar telefone e não ver a alteração refletida.</li>
+<li><strong>Compatibilidade com clientes:</strong> Se clientes antigos não esperam o campo telefone, pode haver problemas de serialização ou parsing.</li>
+<li><strong>Validação do telefone:</strong> Não há evidência de validação do formato do telefone no serviço. Se o campo for opcional ou mal formatado, pode causar problemas downstream.</li>
+<li><strong>Testes existentes não cobrem telefone:</strong> Os testes unitários e de integração existentes provavelmente não validam o novo campo, podendo deixar passar regressões ou erros.</li>
+<li><strong>Possível quebra de contrato:</strong> Se o construtor <code>UserResponse</code> foi alterado para incluir telefone, pode haver impacto em outras partes do sistema que usam essa classe.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_2">Cenários de testes manuais</h1>
+<ol>
+<li>
+<p><strong>Criação de usuário com telefone:</strong><br />
+   - Enviar requisição para criar usuário com nome, email, role e telefone.<br />
+   - Verificar se o usuário é criado com telefone correto.<br />
+   - Verificar retorno da API inclui telefone.</p>
+</li>
+<li>
+<p><strong>Criação de usuário sem telefone:</strong><br />
+   - Criar usuário sem informar telefone.<br />
+   - Verificar se o telefone fica nulo ou vazio no objeto criado.</p>
+</li>
+<li>
+<p><strong>Listagem de usuários:</strong><br />
+   - Listar usuários existentes.<br />
+   - Verificar se o telefone aparece corretamente para usuários seed e criados.</p>
+</li>
+<li>
+<p><strong>Atualização de usuário sem alterar telefone:</strong><br />
+   - Atualizar nome e email de um usuário existente.<br />
+   - Verificar que o telefone permanece inalterado.</p>
+</li>
+<li>
+<p><strong>Tentativa de atualização do telefone (se possível via payload):</strong><br />
+   - Se o payload de update permitir telefone, tentar alterar telefone.<br />
+   - Verificar que o telefone não é alterado (conforme código atual).<br />
+   - Confirmar comportamento esperado com o time de produto.</p>
+</li>
+<li>
+<p><strong>Verificação de comportamento com telefone inválido:</strong><br />
+   - Criar usuário com telefone em formato inválido (ex: texto aleatório).<br />
+   - Verificar se há erro ou se aceita o valor.</p>
+</li>
+<li>
+<p><strong>Verificar serialização JSON:</strong><br />
+   - Confirmar que o campo telefone é serializado e retornado nas respostas da API.</p>
+</li>
+</ol>
+<h1 id="sugestoes-de-testes-unitarios_2">Sugestões de testes unitários</h1>
+<ul>
+<li>Testar criação de usuário com telefone preenchido e verificar se o objeto <code>UserResponse</code> contém o telefone correto.</li>
+<li>Testar criação de usuário sem telefone e verificar se o campo telefone é nulo ou padrão.</li>
+<li>Testar atualização de usuário e garantir que o telefone não é alterado.</li>
+<li>Testar atualização de usuário com payload contendo telefone (se o payload permitir) e garantir que o telefone permanece o mesmo.</li>
+<li>Testar o construtor <code>UserResponse</code> com o novo parâmetro telefone para garantir que o objeto é criado corretamente.</li>
+<li>Testar listagem para garantir que usuários retornados possuem telefone correto.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_2">Sugestões de testes de integração</h1>
+<ul>
+<li>Testar o endpoint de criação de usuário via controller, enviando telefone no payload, e verificar resposta e persistência.</li>
+<li>Testar o endpoint de listagem de usuários e verificar se o telefone está presente na resposta JSON.</li>
+<li>Testar o endpoint de atualização de usuário e verificar que o telefone não é alterado mesmo se enviado no payload.</li>
+<li>Testar fluxo completo: criar usuário com telefone, listar, atualizar nome/email, listar novamente e verificar telefone.</li>
+<li>Testar comportamento do endpoint que busca usuário por email ou id para garantir telefone está presente.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_2">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Nenhum indicativo na mudança justifica testes de carga ou desempenho específicos.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_2">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>O campo telefone está presente em <code>UserCreateRequest</code> (sim, pelo uso <code>payload.phoneNumber()</code>), mas não está sendo atualizado no método <code>update</code>. Isso é intencional? O telefone não deve ser alterável via update?</li>
+<li>Existe validação do formato do telefone em algum lugar da aplicação? Se não, é esperado aceitar qualquer string?</li>
+<li>O modelo <code>UserUpdateRequest</code> contém o campo telefone? Se sim, por que não está sendo usado para atualizar?</li>
+<li>O contrato da API (documentação, front-end) já foi atualizado para refletir o novo campo telefone?</li>
+<li>Há impacto em outras camadas (controller, front-end, clientes externos) que precisam ser validados?</li>
+<li>O campo telefone pode ser nulo/omisso? Qual o comportamento esperado nesses casos?</li>
+</ul>
+<hr />
+<p><strong>Resumo:</strong> A mudança adiciona suporte ao campo telefone no modelo de usuário, incluindo usuários seed e criação via payload. A atualização não altera telefone, o que pode ser um ponto de atenção. É necessário validar o comportamento esperado para atualização do telefone e garantir cobertura de testes para o novo campo.</p>
+    </article>
+  </div>
+  <footer>QAgent — análise automatizada de QA com IA</footer>
+  
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const summaryContainer = document.getElementById('run-summary-container');
+  const artifactsContainer = document.getElementById('artifacts-container');
+
+  const formatMs = (ms) => {
+    if (!ms) return '0ms';
+    if (ms < 1000) return `${Math.round(ms)}ms`;
+    return `${(ms / 1000).toFixed(2)}s`;
+  };
+
+  const getRiskBadge = (level) => {
+    const map = {
+      'HIGH': { text: 'Alto risco', class: 'badge-high' },
+      'MEDIUM': { text: 'Risco médio', class: 'badge-medium' },
+      'LOW': { text: 'Baixo risco', class: 'badge-low' }
+    };
+    const info = map[level] || { text: level, class: 'badge-info' };
+    return `<span class="badge ${info.class}">${info.text}</span>`;
+  };
+
+  const getQualityBadge = (quality) => {
+    const map = {
+      'OK': { text: 'Review suficiente', class: 'badge-low' },
+      'INCOMPLETE': { text: 'Review incompleto', class: 'badge-high' }
+    };
+    const info = map[quality] || { text: quality, class: 'badge-info' };
+    return `<span class="badge ${info.class}">${info.text}</span>`;
+  };
+
+  const getRecBadge = (rec) => {
+    const map = {
+      'RECOMMENDED': { text: 'Geração recomendada', class: 'badge-low' },
+      'SKIPPED': { text: 'Geração pulada', class: 'badge-medium' }
+    };
+    const info = map[rec] || { text: rec, class: 'badge-info' };
+    return `<span class="badge ${info.class}">${info.text}</span>`;
+  };
+
+  // 1. Carregar Run Summary
+  try {
+    const resp = await fetch('run_summary.json');
+    if (resp.ok) {
+      const data = await resp.json();
+      summaryContainer.innerHTML = `
+        <div class="section-title">📊 Resumo da Execução</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-value">${data.total_files || 0}</span>
+            <span class="stat-label">Arquivos</span>
+          </div>
+          <div class="stat-card">
+            <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
+              ${getRiskBadge('HIGH')} x ${data.risk_distribution?.HIGH || 0}
+              ${getRiskBadge('MEDIUM')} x ${data.risk_distribution?.MEDIUM || 0}
+              ${getRiskBadge('LOW')} x ${data.risk_distribution?.LOW || 0}
+            </div>
+            <span class="stat-label" style="margin-top:8px">Distribuição</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">${data.total_steps_skipped || 0}</span>
+            <span class="stat-label">Etapas Puladas</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">${data.total_fallbacks_triggered || 0}</span>
+            <span class="stat-label">Fallbacks</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">${formatMs(data.total_duration_ms)}</span>
+            <span class="stat-label">Duração Total</span>
+          </div>
+        </div>
+        <details>
+          <summary>Ver dados brutos do resumo</summary>
+          <pre class="raw-json">${JSON.stringify(data, null, 2)}</pre>
+        </details>
+      `;
+    }
+  } catch (e) {
+    console.error('Erro ao carregar run_summary.json', e);
+  }
+
+  // 2. Carregar Artifacts
+  try {
+    const resp = await fetch('artifacts.json');
+    if (resp.ok) {
+      const artifacts = await resp.json();
+      let html = '<div class="section-title">📦 Artefatos Estruturados</div><div class="artifact-list">';
+      
+      artifacts.forEach((a, index) => {
+        const id = `art-${index}`;
+        html += `
+          <div class="artifact-card">
+            <div class="artifact-header" onclick="document.getElementById('${id}').style.display = document.getElementById('${id}').style.display === 'none' ? 'block' : 'none'">
+              <div class="artifact-title">
+                <span>📄</span> <strong>${a.file_path}</strong>
+              </div>
+              <div style="display:flex; gap:8px">
+                ${getRiskBadge(a.risk_level)}
+                ${getQualityBadge(a.review_quality)}
+              </div>
+            </div>
+            <div id="${id}" class="artifact-content" style="display:none">
+              
+              <div class="data-grid" style="margin-top:20px">
+                <div class="data-item">
+                  <span class="data-label">Recomendação de Testes</span>
+                  <span class="data-value">${getRecBadge(a.test_generation_recommendation)}</span>
+                </div>
+                <div class="data-item">
+                  <span class="data-label">Políticas Aplicadas</span>
+                  <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px">
+                    ${(a.applied_policies || []).map(p => `<span class="badge badge-policy">${p}</span>`).join('') || '--'}
+                  </div>
+                </div>
+              </div>
+
+              <div class="sub-section">
+                <div class="sub-section-title">🔍 Visão Geral e Contexto</div>
+                <div class="data-grid">
+                   <div class="data-item">
+                    <span class="data-label">Linguagem</span>
+                    <span class="data-value">${a.context_result?.language || '--'}</span>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Propósito</span>
+                    <span class="data-value">${a.context_result?.file_purpose || '--'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sub-section">
+                <div class="sub-section-title">🛡️ Review de QA</div>
+                <p style="font-size:.85rem; color:var(--text-muted)">${a.review_result?.summary || 'Sem resumo disponível'}</p>
+                <div class="data-grid">
+                  <div class="data-item">
+                    <span class="data-label">Principais Riscos</span>
+                    <ul style="margin:5px 0; padding-left:18px; font-size:.85rem">
+                      ${(a.review_result?.security_vulnerabilities || []).slice(0,2).map(v => `<li>${v}</li>`).join('') || '<li>Nenhum detectado</li>'}
+                    </ul>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Impacto Funcional</span>
+                    <span class="data-value">${a.review_result?.impact_assessment || '--'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sub-section">
+                <div class="sub-section-title">⏱️ Observabilidade e Performance</div>
+                <div class="data-grid">
+                  <div class="data-item">
+                    <span class="data-label">Etapas Executadas</span>
+                    <div style="font-size:.8rem; display:flex; flex-wrap:wrap; gap:4px">
+                      ${(a.executed_steps || []).map(s => `<span class="badge badge-info">${s}</span>`).join('')}
+                    </div>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Etapas Puladas</span>
+                    <div style="font-size:.8rem; color:var(--red)">
+                      ${(a.skipped_steps || []).join(', ') || 'Nenhuma'}
+                    </div>
+                  </div>
+                   <div class="data-item">
+                    <span class="data-label">Duração das Etapas</span>
+                    <div style="font-size:.8rem">
+                      ${Object.entries(a.step_durations_ms || {}).map(([s, d]) => `<div>${s}: <strong>${formatMs(d)}</strong></div>`).join('')}
+                    </div>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Fallbacks</span>
+                    <div style="font-size:.8rem; color:var(--yellow)">
+                      ${(a.fallbacks_triggered || []).join(', ') || 'Nenhum'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <details style="margin-top:20px">
+                <summary>Ver JSON completo do arquivo</summary>
+                <pre class="raw-json">${JSON.stringify(a, null, 2)}</pre>
+              </details>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      artifactsContainer.innerHTML = html;
+    }
+  } catch (e) {
+    console.error('Erro ao carregar artifacts.json', e);
+    artifactsContainer.innerHTML = '<div class="error-msg">Aviso: Não foi possível carregar os artefatos estruturados para esta execução.</div>';
+  }
+});
+</script>
+
+</body>
+</html>
