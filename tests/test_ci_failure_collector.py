@@ -1,6 +1,7 @@
 from src.schemas.ci_check_result import CIFailingCheck
 from src.services.ci_failure_collector import (
     _compact_failure_log,
+    _extract_job_id,
     _extract_run_id,
     render_ci_result_for_prompt,
     _render_ci_summary,
@@ -12,6 +13,12 @@ def test_extract_run_id_from_actions_job_link() -> None:
     link = "https://github.com/org/repo/actions/runs/123456789/job/987654321"
 
     assert _extract_run_id(link) == "123456789"
+
+
+def test_extract_job_id_from_actions_job_link() -> None:
+    link = "https://github.com/org/repo/actions/runs/123456789/job/987654321"
+
+    assert _extract_job_id(link) == "987654321"
 
 
 def test_compact_failure_log_prefers_actionable_lines() -> None:
@@ -28,7 +35,25 @@ def test_compact_failure_log_prefers_actionable_lines() -> None:
 
     assert "FAILED tests/test_api.py::test_cart" in compact
     assert "Process completed with exit code 1." in compact
-    assert "setup ok" not in compact
+    assert "setup ok" in compact
+
+
+def test_compact_failure_log_keeps_context_around_pytest_failure() -> None:
+    log = "\n".join(
+        [
+            "tests/test_api.py::test_cart FAILED",
+            "payload = {'unexpected': 'value'}",
+            ">       assert response.status_code == 422",
+            "E       assert 200 == 422",
+            "short test summary info",
+        ]
+    )
+
+    compact = _compact_failure_log(log, max_chars=1000)
+
+    assert "payload = {'unexpected': 'value'}" in compact
+    assert "assert response.status_code == 422" in compact
+    assert "assert 200 == 422" in compact
 
 
 def test_render_ci_summary_includes_failing_check_and_excerpt() -> None:
