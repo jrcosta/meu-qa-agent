@@ -53,6 +53,8 @@ def export_run_summary(
     total_fallbacks = 0
     total_executed = 0
     all_policies: list[str] = []
+    flow_counts: dict[str, int] = {}
+    context_level_counts: dict[str, int] = {}
 
     for a in artifacts:
         risk_counts[a.risk_level] = risk_counts.get(a.risk_level, 0) + 1
@@ -60,6 +62,13 @@ def export_run_summary(
         total_fallbacks += len(a.fallbacks_triggered)
         total_executed += len(a.executed_steps)
         all_policies.extend(a.applied_policies)
+        if a.token_budget_plan is not None:
+            flow = a.token_budget_plan.analysis_mode
+            context_level = a.token_budget_plan.context_level
+            flow_counts[flow] = flow_counts.get(flow, 0) + 1
+            context_level_counts[context_level] = (
+                context_level_counts.get(context_level, 0) + 1
+            )
 
     summary: dict[str, Any] = {
         "total_files": len(artifacts),
@@ -68,6 +77,8 @@ def export_run_summary(
         "total_steps_skipped": total_skipped,
         "total_fallbacks_triggered": total_fallbacks,
         "policies_applied": sorted(set(all_policies)),
+        "analysis_flow_distribution": flow_counts,
+        "context_level_distribution": context_level_counts,
     }
 
     if total_duration_ms is not None:

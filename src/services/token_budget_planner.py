@@ -161,3 +161,100 @@ def _count_changed_lines(file_diff: str) -> int:
         if line.startswith(("+", "-")):
             count += 1
     return count
+
+
+def build_code_content_for_plan(
+    code_content: str,
+    file_diff: str,
+    plan: TokenBudgetPlan,
+    context_lines: int = 40,
+) -> str:
+    """Retorna arquivo completo ou janelas ao redor das linhas alteradas."""
+    if plan.include_full_file:
+        return code_content
+
+    lines = code_content.splitlines()
+    changed_lines = _extract_new_file_changed_lines(file_diff)
+    if not changed_lines:
+        return _truncate_content(code_content, TokenBudgetPlanner.LARGE_FILE_CHARS)
+
+    windows: list[tuple[int, int]] = []
+    for line_number in changed_lines:
+        start = max(1, line_number - context_lines)
+        end = min(len(lines), line_number + context_lines)
+        windows.append((start, end))
+
+    merged_windows = _merge_windows(windows)
+    sections: list[str] = [
+        (
+            f"[Arquivo compactado pelo TokenBudgetPlanner: {len(code_content)} chars; "
+            f"{len(merged_windows)} janela(s) ao redor do diff]"
+        )
+    ]
+
+    for start, end in merged_windows:
+        snippet = "\n".join(
+            f"{line_no}: {lines[line_no - 1]}" for line_no in range(start, end + 1)
+        )
+        sections.append(f"[linhas {start}-{end}]\n{snippet}")
+
+    return "\n\n".join(sections)
+
+
+def _extract_new_file_changed_lines(file_diff: str) -> list[int]:
+    changed_lines: list[int] = []
+    current_new_line = 0
+
+    for line in file_diff.splitlines():
+        if line.startswith("@@"):
+            current_new_line = _parse_hunk_new_start(line)
+            continue
+
+        if not current_new_line:
+            continue
+
+        if line.startswith("+") and not line.startswith("+++"):
+            changed_lines.append(current_new_line)
+            current_new_line += 1
+        elif line.startswith("-") and not line.startswith("---"):
+            continue
+        else:
+            current_new_line += 1
+
+    return changed_lines
+
+
+def _parse_hunk_new_start(hunk_header: str) -> int:
+    marker = " +"
+    if marker not in hunk_header:
+        return 0
+
+    new_part = hunk_header.split(marker, 1)[1].split(" ", 1)[0]
+    start_text = new_part.split(",", 1)[0]
+    try:
+        return int(start_text)
+    except ValueError:
+        return 0
+
+
+def _merge_windows(windows: list[tuple[int, int]]) -> list[tuple[int, int]]:
+    if not windows:
+        return []
+
+    sorted_windows = sorted(windows)
+    merged = [sorted_windows[0]]
+
+    for start, end in sorted_windows[1:]:
+        last_start, last_end = merged[-1]
+        if start <= last_end + 1:
+            merged[-1] = (last_start, max(last_end, end))
+        else:
+            merged.append((start, end))
+
+    return merged
+
+
+def _truncate_content(content: str, max_chars: int) -> str:
+    if len(content) <= max_chars:
+        return content
+    return content[:max_chars] + "\n... [TRUNCADO PELO TOKEN BUDGET]"

@@ -8,8 +8,13 @@ from src.crew.cooperative_analysis_crew import CooperativeAnalysisCrewRunner
 from src.crew.high_risk_strategy_crew import HighRiskTestStrategyRunner
 from src.utils.git_utils import get_changed_files, get_file_diff
 from src.schemas.file_analysis_artifact import FileAnalysisArtifact
+from src.schemas.review_result import ReviewResult
 from src.services.analysis_orchestrator import AnalysisOrchestrator
 from src.services.artifact_exporter import export_artifacts_to_json, export_run_summary
+from src.services.token_budget_planner import (
+    TokenBudgetPlanner,
+    build_code_content_for_plan,
+)
 
 
 def parse_args():
@@ -70,6 +75,34 @@ def build_report(sections: list[str]) -> str:
     return "\n\n---\n\n".join(sections)
 
 
+def build_skipped_review_markdown(file_path: str, reason: str) -> str:
+    return f"""# Tipo da mudança
+Mudança trivial analisada por fallback determinístico.
+
+# Evidências observadas
+- Arquivo: {file_path}
+- Motivo do TokenBudgetPlanner: {reason}
+
+# Impacto provável
+Baixo impacto provável; arquivo classificado para não consumir análise LLM.
+
+# Riscos identificados
+Nenhum risco relevante identificado pelas regras determinísticas.
+
+# Cenários de testes manuais
+Nenhum cenário manual específico recomendado.
+
+# Sugestões de testes unitários
+Nenhum teste unitário novo recomendado.
+
+# Sugestões de testes de integração
+Nenhum teste de integração novo recomendado.
+
+# Pontos que precisam de esclarecimento
+Nenhum ponto adicional identificado.
+"""
+
+
 def main() -> None:
     args = parse_args()
     repo_path = Path(args.repo_path).resolve()
@@ -80,6 +113,7 @@ def main() -> None:
     cooperative_runner = CooperativeAnalysisCrewRunner(settings)
     high_risk_runner = HighRiskTestStrategyRunner(settings)
     orchestrator = AnalysisOrchestrator(high_risk_runner)
+    token_budget_planner = TokenBudgetPlanner()
 
     changed_files = get_changed_files(
         repo_path=repo_path,
@@ -111,18 +145,57 @@ def main() -> None:
             print(f"Sem diff relevante para: {file_path}")
             continue
 
+        token_budget_plan = token_budget_planner.plan(
+            file_path=file_path,
+            file_diff=file_diff,
+            code_content=code_content,
+            cooperative_requested=args.cooperative_analysis,
+        )
+        prompt_code_content = build_code_content_for_plan(
+            code_content=code_content,
+            file_diff=file_diff,
+            plan=token_budget_plan,
+        )
+        print(
+            "  🧭 Fluxo escolhido: "
+            f"{token_budget_plan.analysis_mode} | contexto={token_budget_plan.context_level} | "
+            f"arquivo_completo={token_budget_plan.include_full_file}"
+        )
+
         # --- QA Review ---
         t0 = time.perf_counter()
         cooperative_succeeded = False
         cooperative_failed_reason = ""
-        if args.cooperative_analysis:
+        if token_budget_plan.analysis_mode == "skip":
+            skipped_markdown = build_skipped_review_markdown(
+                file_path=file_path,
+                reason=token_budget_plan.reason,
+            )
+            crew_result = type(
+                "SkippedQACrewResult",
+                (),
+                {
+                    "raw_review_markdown": skipped_markdown,
+                    "review_result": ReviewResult(
+                        summary=(
+                            "Mudança trivial analisada por fallback determinístico "
+                            f"para {file_path}."
+                        ),
+                        findings=[],
+                        test_needs=[],
+                    ),
+                    "context_result": None,
+                },
+            )()
+        elif token_budget_plan.analysis_mode == "cooperative":
             try:
                 print("  🤝 Usando análise cooperativa multiagente")
                 crew_result = cooperative_runner.run(
                     file_path=file_path,
                     file_diff=file_diff,
-                    code_content=code_content,
+                    code_content=prompt_code_content,
                     repo_path=str(repo_path),
+                    token_budget_plan=token_budget_plan,
                 )
                 cooperative_succeeded = True
             except Exception as exc:
@@ -134,33 +207,52 @@ def main() -> None:
                 crew_result = crew_runner.run(
                     file_path=file_path,
                     file_diff=file_diff,
-                    code_content=code_content,
+                    code_content=prompt_code_content,
                     repo_path=str(repo_path),
+                    token_budget_plan=token_budget_plan,
                 )
         else:
             crew_result = crew_runner.run(
                 file_path=file_path,
                 file_diff=file_diff,
-                code_content=code_content,
+                code_content=prompt_code_content,
                 repo_path=str(repo_path),
+                token_budget_plan=token_budget_plan,
             )
         qa_duration = (time.perf_counter() - t0) * 1000
 
         # 1. Monta artefato parcial e avalia risco
         artifact = FileAnalysisArtifact(
             file_path=file_path,
+            context_result=crew_result.context_result,
+            token_budget_plan=token_budget_plan,
             raw_review_markdown=crew_result.raw_review_markdown,
             review_result=crew_result.review_result,
         )
-        artifact.mark_step_executed("qa_review")
+        artifact.add_policy(f"token_budget_{token_budget_plan.analysis_mode}")
+        artifact.add_policy(f"context_{token_budget_plan.context_level}")
+        artifact.add_note(token_budget_plan.reason)
+        if token_budget_plan.analysis_mode == "skip":
+            artifact.mark_step_skipped("qa_review", token_budget_plan.reason)
+            artifact.mark_step_executed("deterministic_token_saver_review")
+        else:
+            artifact.mark_step_executed("qa_review")
         if cooperative_succeeded:
             artifact.add_policy("cooperative_analysis_experimental")
             artifact.mark_step_executed("cooperative_analysis")
-        elif args.cooperative_analysis:
+        elif (
+            args.cooperative_analysis
+            and token_budget_plan.analysis_mode == "cooperative"
+        ):
             artifact.add_fallback("cooperative_analysis_to_qa_agent")
             artifact.mark_step_skipped(
                 "cooperative_analysis",
                 cooperative_failed_reason or "erro não informado",
+            )
+        elif args.cooperative_analysis:
+            artifact.mark_step_skipped(
+                "cooperative_analysis",
+                f"{token_budget_plan.analysis_mode} definido pelo TokenBudgetPlanner",
             )
         artifact.record_duration("qa_review", qa_duration)
 
