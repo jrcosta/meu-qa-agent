@@ -102,6 +102,36 @@ class RepoContextBuilderTests(unittest.TestCase):
                 any(path.endswith("OrderServiceTest.java") for path in context.existing_tests)
             )
 
+    def test_compact_context_omits_test_snippets_but_keeps_test_list(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+
+            changed_file = repo / "module" / "calculator.py"
+            changed_file.parent.mkdir(parents=True, exist_ok=True)
+            changed_file.write_text("def soma(a, b):\n    return a + b\n", encoding="utf-8")
+
+            existing_test = repo / "tests" / "test_calculator.py"
+            existing_test.parent.mkdir(parents=True, exist_ok=True)
+            existing_test.write_text(
+                "def test_soma_basica():\n"
+                "    assert soma(2, 3) == 5\n",
+                encoding="utf-8",
+            )
+
+            builder = RepoContextBuilder(str(repo))
+            context = builder.build(
+                changed_file="module/calculator.py",
+                code_content=changed_file.read_text(encoding="utf-8"),
+                context_level="compact",
+            )
+
+            self.assertIn("test_calculator.py", context.summary)
+            self.assertIn(
+                "Snippets de testes omitidos pelo orçamento de contexto.",
+                context.summary,
+            )
+            self.assertNotIn("test_soma_basica", context.summary)
+
 
 if __name__ == "__main__":
     unittest.main()

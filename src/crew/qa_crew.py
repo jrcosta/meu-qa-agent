@@ -4,8 +4,10 @@ from src.services.context_builder import RepoContextBuilder
 from dataclasses import dataclass
 from src.tasks.qa_task import QATaskFactory
 from crewai import Crew, Process
+from src.schemas.context_result import ContextResult
 from src.schemas.review_result import ReviewResult, parse_review_markdown_to_review_result
 from src.schemas.context_result import render_context_result_for_prompt
+from src.schemas.token_budget import TokenBudgetPlan
 
 
 
@@ -13,17 +15,31 @@ from src.schemas.context_result import render_context_result_for_prompt
 class QACrewResult:
     raw_review_markdown: str
     review_result: ReviewResult
+    context_result: ContextResult | None = None
 
 
 class QACrewRunner:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
 
-    def run(self, file_path: str, file_diff: str, code_content: str, repo_path: str) -> QACrewResult:
+    def run(
+        self,
+        file_path: str,
+        file_diff: str,
+        code_content: str,
+        repo_path: str,
+        token_budget_plan: TokenBudgetPlan | None = None,
+    ) -> QACrewResult:
         context_builder = RepoContextBuilder(repo_path)
         context_result = context_builder.build(
             changed_file=file_path,
             code_content=code_content,
+            context_level=(
+                token_budget_plan.context_level if token_budget_plan else "standard"
+            ),
+            max_context_chars=(
+                token_budget_plan.max_context_chars if token_budget_plan else None
+            ),
         )
         
         repo_context_text = render_context_result_for_prompt(context_result)
@@ -62,5 +78,6 @@ class QACrewRunner:
 
         return QACrewResult(
             raw_review_markdown=raw_result,
-            review_result=review_result_parsed
+            review_result=review_result_parsed,
+            context_result=context_result,
         )
