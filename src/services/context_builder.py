@@ -8,6 +8,7 @@ from src.tools.repo_tools import (
     SearchInRepoTool,
 )
 from src.schemas.context_result import ContextResult
+from src.schemas.token_budget import ContextLevel
 
 
 
@@ -97,17 +98,13 @@ class RepoContextBuilder:
 
         return unique_items
 
-    def _read_file_snippet(self, relative_path: str) -> str:
-        content = self.read_file_tool._run(relative_path)
-
-        if content.startswith("Arquivo não encontrado") or content.startswith("Caminho não é um arquivo"):
-            return f"### {relative_path}\n{content}"
-
-        snippet = content[: self.MAX_CHARS_PER_FILE]
-        truncated = "\n... [TRUNCADO]" if len(content) > self.MAX_CHARS_PER_FILE else ""
-        return f"### {relative_path}\n```\n{snippet}{truncated}\n```"
-
-    def build(self, changed_file: str, code_content: str) -> ContextResult:
+    def build(
+        self,
+        changed_file: str,
+        code_content: str,
+        context_level: ContextLevel = "standard",
+        max_context_chars: int | None = None,
+    ) -> ContextResult:
         stem = Path(changed_file).stem
 
         same_name_hits_text = self.search_tool._run(stem, max_results=self.MAX_SAME_NAME_HITS)
@@ -127,20 +124,33 @@ class RepoContextBuilder:
             if path != changed_file and not self._is_test_file(path)
         ]
 
-        final_related_sources = self._unique(related_source_files)[: self.MAX_RELATED_SOURCE_FILES]
-        final_existing_tests = self._unique(related_tests + existing_test_candidates)[: self.MAX_RELATED_TEST_FILES]
+        if context_level == "none":
+            final_related_sources: list[str] = []
+            final_existing_tests = self._unique(related_tests + existing_test_candidates)
+        else:
+            source_limit, test_limit, chars_per_file = self._limits_for_level(context_level)
+            final_related_sources = self._unique(related_source_files)[:source_limit]
+            final_existing_tests = self._unique(related_tests + existing_test_candidates)[:test_limit]
 
         related_source_contents = (
-            "\n\n".join(self._read_file_snippet(path) for path in final_related_sources)
+            "\n\n".join(
+                self._read_file_snippet(path, chars_per_file) for path in final_related_sources
+            )
             if final_related_sources
             else "Nenhum arquivo de código relacionado encontrado."
         )
 
-        existing_tests_contents = (
-            "\n\n".join(self._read_file_snippet(path) for path in final_existing_tests)
-            if final_existing_tests
-            else "Nenhum teste existente identificado no repositório."
-        )
+        if context_level in {"none", "compact"}:
+            existing_tests_contents = "Snippets de testes omitidos pelo orçamento de contexto."
+        else:
+            existing_tests_contents = (
+                "\n\n".join(
+                    self._read_file_snippet(path, chars_per_file)
+                    for path in final_existing_tests
+                )
+                if final_existing_tests
+                else "Nenhum teste existente identificado no repositório."
+            )
 
         context_sections = [
             f"# Arquivo alterado\n{changed_file}",
@@ -154,6 +164,11 @@ class RepoContextBuilder:
         ]
 
         summary_text = "\n\n".join(context_sections)
+        if max_context_chars is not None and len(summary_text) > max_context_chars:
+            summary_text = (
+                summary_text[:max_context_chars]
+                + "\n\n... [CONTEXTO TRUNCADO PELO TOKEN BUDGET]"
+            )
 
         return ContextResult(
             file_path=changed_file,
@@ -162,3 +177,21 @@ class RepoContextBuilder:
             existing_tests=final_existing_tests,
             risks_from_context=[]
         )
+
+    def _read_file_snippet(self, relative_path: str, max_chars: int | None = None) -> str:
+        content = self.read_file_tool._run(relative_path)
+
+        if content.startswith("Arquivo não encontrado") or content.startswith("Caminho não é um arquivo"):
+            return f"### {relative_path}\n{content}"
+
+        limit = max_chars or self.MAX_CHARS_PER_FILE
+        snippet = content[:limit]
+        truncated = "\n... [TRUNCADO]" if len(content) > limit else ""
+        return f"### {relative_path}\n```\n{snippet}{truncated}\n```"
+
+    def _limits_for_level(self, context_level: ContextLevel) -> tuple[int, int, int]:
+        if context_level == "compact":
+            return 1, 4, 1200
+        if context_level == "expanded":
+            return self.MAX_RELATED_SOURCE_FILES, self.MAX_RELATED_TEST_FILES, self.MAX_CHARS_PER_FILE
+        return 2, 6, 2000
