@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>QAgent · jrcosta/repo_alvo_api_simples · 26 Apr 2026 – 11:28:37 UTC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-hover: #1c2129;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+  --purple: #bc8cff;
+  --radius: 10px;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  margin: 0; padding: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; transition: color .15s; }
+a:hover { color: var(--accent-hover); }
+.container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+}
+.topbar a { font-size: .9rem; }
+.topbar .sep { color: var(--border); }
+.topbar .slug { color: var(--text-muted); font-size: .85rem; font-family: var(--font-mono); }
+.report { padding-top: 16px; }
+.report h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.report h2 { font-size: 1.3rem; margin-top: 32px; color: var(--accent); }
+.report h3 { font-size: 1.1rem; margin-top: 24px; }
+.report p { margin: 12px 0; }
+.report ul, .report ol { padding-left: 24px; }
+.report li { margin: 6px 0; }
+.report code {
+  font-family: var(--font-mono); font-size: .88em;
+  background: var(--surface); padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.report pre {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: .88rem; line-height: 1.5;
+}
+.report pre code { background: none; border: none; padding: 0; }
+.report blockquote {
+  border-left: 3px solid var(--accent); margin: 16px 0;
+  padding: 8px 16px; color: var(--text-muted); background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.report table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.report th, .report td {
+  border: 1px solid var(--border); padding: 8px 12px; text-align: left;
+}
+.report th { background: var(--surface); font-weight: 600; }
+.report hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.report strong { color: #f0f6fc; }
+.meta-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px;
+  display: flex; flex-wrap: wrap; gap: 24px; font-size: .88rem;
+}
+.meta-item label { color: var(--text-muted); display: block; font-size: .78rem; margin-bottom: 2px; }
+.meta-item span { font-family: var(--font-mono); }
+
+/* Novas seções de artefatos */
+.section-title { font-size: 1.4rem; margin: 40px 0 20px; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; }
+.stat-value { font-size: 1.8rem; font-weight: 700; color: var(--accent); display: block; }
+.stat-label { color: var(--text-muted); font-size: .8rem; text-transform: uppercase; letter-spacing: 1px; }
+
+.artifact-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px; }
+.artifact-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.artifact-header { padding: 12px 20px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background .15s; }
+.artifact-header:hover { background: var(--surface-hover); }
+.artifact-title { font-family: var(--font-mono); font-size: .9rem; display: flex; align-items: center; gap: 8px; }
+.artifact-content { padding: 0 20px 20px; border-top: 1px solid var(--border); background: #161b2255; }
+
+.sub-section { margin-top: 20px; }
+.sub-section-title { font-size: .9rem; font-weight: 600; margin-bottom: 10px; color: var(--text-muted); text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.data-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.data-item { background: #0d111755; padding: 10px 14px; border-radius: 6px; border: 1px solid var(--border); }
+.data-label { font-size: .75rem; color: var(--text-muted); display: block; }
+.data-value { font-size: .9rem; }
+
+.badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: .75rem; font-weight: 600; }
+.badge-low { background: #23863633; color: #3fb950; border: 1px solid #238636; }
+.badge-medium { background: #9e6a0333; color: #d29922; border: 1px solid #9e6a03; }
+.badge-high { background: #da363333; color: #f85149; border: 1px solid #da3633; }
+.badge-info { background: #388bfd33; color: #58a6ff; border: 1px solid #388bfd; }
+.badge-policy { background: #8957e533; color: #bc8cff; border: 1px solid #8957e5; }
+.memory-list { display: flex; flex-direction: column; gap: 10px; }
+.memory-item { background: #0d111755; border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; }
+.memory-meta { color: var(--text-muted); font-size: .75rem; font-family: var(--font-mono); margin-bottom: 6px; }
+.memory-lesson { font-size: .86rem; margin: 0; }
+.memory-empty { color: var(--text-muted); font-size: .86rem; background: #0d111755; border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; }
+
+details summary { cursor: pointer; padding: 8px 0; color: var(--accent); font-size: .9rem; font-weight: 500; }
+details summary:hover { color: var(--accent-hover); }
+.raw-json { font-family: var(--font-mono); font-size: .8rem; background: #00000044; padding: 12px; border-radius: 6px; overflow-x: auto; margin-top: 10px; border: 1px solid var(--border); }
+
+.error-msg { background: #f8514922; border: 1px solid var(--red); color: var(--red); padding: 12px; border-radius: var(--radius); margin: 20px 0; font-size: .9rem; }
+footer { text-align: center; color: var(--text-muted); font-size: .8rem; padding: 40px 0 20px;
+         border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+  <nav class="topbar">
+    <a href="../../index.html">← Histórico</a>
+    <span class="sep">|</span>
+    <span class="slug">2026-04-26_11-28-37_UTC__jrcosta__repo_alvo_api_simples</span>
+  </nav>
+  <div class="container">
+    <div class="meta-box">
+      <div class="meta-item"><label>Repositório</label><span>jrcosta/repo_alvo_api_simples</span></div>
+      <div class="meta-item"><label>Execução</label><span>26 Apr 2026 – 11:28:37 UTC</span></div>
+    </div>
+    <div class="meta-box" style="margin-top:12px;font-size:.85rem"><a href="artifacts.json" style="margin-right:16px">📦 artifacts.json</a> <a href="run_summary.json">📊 run_summary.json</a></div>
+    <div id="run-summary-container"></div>
+    <div id="artifacts-container"></div>
+    <article class="report">
+      <h1 id="arquivo-analisado-java-apisrcmainjavacomrepoalvojavaapicontrollerusercontrollerjava">Arquivo analisado: java-api/src/main/java/com/repoalvo/javaapi/controller/UserController.java</h1>
+<h1 id="tipo-da-mudanca">Tipo da mudança</h1>
+<ul>
+<li><strong>Adição de funcionalidade</strong>: inclusão de um novo endpoint REST para sumarização do status dos usuários (<code>GET /users/status-summary</code>).</li>
+<li><strong>Refatoração menor</strong>: reorganização dos imports para incluir a nova classe <code>UserStatusSummaryResponse</code>.</li>
+</ul>
+<h1 id="evidencias-observadas">Evidências observadas</h1>
+<ul>
+<li>No diff, foi adicionado o método <code>usersStatusSummary()</code> no <code>UserController</code>:</li>
+</ul>
+<pre><code class="language-java">@GetMapping(&quot;/users/status-summary&quot;)
+public UserStatusSummaryResponse usersStatusSummary() {
+    Map&lt;String, Long&gt; statuses = userService.listAllUsers()
+            .stream()
+            .collect(Collectors.groupingBy(UserResponse::status, Collectors.counting()));
+
+    return new UserStatusSummaryResponse(statuses);
+}
+</code></pre>
+<ul>
+<li>
+<p>O método obtém todos os usuários via <code>userService.listAllUsers()</code>, agrupa por status (<code>UserResponse::status</code>) e conta quantos usuários existem por status, retornando um objeto <code>UserStatusSummaryResponse</code> com o mapa resultante.</p>
+</li>
+<li>
+<p>O arquivo atual do <code>UserController.java</code> confirma que o método está presente e que a importação da classe <code>UserStatusSummaryResponse</code> foi adicionada.</p>
+</li>
+<li>
+<p>O contexto do repositório mostra que existem testes unitários e de integração para o <code>UserController</code>, mas não há evidência direta de testes para esse novo endpoint.</p>
+</li>
+</ul>
+<h1 id="impacto-provavel">Impacto provável</h1>
+<ul>
+<li>
+<p><strong>Novo endpoint REST</strong>: <code>GET /users/status-summary</code> que retorna um resumo da quantidade de usuários por status.</p>
+</li>
+<li>
+<p>Funcionalidade nova que permite aos consumidores da API obter estatísticas agregadas sobre o status dos usuários.</p>
+</li>
+<li>
+<p>Não altera endpoints existentes, portanto não deve impactar funcionalidades anteriores.</p>
+</li>
+<li>
+<p>Depende da integridade dos dados retornados por <code>userService.listAllUsers()</code> e do método <code>UserResponse::status</code>.</p>
+</li>
+</ul>
+<h1 id="riscos-identificados">Riscos identificados</h1>
+<ul>
+<li>
+<p><strong>Risco de inconsistência ou erro na agregação</strong>: se <code>UserResponse::status</code> retornar valores nulos ou inesperados, o agrupamento pode gerar chaves nulas ou incorretas no mapa.</p>
+</li>
+<li>
+<p><strong>Possível impacto de performance</strong>: o método chama <code>listAllUsers()</code>, que pode retornar uma lista grande. Se a base de usuários for muito grande, pode haver impacto de memória e tempo de resposta, embora isso já ocorra em outros endpoints que listam todos os usuários.</p>
+</li>
+<li>
+<p><strong>Ausência de validação ou tratamento de erros</strong>: o método assume que <code>listAllUsers()</code> sempre retorna uma lista válida. Se ocorrer exceção ou falha, não há tratamento específico.</p>
+</li>
+<li>
+<p><strong>Falta de testes específicos para o novo endpoint</strong>: não há evidência de testes unitários ou de integração cobrindo esse endpoint, o que pode levar a regressões ou falhas não detectadas.</p>
+</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais">Cenários de testes manuais</h1>
+<ol>
+<li><strong>Consulta do resumo de status com usuários existentes</strong></li>
+</ol>
+<ul>
+<li>Preparar base com usuários de diferentes status (ex: ACTIVE, INACTIVE, PENDING).</li>
+<li>Executar <code>GET /users/status-summary</code>.</li>
+<li>Verificar que o JSON retornado contém as chaves correspondentes aos status e os valores corretos de contagem.</li>
+</ul>
+<ol start="2">
+<li><strong>Consulta do resumo de status com base vazia</strong></li>
+</ol>
+<ul>
+<li>Garantir que não existam usuários cadastrados.</li>
+<li>Executar <code>GET /users/status-summary</code>.</li>
+<li>Verificar que o JSON retornado é um objeto vazio ou com contagem zero (dependendo da implementação de <code>UserStatusSummaryResponse</code>).</li>
+</ul>
+<ol start="3">
+<li><strong>Consulta com usuários que tenham status nulo ou inválido</strong></li>
+</ol>
+<ul>
+<li>Inserir usuário(s) com status nulo ou string vazia.</li>
+<li>Executar <code>GET /users/status-summary</code>.</li>
+<li>Verificar como o sistema agrupa esses casos (ex: chave nula, string vazia, ou ausência no mapa).</li>
+</ul>
+<ol start="4">
+<li><strong>Verificar resposta HTTP</strong></li>
+</ol>
+<ul>
+<li>Confirmar que o endpoint retorna status 200 OK em casos normais.</li>
+<li>Confirmar que o conteúdo retornado é JSON válido.</li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios">Sugestões de testes unitários</h1>
+<ul>
+<li>
+<p>Testar o método <code>usersStatusSummary()</code> isoladamente, mockando <code>userService.listAllUsers()</code> para retornar:</p>
+</li>
+<li>
+<p>Lista vazia → verificar que o mapa retornado está vazio.</p>
+</li>
+<li>Lista com usuários de múltiplos status → verificar que o mapa contém as chaves corretas e contagens exatas.</li>
+<li>
+<p>Lista com usuários com status nulo ou vazios → verificar comportamento esperado (ex: chave nula presente ou ignorada).</p>
+</li>
+<li>
+<p>Testar que o método chama exatamente uma vez <code>userService.listAllUsers()</code>.</p>
+</li>
+<li>
+<p>Testar que o objeto <code>UserStatusSummaryResponse</code> é criado corretamente com o mapa esperado.</p>
+</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao">Sugestões de testes de integração</h1>
+<ul>
+<li>
+<p>Criar teste que insere usuários com diferentes status no banco (ou mock do serviço) e executa requisição HTTP para <code>GET /users/status-summary</code>.</p>
+</li>
+<li>
+<p>Validar o JSON retornado, verificando as chaves e valores de contagem.</p>
+</li>
+<li>
+<p>Testar o endpoint em cenário de base vazia.</p>
+</li>
+<li>
+<p>Testar o endpoint em cenário com usuários com status incomuns ou nulos.</p>
+</li>
+<li>
+<p>Validar código HTTP 200 e content-type JSON.</p>
+</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>
+<p>Não há indicação clara na mudança que justifique testes de carga específicos para este endpoint.</p>
+</li>
+<li>
+<p>Caso a base de usuários seja muito grande, pode ser interessante monitorar o tempo de resposta e uso de memória, mas isso não é foco da mudança.</p>
+</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>
+<p>Qual o comportamento esperado para usuários com status nulo ou inválido? Devem ser agrupados sob uma chave especial, ignorados ou causar erro?</p>
+</li>
+<li>
+<p>O objeto <code>UserStatusSummaryResponse</code> aceita mapa vazio? Qual o formato JSON esperado para esse caso?</p>
+</li>
+<li>
+<p>Há necessidade de paginação ou filtros para esse endpoint no futuro, caso a base cresça muito?</p>
+</li>
+<li>
+<p>Existe algum requisito de segurança ou autorização para acesso a esse endpoint?</p>
+</li>
+</ul>
+<hr />
+<p><strong>Resumo:</strong> A mudança adiciona um novo endpoint para sumarizar usuários por status, sem alterar funcionalidades existentes. O principal risco está na ausência de tratamento para status nulos e na falta de testes específicos para o novo endpoint. Recomenda-se criar testes unitários e de integração focados na agregação e no formato da resposta, além de validar o comportamento com dados incomuns.</p>
+<hr />
+<h1 id="arquivo-analisado-java-apisrcmainjavacomrepoalvojavaapimodeluserstatussummaryresponsejava">Arquivo analisado: java-api/src/main/java/com/repoalvo/javaapi/model/UserStatusSummaryResponse.java</h1>
+<h1 id="tipo-da-mudanca_1">Tipo da mudança</h1>
+<p>Inclusão de novo modelo de dados (record) para resposta de resumo de status de usuários.</p>
+<h1 id="evidencias-observadas_1">Evidências observadas</h1>
+<ul>
+<li>O diff mostra a criação do arquivo <code>UserStatusSummaryResponse.java</code> contendo um <code>record</code> Java com um único campo: <code>Map&lt;String, Long&gt; statuses</code>.</li>
+<li>O arquivo está vazio antes da mudança (<code>new file mode 100644</code>).</li>
+<li>O contexto do repositório indica que <code>UserStatusSummaryResponse</code> já é referenciado no <code>UserController.java</code> (importado), sugerindo que este novo record será usado para representar respostas relacionadas a status de usuários.</li>
+<li>Não há implementação de lógica, apenas a definição do tipo de dado.</li>
+<li>Não há testes específicos para este record no contexto fornecido, mas há testes para o controller e serviço de usuários.</li>
+</ul>
+<h1 id="impacto-provavel_1">Impacto provável</h1>
+<ul>
+<li>Introdução de um novo tipo de resposta para endpoints que retornam um resumo de status dos usuários, provavelmente um mapeamento de status (ex: "ACTIVE", "INACTIVE") para contagem de usuários em cada status.</li>
+<li>Pode impactar endpoints que agregam ou resumem dados de usuários por status, facilitando a serialização e deserialização JSON.</li>
+<li>Como é um record, a imutabilidade e a simplicidade do objeto são garantidas, o que pode melhorar a clareza e segurança do código.</li>
+<li>Nenhuma alteração funcional direta no comportamento da aplicação, apenas adição de modelo para uso futuro.</li>
+</ul>
+<h1 id="riscos-identificados_1">Riscos identificados</h1>
+<ul>
+<li>Risco baixo, pois é apenas uma definição de modelo sem lógica.</li>
+<li>Risco de incompatibilidade futura se o mapa <code>statuses</code> não for populado corretamente ou se a serialização JSON não for tratada adequadamente (ex: nomes de chaves, valores nulos).</li>
+<li>Se o controller ou serviço que usar este record não tratar corretamente o mapa, pode haver erros de runtime.</li>
+<li>Ausência de testes específicos para este record pode levar a regressões ou erros não detectados na serialização/deserialização.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_1">Cenários de testes manuais</h1>
+<ul>
+<li>Verificar se o endpoint que retorna o resumo de status de usuários (se existir) retorna JSON com o formato esperado: um objeto com chaves de status e valores numéricos.</li>
+<li>Testar o endpoint com diferentes estados do banco de dados (ex: nenhum usuário, usuários com múltiplos status, usuários com status desconhecido).</li>
+<li>Validar que o JSON retornado corresponde ao conteúdo do mapa <code>statuses</code> do record.</li>
+<li>Testar a integração do controller que utiliza <code>UserStatusSummaryResponse</code> para garantir que o objeto é criado e retornado corretamente.</li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios_1">Sugestões de testes unitários</h1>
+<ul>
+<li>Criar teste unitário para <code>UserStatusSummaryResponse</code> que:</li>
+<li>Instancie o record com um mapa de status e verifique se o getter <code>statuses()</code> retorna o mapa correto.</li>
+<li>Testar serialização e deserialização JSON do record para garantir compatibilidade com o formato esperado (usando Jackson ou biblioteca equivalente).</li>
+<li>Testar o método do serviço ou controller que cria e retorna <code>UserStatusSummaryResponse</code> para garantir que o mapa está correto e completo.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_1">Sugestões de testes de integração</h1>
+<ul>
+<li>Testar o endpoint REST que retorna o resumo de status de usuários (se existir) para garantir que a resposta HTTP tem status 200 e o corpo JSON corresponde ao <code>UserStatusSummaryResponse</code>.</li>
+<li>Testar com dados reais no banco para validar contagem correta dos status.</li>
+<li>Testar comportamento com dados vazios (nenhum usuário) para garantir que o mapa retornado não cause erros (ex: mapa vazio).</li>
+<li>Validar headers HTTP e content-type da resposta.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_1">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável, pois a mudança é apenas a inclusão de um modelo de dados sem lógica ou processamento.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_1">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>Qual endpoint(s) ou serviço(s) irão utilizar este novo record <code>UserStatusSummaryResponse</code>? O contexto mostra importação no controller, mas não há implementação visível.</li>
+<li>Qual é a origem dos dados que irão popular o mapa <code>statuses</code>? Existe alguma regra de negócio para agregação dos status?</li>
+<li>Como será tratado o caso de status desconhecidos ou nulos no mapa?</li>
+<li>Há necessidade de validação ou restrição sobre as chaves e valores do mapa?</li>
+<li>Existe padrão de serialização JSON esperado para este record (ex: nomes das chaves, formatação dos números)?</li>
+</ul>
+<hr />
+<p><strong>Resumo:</strong> A mudança introduz um novo record Java para representar um resumo de status de usuários via um mapa de contagens. A alteração é estrutural e não altera comportamento existente, mas requer testes para garantir que o modelo será usado corretamente em endpoints e serviços que o consumirem. Riscos são baixos, mas a ausência de testes específicos para o novo tipo pode levar a problemas de serialização ou uso incorreto. Recomenda-se clarificar o uso pretendido e criar testes unitários e de integração focados na serialização e na resposta dos endpoints que utilizarem este record.</p>
+    </article>
+  </div>
+  <footer>QAgent — análise automatizada de QA com IA</footer>
+  
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const summaryContainer = document.getElementById('run-summary-container');
+  const artifactsContainer = document.getElementById('artifacts-container');
+
+  const formatMs = (ms) => {
+    if (!ms) return '0ms';
+    if (ms < 1000) return `${Math.round(ms)}ms`;
+    return `${(ms / 1000).toFixed(2)}s`;
+  };
+
+  const getRiskBadge = (level) => {
+    const map = {
+      'HIGH': { text: 'Alto risco', class: 'badge-high' },
+      'MEDIUM': { text: 'Risco médio', class: 'badge-medium' },
+      'LOW': { text: 'Baixo risco', class: 'badge-low' }
+    };
+    const info = map[level] || { text: level, class: 'badge-info' };
+    return `<span class="badge ${info.class}">${info.text}</span>`;
+  };
+
+  const getQualityBadge = (quality) => {
+    const map = {
+      'OK': { text: 'Review suficiente', class: 'badge-low' },
+      'INCOMPLETE': { text: 'Review incompleto', class: 'badge-high' }
+    };
+    const info = map[quality] || { text: quality, class: 'badge-info' };
+    return `<span class="badge ${info.class}">${info.text}</span>`;
+  };
+
+  const getRecBadge = (rec) => {
+    const map = {
+      'RECOMMENDED': { text: 'Geração recomendada', class: 'badge-low' },
+      'SKIPPED': { text: 'Geração pulada', class: 'badge-medium' }
+    };
+    const info = map[rec] || { text: rec, class: 'badge-info' };
+    return `<span class="badge ${info.class}">${info.text}</span>`;
+  };
+
+  const escapeHtml = (value) => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+  const renderMemories = (artifact) => {
+    const memories = artifact.memories_used || [];
+    if (!memories.length) {
+      return `
+        <div class="memory-empty">
+          Nenhuma memória relevante do banco vetorial foi usada na geração deste arquivo.
+        </div>
+      `;
+    }
+
+    return `
+      <div class="memory-list">
+        ${memories.map((mem) => `
+          <div class="memory-item">
+            <div class="memory-meta">
+              PR #${escapeHtml(mem.pr_number || '--')} · ${escapeHtml(mem.repo || 'repo desconhecido')} ·
+              distância ${escapeHtml(mem.distance ?? '--')} · por ${escapeHtml(mem.author || '--')}
+            </div>
+            <p class="memory-lesson">${escapeHtml(mem.lesson || '')}</p>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  };
+
+  // 1. Carregar Run Summary
+  try {
+    const resp = await fetch('run_summary.json');
+    if (resp.ok) {
+      const data = await resp.json();
+      summaryContainer.innerHTML = `
+        <div class="section-title">📊 Resumo da Execução</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-value">${data.total_files || 0}</span>
+            <span class="stat-label">Arquivos</span>
+          </div>
+          <div class="stat-card">
+            <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
+              ${getRiskBadge('HIGH')} x ${data.risk_distribution?.HIGH || 0}
+              ${getRiskBadge('MEDIUM')} x ${data.risk_distribution?.MEDIUM || 0}
+              ${getRiskBadge('LOW')} x ${data.risk_distribution?.LOW || 0}
+            </div>
+            <span class="stat-label" style="margin-top:8px">Distribuição</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">${data.total_steps_skipped || 0}</span>
+            <span class="stat-label">Etapas Puladas</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">${data.total_fallbacks_triggered || 0}</span>
+            <span class="stat-label">Fallbacks</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">${formatMs(data.total_duration_ms)}</span>
+            <span class="stat-label">Duração Total</span>
+          </div>
+        </div>
+        <details>
+          <summary>Ver dados brutos do resumo</summary>
+          <pre class="raw-json">${JSON.stringify(data, null, 2)}</pre>
+        </details>
+      `;
+    }
+  } catch (e) {
+    console.error('Erro ao carregar run_summary.json', e);
+  }
+
+  // 2. Carregar Artifacts
+  try {
+    const resp = await fetch('artifacts.json');
+    if (resp.ok) {
+      const artifacts = await resp.json();
+      let html = '<div class="section-title">📦 Artefatos Estruturados</div><div class="artifact-list">';
+      
+      artifacts.forEach((a, index) => {
+        const id = `art-${index}`;
+        html += `
+          <div class="artifact-card">
+            <div class="artifact-header" onclick="document.getElementById('${id}').style.display = document.getElementById('${id}').style.display === 'none' ? 'block' : 'none'">
+              <div class="artifact-title">
+                <span>📄</span> <strong>${a.file_path}</strong>
+              </div>
+              <div style="display:flex; gap:8px">
+                ${getRiskBadge(a.risk_level)}
+                ${getQualityBadge(a.review_quality)}
+              </div>
+            </div>
+            <div id="${id}" class="artifact-content" style="display:none">
+              
+              <div class="data-grid" style="margin-top:20px">
+                <div class="data-item">
+                  <span class="data-label">Recomendação de Testes</span>
+                  <span class="data-value">${getRecBadge(a.test_generation_recommendation)}</span>
+                </div>
+                <div class="data-item">
+                  <span class="data-label">Políticas Aplicadas</span>
+                  <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px">
+                    ${(a.applied_policies || []).map(p => `<span class="badge badge-policy">${p}</span>`).join('') || '--'}
+                  </div>
+                </div>
+              </div>
+
+              <div class="sub-section">
+                <div class="sub-section-title">🔍 Visão Geral e Contexto</div>
+                <div class="data-grid">
+                   <div class="data-item">
+                    <span class="data-label">Linguagem</span>
+                    <span class="data-value">${a.context_result?.language || '--'}</span>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Propósito</span>
+                    <span class="data-value">${a.context_result?.file_purpose || '--'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sub-section">
+                <div class="sub-section-title">🛡️ Review de QA</div>
+                <p style="font-size:.85rem; color:var(--text-muted)">${a.review_result?.summary || 'Sem resumo disponível'}</p>
+                <div class="data-grid">
+                  <div class="data-item">
+                    <span class="data-label">Principais Riscos</span>
+                    <ul style="margin:5px 0; padding-left:18px; font-size:.85rem">
+                      ${(a.review_result?.security_vulnerabilities || []).slice(0,2).map(v => `<li>${v}</li>`).join('') || '<li>Nenhum detectado</li>'}
+                    </ul>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Impacto Funcional</span>
+                    <span class="data-value">${a.review_result?.impact_assessment || '--'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sub-section">
+                <div class="sub-section-title">⏱️ Observabilidade e Performance</div>
+                <div class="data-grid">
+                  <div class="data-item">
+                    <span class="data-label">Etapas Executadas</span>
+                    <div style="font-size:.8rem; display:flex; flex-wrap:wrap; gap:4px">
+                      ${(a.executed_steps || []).map(s => `<span class="badge badge-info">${s}</span>`).join('')}
+                    </div>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Etapas Puladas</span>
+                    <div style="font-size:.8rem; color:var(--red)">
+                      ${(a.skipped_steps || []).join(', ') || 'Nenhuma'}
+                    </div>
+                  </div>
+                   <div class="data-item">
+                    <span class="data-label">Duração das Etapas</span>
+                    <div style="font-size:.8rem">
+                      ${Object.entries(a.step_durations_ms || {}).map(([s, d]) => `<div>${s}: <strong>${formatMs(d)}</strong></div>`).join('')}
+                    </div>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Fallbacks</span>
+                    <div style="font-size:.8rem; color:var(--yellow)">
+                      ${(a.fallbacks_triggered || []).join(', ') || 'Nenhum'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sub-section">
+                <div class="sub-section-title">🧠 Memórias do Banco Vetorial</div>
+                <div class="data-grid" style="margin-bottom:12px">
+                  <div class="data-item">
+                    <span class="data-label">Memória usada na geração</span>
+                    <span class="data-value">${(a.memories_used || []).length ? 'Sim' : 'Não'}</span>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Quantidade recuperada</span>
+                    <span class="data-value">${(a.memories_used || []).length}</span>
+                  </div>
+                </div>
+                ${renderMemories(a)}
+                ${a.memory_query ? `
+                  <details style="margin-top:10px">
+                    <summary>Ver consulta usada no banco vetorial</summary>
+                    <pre class="raw-json">${escapeHtml(a.memory_query)}</pre>
+                  </details>
+                ` : ''}
+              </div>
+
+              <details style="margin-top:20px">
+                <summary>Ver JSON completo do arquivo</summary>
+                <pre class="raw-json">${JSON.stringify(a, null, 2)}</pre>
+              </details>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      artifactsContainer.innerHTML = html;
+    }
+  } catch (e) {
+    console.error('Erro ao carregar artifacts.json', e);
+    artifactsContainer.innerHTML = '<div class="error-msg">Aviso: Não foi possível carregar os artefatos estruturados para esta execução.</div>';
+  }
+});
+</script>
+
+</body>
+</html>

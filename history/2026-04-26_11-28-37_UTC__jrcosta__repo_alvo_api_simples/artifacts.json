@@ -1,0 +1,863 @@
+[
+  {
+    "file_path": "java-api/src/main/java/com/repoalvo/javaapi/controller/UserController.java",
+    "context_result": null,
+    "raw_review_markdown": "# Tipo da mudança\n\n- **Adição de funcionalidade**: inclusão de um novo endpoint REST para sumarização do status dos usuários (`GET /users/status-summary`).\n- **Refatoração menor**: reorganização dos imports para incluir a nova classe `UserStatusSummaryResponse`.\n\n# Evidências observadas\n\n- No diff, foi adicionado o método `usersStatusSummary()` no `UserController`:\n\n```java\n@GetMapping(\"/users/status-summary\")\npublic UserStatusSummaryResponse usersStatusSummary() {\n    Map<String, Long> statuses = userService.listAllUsers()\n            .stream()\n            .collect(Collectors.groupingBy(UserResponse::status, Collectors.counting()));\n\n    return new UserStatusSummaryResponse(statuses);\n}\n```\n\n- O método obtém todos os usuários via `userService.listAllUsers()`, agrupa por status (`UserResponse::status`) e conta quantos usuários existem por status, retornando um objeto `UserStatusSummaryResponse` com o mapa resultante.\n\n- O arquivo atual do `UserController.java` confirma que o método está presente e que a importação da classe `UserStatusSummaryResponse` foi adicionada.\n\n- O contexto do repositório mostra que existem testes unitários e de integração para o `UserController`, mas não há evidência direta de testes para esse novo endpoint.\n\n# Impacto provável\n\n- **Novo endpoint REST**: `GET /users/status-summary` que retorna um resumo da quantidade de usuários por status.\n\n- Funcionalidade nova que permite aos consumidores da API obter estatísticas agregadas sobre o status dos usuários.\n\n- Não altera endpoints existentes, portanto não deve impactar funcionalidades anteriores.\n\n- Depende da integridade dos dados retornados por `userService.listAllUsers()` e do método `UserResponse::status`.\n\n# Riscos identificados\n\n- **Risco de inconsistência ou erro na agregação**: se `UserResponse::status` retornar valores nulos ou inesperados, o agrupamento pode gerar chaves nulas ou incorretas no mapa.\n\n- **Possível impacto de performance**: o método chama `listAllUsers()`, que pode retornar uma lista grande. Se a base de usuários for muito grande, pode haver impacto de memória e tempo de resposta, embora isso já ocorra em outros endpoints que listam todos os usuários.\n\n- **Ausência de validação ou tratamento de erros**: o método assume que `listAllUsers()` sempre retorna uma lista válida. Se ocorrer exceção ou falha, não há tratamento específico.\n\n- **Falta de testes específicos para o novo endpoint**: não há evidência de testes unitários ou de integração cobrindo esse endpoint, o que pode levar a regressões ou falhas não detectadas.\n\n# Cenários de testes manuais\n\n1. **Consulta do resumo de status com usuários existentes**\n\n   - Preparar base com usuários de diferentes status (ex: ACTIVE, INACTIVE, PENDING).\n   - Executar `GET /users/status-summary`.\n   - Verificar que o JSON retornado contém as chaves correspondentes aos status e os valores corretos de contagem.\n\n2. **Consulta do resumo de status com base vazia**\n\n   - Garantir que não existam usuários cadastrados.\n   - Executar `GET /users/status-summary`.\n   - Verificar que o JSON retornado é um objeto vazio ou com contagem zero (dependendo da implementação de `UserStatusSummaryResponse`).\n\n3. **Consulta com usuários que tenham status nulo ou inválido**\n\n   - Inserir usuário(s) com status nulo ou string vazia.\n   - Executar `GET /users/status-summary`.\n   - Verificar como o sistema agrupa esses casos (ex: chave nula, string vazia, ou ausência no mapa).\n\n4. **Verificar resposta HTTP**\n\n   - Confirmar que o endpoint retorna status 200 OK em casos normais.\n   - Confirmar que o conteúdo retornado é JSON válido.\n\n# Sugestões de testes unitários\n\n- Testar o método `usersStatusSummary()` isoladamente, mockando `userService.listAllUsers()` para retornar:\n\n  - Lista vazia → verificar que o mapa retornado está vazio.\n  - Lista com usuários de múltiplos status → verificar que o mapa contém as chaves corretas e contagens exatas.\n  - Lista com usuários com status nulo ou vazios → verificar comportamento esperado (ex: chave nula presente ou ignorada).\n\n- Testar que o método chama exatamente uma vez `userService.listAllUsers()`.\n\n- Testar que o objeto `UserStatusSummaryResponse` é criado corretamente com o mapa esperado.\n\n# Sugestões de testes de integração\n\n- Criar teste que insere usuários com diferentes status no banco (ou mock do serviço) e executa requisição HTTP para `GET /users/status-summary`.\n\n- Validar o JSON retornado, verificando as chaves e valores de contagem.\n\n- Testar o endpoint em cenário de base vazia.\n\n- Testar o endpoint em cenário com usuários com status incomuns ou nulos.\n\n- Validar código HTTP 200 e content-type JSON.\n\n# Sugestões de testes de carga ou desempenho\n\n- Não há indicação clara na mudança que justifique testes de carga específicos para este endpoint.\n\n- Caso a base de usuários seja muito grande, pode ser interessante monitorar o tempo de resposta e uso de memória, mas isso não é foco da mudança.\n\n# Pontos que precisam de esclarecimento\n\n- Qual o comportamento esperado para usuários com status nulo ou inválido? Devem ser agrupados sob uma chave especial, ignorados ou causar erro?\n\n- O objeto `UserStatusSummaryResponse` aceita mapa vazio? Qual o formato JSON esperado para esse caso?\n\n- Há necessidade de paginação ou filtros para esse endpoint no futuro, caso a base cresça muito?\n\n- Existe algum requisito de segurança ou autorização para acesso a esse endpoint?\n\n---\n\n**Resumo:** A mudança adiciona um novo endpoint para sumarizar usuários por status, sem alterar funcionalidades existentes. O principal risco está na ausência de tratamento para status nulos e na falta de testes específicos para o novo endpoint. Recomenda-se criar testes unitários e de integração focados na agregação e no formato da resposta, além de validar o comportamento com dados incomuns.\n\n---",
+    "review_result": {
+      "summary": "- **Adição de funcionalidade**: inclusão de um novo endpoint REST para sumarização do status dos usuários (`GET /users/status-summary`).\n- **Refatoração menor**: reorganização dos imports para incluir a nova classe `UserStatusSummaryResponse`.\n\n- **Novo endpoint REST**: `GET /users/status-summary` que retorna um resumo da quantidade de usuários por status.\n\n- Funcionalidade nova que permite aos consumidores da API obter estatísticas agregadas sobre o status dos usuários.\n\n- Não altera endpoints existentes, portanto não deve impactar funcionalidades anteriores.\n\n- Depende da integridade dos dados retornados por `userService.listAllUsers()` e do método `UserResponse::status`.",
+      "findings": [
+        {
+          "description": "**Risco de inconsistência ou erro na agregação**: se `UserResponse::status` retornar valores nulos ou inesperados, o agrupamento pode gerar chaves nulas ou incorretas no mapa.",
+          "severity": "ERROR",
+          "line_number": null
+        },
+        {
+          "description": "**Possível impacto de performance**: o método chama `listAllUsers()`, que pode retornar uma lista grande. Se a base de usuários for muito grande, pode haver impacto de memória e tempo de resposta, embora isso já ocorra em outros endpoints que listam todos os usuários.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Ausência de validação ou tratamento de erros**: o método assume que `listAllUsers()` sempre retorna uma lista válida. Se ocorrer exceção ou falha, não há tratamento específico.",
+          "severity": "ERROR",
+          "line_number": null
+        },
+        {
+          "description": "**Falta de testes específicos para o novo endpoint**: não há evidência de testes unitários ou de integração cobrindo esse endpoint, o que pode levar a regressões ou falhas não detectadas.",
+          "severity": "ERROR",
+          "line_number": null
+        },
+        {
+          "description": "No diff, foi adicionado o método `usersStatusSummary()` no `UserController`:",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "O método obtém todos os usuários via `userService.listAllUsers()`, agrupa por status (`UserResponse::status`) e conta quantos usuários existem por status, retornando um objeto `UserStatusSummaryResponse` com o mapa resultante.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "O arquivo atual do `UserController.java` confirma que o método está presente e que a importação da classe `UserStatusSummaryResponse` foi adicionada.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "O contexto do repositório mostra que existem testes unitários e de integração para o `UserController`, mas não há evidência direta de testes para esse novo endpoint.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "**Novo endpoint REST**: `GET /users/status-summary` que retorna um resumo da quantidade de usuários por status.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Funcionalidade nova que permite aos consumidores da API obter estatísticas agregadas sobre o status dos usuários.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Não altera endpoints existentes, portanto não deve impactar funcionalidades anteriores.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Depende da integridade dos dados retornados por `userService.listAllUsers()` e do método `UserResponse::status`.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Qual o comportamento esperado para usuários com status nulo ou inválido? Devem ser agrupados sob uma chave especial, ignorados ou causar erro?",
+          "severity": "ERROR",
+          "line_number": null
+        },
+        {
+          "description": "O objeto `UserStatusSummaryResponse` aceita mapa vazio? Qual o formato JSON esperado para esse caso?",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Há necessidade de paginação ou filtros para esse endpoint no futuro, caso a base cresça muito?",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Existe algum requisito de segurança ou autorização para acesso a esse endpoint?",
+          "severity": "INFO",
+          "line_number": null
+        }
+      ],
+      "test_needs": [
+        "**Consulta do resumo de status com usuários existentes**",
+        "Preparar base com usuários de diferentes status (ex: ACTIVE, INACTIVE, PENDING).",
+        "Executar `GET /users/status-summary`.",
+        "Verificar que o JSON retornado contém as chaves correspondentes aos status e os valores corretos de contagem.",
+        "**Consulta do resumo de status com base vazia**",
+        "Garantir que não existam usuários cadastrados.",
+        "Executar `GET /users/status-summary`.",
+        "Verificar que o JSON retornado é um objeto vazio ou com contagem zero (dependendo da implementação de `UserStatusSummaryResponse`).",
+        "**Consulta com usuários que tenham status nulo ou inválido**",
+        "Inserir usuário(s) com status nulo ou string vazia.",
+        "Executar `GET /users/status-summary`.",
+        "Verificar como o sistema agrupa esses casos (ex: chave nula, string vazia, ou ausência no mapa).",
+        "**Verificar resposta HTTP**",
+        "Confirmar que o endpoint retorna status 200 OK em casos normais.",
+        "Confirmar que o conteúdo retornado é JSON válido.",
+        "Testar o método `usersStatusSummary()` isoladamente, mockando `userService.listAllUsers()` para retornar:",
+        "Lista vazia → verificar que o mapa retornado está vazio.",
+        "Lista com usuários de múltiplos status → verificar que o mapa contém as chaves corretas e contagens exatas.",
+        "Lista com usuários com status nulo ou vazios → verificar comportamento esperado (ex: chave nula presente ou ignorada).",
+        "Testar que o método chama exatamente uma vez `userService.listAllUsers()`.",
+        "Testar que o objeto `UserStatusSummaryResponse` é criado corretamente com o mapa esperado.",
+        "Criar teste que insere usuários com diferentes status no banco (ou mock do serviço) e executa requisição HTTP para `GET /users/status-summary`.",
+        "Validar o JSON retornado, verificando as chaves e valores de contagem.",
+        "Testar o endpoint em cenário de base vazia.",
+        "Testar o endpoint em cenário com usuários com status incomuns ou nulos.",
+        "Validar código HTTP 200 e content-type JSON.",
+        "Não há indicação clara na mudança que justifique testes de carga específicos para este endpoint.",
+        "Caso a base de usuários seja muito grande, pode ser interessante monitorar o tempo de resposta e uso de memória, mas isso não é foco da mudança."
+      ]
+    },
+    "test_strategy_result": {
+      "recommended_tests": [
+        {
+          "name": "**Consulta do resumo de status com usuários existentes**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Preparar base com usuários de diferentes status (ex: ACTIVE, INACTIVE, PENDING).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Executar `GET /users/status-summary`.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar que o JSON retornado contém as chaves correspondentes aos status e os valores corretos de contagem.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Consulta do resumo de status com base vazia**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Garantir que não existam usuários cadastrados.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Executar `GET /users/status-summary`.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar que o JSON retornado é um objeto vazio ou com contagem zero (dependendo da implementação de `UserStatusSummaryResponse`).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Consulta com usuários que tenham status nulo ou inválido**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Inserir usuário(s) com status nulo ou string vazia.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Executar `GET /users/status-summary`.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar como o sistema agrupa esses casos (ex: chave nula, string vazia, ou ausência no mapa).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "**Verificar resposta HTTP**",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Confirmar que o endpoint retorna status 200 OK em casos normais.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Confirmar que o conteúdo retornado é JSON válido.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar o método `usersStatusSummary()` isoladamente, mockando `userService.listAllUsers()` para retornar:",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Lista vazia → verificar que o mapa retornado está vazio.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Lista com usuários de múltiplos status → verificar que o mapa contém as chaves corretas e contagens exatas.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Lista com usuários com status nulo ou vazios → verificar comportamento esperado (ex: chave nula presente ou ignorada).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar que o método chama exatamente uma vez `userService.listAllUsers()`.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar que o objeto `UserStatusSummaryResponse` é criado corretamente com o mapa esperado.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Criar teste que insere usuários com diferentes status no banco (ou mock do serviço) e executa requisição HTTP para `GET /users/status-summary`.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Validar o JSON retornado, verificando as chaves e valores de contagem.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar o endpoint em cenário de base vazia.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar o endpoint em cenário com usuários com status incomuns ou nulos.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Validar código HTTP 200 e content-type JSON.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Não há indicação clara na mudança que justifique testes de carga específicos para este endpoint.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Caso a base de usuários seja muito grande, pode ser interessante monitorar o tempo de resposta e uso de memória, mas isso não é foco da mudança.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Risco de inconsistência ou erro na agregação**: se `UserResponse::status` retornar valores nulos ou inesperados, o agrupamento pode gerar chaves nulas ou incorretas no mapa.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Possível impacto de performance**: o método chama `listAllUsers()`, que pode retornar uma lista grande. Se a base de usuários for muito grande, pode haver impacto de memória e tempo de resposta, embora isso já ocorra em outros endpoints que listam todos os usuários.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Ausência de validação ou tratamento de erros**: o método assume que `listAllUsers()` sempre retorna uma lista válida. Se ocorrer exceção ou falha, não há tratamento específico.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Falta de testes específicos para o novo endpoint**: não há evidência de testes unitários ou de integração cobrindo esse endpoint, o que pode levar a regressões ou falhas não detectadas.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: No diff, foi adicionado o método `usersStatusSummary()` no `UserController`:",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O método obtém todos os usuários via `userService.listAllUsers()`, agrupa por status (`UserResponse::status`) e conta quantos usuários existem por status, retornando um objeto `UserStatusSummaryResponse` com o mapa resultante.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O arquivo atual do `UserController.java` confirma que o método está presente e que a importação da classe `UserStatusSummaryResponse` foi adicionada.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O contexto do repositório mostra que existem testes unitários e de integração para o `UserController`, mas não há evidência direta de testes para esse novo endpoint.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: **Novo endpoint REST**: `GET /users/status-summary` que retorna um resumo da quantidade de usuários por status.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Funcionalidade nova que permite aos consumidores da API obter estatísticas agregadas sobre o status dos usuários.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Não altera endpoints existentes, portanto não deve impactar funcionalidades anteriores.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Depende da integridade dos dados retornados por `userService.listAllUsers()` e do método `UserResponse::status`.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Qual o comportamento esperado para usuários com status nulo ou inválido? Devem ser agrupados sob uma chave especial, ignorados ou causar erro?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O objeto `UserStatusSummaryResponse` aceita mapa vazio? Qual o formato JSON esperado para esse caso?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Há necessidade de paginação ou filtros para esse endpoint no futuro, caso a base cresça muito?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Existe algum requisito de segurança ou autorização para acesso a esse endpoint?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Teste de regressão geral para 'java-api/src/main/java/com/repoalvo/javaapi/controller/UserController.java'",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar comportamento do endpoint `GET /users/status-summary` quando `userService.listAllUsers()` lança exceção, garantindo resposta HTTP adequada (ex: 500 Internal Server Error) e mensagem de erro clara.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Validar que o endpoint `GET /users/status-summary` está protegido por regras de segurança/autorização, testando acesso autorizado e não autorizado.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar o endpoint com uma base de usuários muito grande para verificar se há degradação significativa de performance e se o tempo de resposta permanece aceitável.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar se o endpoint `GET /users/status-summary` retorna cabeçalhos HTTP corretos, incluindo cache-control, content-type e outros relevantes para APIs REST.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar o comportamento do endpoint quando usuários possuem status com valores inesperados (ex: strings com espaços, caracteres especiais, ou status não documentados).",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Validar que o objeto `UserStatusSummaryResponse` serializa corretamente para JSON em todos os casos, incluindo mapa vazio, mapa com chaves nulas e chaves com caracteres especiais.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar integração do endpoint com o banco de dados real (não mockado), garantindo que a agregação de status reflete corretamente os dados persistidos.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Executar teste E2E que cobre o fluxo completo: criação de usuários com diferentes status, chamada ao endpoint `GET /users/status-summary` e validação do resultado agregado.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar cenário E2E onde usuários são criados, atualizados e deletados, e validar que o resumo de status reflete corretamente essas alterações em chamadas subsequentes ao endpoint.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Verificar se o endpoint lida corretamente com concorrência, ou seja, múltiplas requisições simultâneas ao `GET /users/status-summary` sem causar inconsistências ou erros.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Validar que o método `usersStatusSummary()` não altera o estado interno do `UserController` ou do `userService` (testar imutabilidade e ausência de efeitos colaterais).",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar se o endpoint responde corretamente quando o serviço `userService` retorna usuários com status em diferentes formatos de caixa (ex: \"active\", \"ACTIVE\", \"Active\") e se o agrupamento é case-sensitive ou case-insensitive.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Avaliar necessidade e comportamento do endpoint em relação a possíveis filtros futuros (ex: filtrar por data de criação, por grupo de usuários) para garantir que a arquitetura suporte extensões sem regressão.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar se o endpoint retorna corretamente um JSON válido mesmo quando o mapa de status contém chaves com valores zero (ex: status presentes mas sem usuários ativos).",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Validar que o endpoint não expõe dados sensíveis ou informações além do resumo de status, garantindo aderência ao princípio de menor privilégio.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        }
+      ],
+      "notes": "⚠️ Política HIGH aplicada para 'java-api/src/main/java/com/repoalvo/javaapi/controller/UserController.java'.\nTodos os cenários foram priorizados como críticos.\nResumo do QA: - **Adição de funcionalidade**: inclusão de um novo endpoint REST para sumarização do status dos usuários (`GET /users/status-summary`).\n- **Refatoração menor**: reorganização dos imports para incluir...\n\n--- Refinamento HIGH risk (via LLM) ---\n- A estratégia base cobre muito bem os testes unitários e cenários básicos de integração para o novo endpoint, porém faltam testes críticos de tratamento de erros, segurança e performance que são essenciais para um arquivo de alto risco.\n- A inclusão de testes E2E reforça a cobertura de regressão e valida o comportamento do sistema como um todo, especialmente importante para endpoints que agregam dados.\n- Testes de concorrência e imutabilidade ajudam a prevenir problemas em ambientes de produção com alta carga.\n- A estratégia considera que o endpoint pode evoluir para suportar filtros e paginação, portanto testes que avaliem a arquitetura para extensibilidade são recomendados.\n- A validação da segurança do endpoint é mandatória, pois o resumo de status pode ser sensível dependendo do contexto do negócio.\n- Recomenda-se documentar claramente o comportamento esperado para usuários com status nulo, inválido ou em formatos inesperados, para evitar ambiguidades e facilitar manutenção futura."
+    },
+    "generated_test_review_result": null,
+    "generated_tests_raw": "### FILE: java-api/src/test/java/com/repoalvo/javaapi/controller/UserControllerUnitTest.java\n```java\npackage com.repoalvo.javaapi.controller;\n\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport com.repoalvo.javaapi.model.UserResponse;\nimport com.repoalvo.javaapi.model.UserStatusSummaryResponse;\nimport com.repoalvo.javaapi.service.ExternalService;\nimport com.repoalvo.javaapi.service.UserService;\nimport org.junit.jupiter.api.BeforeEach;\nimport org.junit.jupiter.api.DisplayName;\nimport org.junit.jupiter.api.Test;\n\nimport java.util.List;\nimport java.util.Map;\n\nimport static org.assertj.core.api.Assertions.*;\nimport static org.mockito.Mockito.*;\n\nclass UserControllerUnitTest {\n\n    private UserService userService;\n    private ExternalService externalService;\n    private UserController userController;\n    private ObjectMapper objectMapper;\n\n    @BeforeEach\n    void setUp() {\n        userService = mock(UserService.class);\n        externalService = mock(ExternalService.class);\n        userController = new UserController(userService, externalService);\n        objectMapper = new ObjectMapper();\n    }\n\n    @Test\n    @DisplayName(\"usersStatusSummary returns empty map when user list is empty\")\n    void usersStatusSummaryReturnsEmptyMapWhenNoUsers() {\n        when(userService.listAllUsers()).thenReturn(List.of());\n\n        UserStatusSummaryResponse response = userController.usersStatusSummary();\n\n        assertThat(response).isNotNull();\n        assertThat(response.statuses()).isNotNull();\n        assertThat(response.statuses()).isEmpty();\n\n        verify(userService, times(1)).listAllUsers();\n    }\n\n    @Test\n    @DisplayName(\"usersStatusSummary returns correct counts for multiple user statuses\")\n    void usersStatusSummaryReturnsCorrectCountsForMultipleStatuses() {\n        List<UserResponse> users = List.of(\n                new UserResponse(1, \"Alice\", \"alice@example.com\", \"ACTIVE\", \"USER\"),\n                new UserResponse(2, \"Bob\", \"bob@example.com\", \"INACTIVE\", \"USER\"),\n                new UserResponse(3, \"Carol\", \"carol@example.com\", \"ACTIVE\", \"USER\"),\n                new UserResponse(4, \"Dave\", \"dave@example.com\", \"PENDING\", \"USER\"),\n                new UserResponse(5, \"Eve\", \"eve@example.com\", \"INACTIVE\", \"USER\")\n        );\n        when(userService.listAllUsers()).thenReturn(users);\n\n        UserStatusSummaryResponse response = userController.usersStatusSummary();\n\n        assertThat(response).isNotNull();\n        Map<String, Long> statuses = response.statuses();\n        assertThat(statuses).isNotNull();\n        assertThat(statuses).hasSize(3);\n        assertThat(statuses).containsEntry(\"ACTIVE\", 2L);\n        assertThat(statuses).containsEntry(\"INACTIVE\", 2L);\n        assertThat(statuses).containsEntry(\"PENDING\", 1L);\n\n        verify(userService, times(1)).listAllUsers();\n    }\n\n    @Test\n    @DisplayName(\"usersStatusSummary handles users with null or empty status keys\")\n    void usersStatusSummaryHandlesNullOrEmptyStatus() {\n        List<UserResponse> users = List.of(\n                new UserResponse(1, \"Alice\", \"alice@example.com\", null, \"USER\"),\n                new UserResponse(2, \"Bob\", \"bob@example.com\", \"\", \"USER\"),\n                new UserResponse(3, \"Carol\", \"carol@example.com\", \"ACTIVE\", \"USER\"),\n                new UserResponse(4, \"Dave\", \"dave@example.com\", null, \"USER\")\n        );\n        when(userService.listAllUsers()).thenReturn(users);\n\n        UserStatusSummaryResponse response = userController.usersStatusSummary();\n\n        assertThat(response).isNotNull();\n        Map<String, Long> statuses = response.statuses();\n        assertThat(statuses).isNotNull();\n\n        // The groupingBy will create keys for null and empty string as is\n        assertThat(statuses).containsEntry(null, 2L);\n        assertThat(statuses).containsEntry(\"\", 1L);\n        assertThat(statuses).containsEntry(\"ACTIVE\", 1L);\n\n        verify(userService, times(1)).listAllUsers();\n    }\n\n    @Test\n    @DisplayName(\"usersStatusSummary returns a UserStatusSummaryResponse with the expected map\")\n    void usersStatusSummaryCreatesResponseWithExpectedMap() {\n        Map<String, Long> expectedMap = Map.of(\"ACTIVE\", 3L, \"INACTIVE\", 1L);\n        List<UserResponse> users = List.of(\n                new UserResponse(1, \"Alice\", \"alice@example.com\", \"ACTIVE\", \"USER\"),\n                new UserResponse(2, \"Bob\", \"bob@example.com\", \"ACTIVE\", \"USER\"),\n                new UserResponse(3, \"Carol\", \"carol@example.com\", \"ACTIVE\", \"USER\"),\n                new UserResponse(4, \"Dave\", \"dave@example.com\", \"INACTIVE\", \"USER\")\n        );\n        when(userService.listAllUsers()).thenReturn(users);\n\n        UserStatusSummaryResponse response = userController.usersStatusSummary();\n\n        assertThat(response).isNotNull();\n        assertThat(response.statuses()).isEqualTo(expectedMap);\n\n        verify(userService, times(1)).listAllUsers();\n    }\n}\n```",
+    "generated_test_files": {
+      "java-api/src/test/java/com/repoalvo/javaapi/controller/UserControllerUnitTest.java": "package com.repoalvo.javaapi.controller;\n\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport com.repoalvo.javaapi.model.UserResponse;\nimport com.repoalvo.javaapi.model.UserStatusSummaryResponse;\nimport com.repoalvo.javaapi.service.ExternalService;\nimport com.repoalvo.javaapi.service.UserService;\nimport org.junit.jupiter.api.BeforeEach;\nimport org.junit.jupiter.api.DisplayName;\nimport org.junit.jupiter.api.Test;\n\nimport java.util.List;\nimport java.util.Map;\n\nimport static org.assertj.core.api.Assertions.*;\nimport static org.mockito.Mockito.*;\n\nclass UserControllerUnitTest {\n\n    private UserService userService;\n    private ExternalService externalService;\n    private UserController userController;\n    private ObjectMapper objectMapper;\n\n    @BeforeEach\n    void setUp() {\n        userService = mock(UserService.class);\n        externalService = mock(ExternalService.class);\n        userController = new UserController(userService, externalService);\n        objectMapper = new ObjectMapper();\n    }\n\n    @Test\n    @DisplayName(\"usersStatusSummary returns empty map when user list is empty\")\n    void usersStatusSummaryReturnsEmptyMapWhenNoUsers() {\n        when(userService.listAllUsers()).thenReturn(List.of());\n\n        UserStatusSummaryResponse response = userController.usersStatusSummary();\n\n        assertThat(response).isNotNull();\n        assertThat(response.statuses()).isNotNull();\n        assertThat(response.statuses()).isEmpty();\n\n        verify(userService, times(1)).listAllUsers();\n    }\n\n    @Test\n    @DisplayName(\"usersStatusSummary returns correct counts for multiple user statuses\")\n    void usersStatusSummaryReturnsCorrectCountsForMultipleStatuses() {\n        List<UserResponse> users = List.of(\n                new UserResponse(1, \"Alice\", \"alice@example.com\", \"ACTIVE\", \"USER\"),\n                new UserResponse(2, \"Bob\", \"bob@example.com\", \"INACTIVE\", \"USER\"),\n                new UserResponse(3, \"Carol\", \"carol@example.com\", \"ACTIVE\", \"USER\"),\n                new UserResponse(4, \"Dave\", \"dave@example.com\", \"PENDING\", \"USER\"),\n                new UserResponse(5, \"Eve\", \"eve@example.com\", \"INACTIVE\", \"USER\")\n        );\n        when(userService.listAllUsers()).thenReturn(users);\n\n        UserStatusSummaryResponse response = userController.usersStatusSummary();\n\n        assertThat(response).isNotNull();\n        Map<String, Long> statuses = response.statuses();\n        assertThat(statuses).isNotNull();\n        assertThat(statuses).hasSize(3);\n        assertThat(statuses).containsEntry(\"ACTIVE\", 2L);\n        assertThat(statuses).containsEntry(\"INACTIVE\", 2L);\n        assertThat(statuses).containsEntry(\"PENDING\", 1L);\n\n        verify(userService, times(1)).listAllUsers();\n    }\n\n    @Test\n    @DisplayName(\"usersStatusSummary handles users with null or empty status keys\")\n    void usersStatusSummaryHandlesNullOrEmptyStatus() {\n        List<UserResponse> users = List.of(\n                new UserResponse(1, \"Alice\", \"alice@example.com\", null, \"USER\"),\n                new UserResponse(2, \"Bob\", \"bob@example.com\", \"\", \"USER\"),\n                new UserResponse(3, \"Carol\", \"carol@example.com\", \"ACTIVE\", \"USER\"),\n                new UserResponse(4, \"Dave\", \"dave@example.com\", null, \"USER\")\n        );\n        when(userService.listAllUsers()).thenReturn(users);\n\n        UserStatusSummaryResponse response = userController.usersStatusSummary();\n\n        assertThat(response).isNotNull();\n        Map<String, Long> statuses = response.statuses();\n        assertThat(statuses).isNotNull();\n\n        // The groupingBy will create keys for null and empty string as is\n        assertThat(statuses).containsEntry(null, 2L);\n        assertThat(statuses).containsEntry(\"\", 1L);\n        assertThat(statuses).containsEntry(\"ACTIVE\", 1L);\n\n        verify(userService, times(1)).listAllUsers();\n    }\n\n    @Test\n    @DisplayName(\"usersStatusSummary returns a UserStatusSummaryResponse with the expected map\")\n    void usersStatusSummaryCreatesResponseWithExpectedMap() {\n        Map<String, Long> expectedMap = Map.of(\"ACTIVE\", 3L, \"INACTIVE\", 1L);\n        List<UserResponse> users = List.of(\n                new UserResponse(1, \"Alice\", \"alice@example.com\", \"ACTIVE\", \"USER\"),\n                new UserResponse(2, \"Bob\", \"bob@example.com\", \"ACTIVE\", \"USER\"),\n                new UserResponse(3, \"Carol\", \"carol@example.com\", \"ACTIVE\", \"USER\"),\n                new UserResponse(4, \"Dave\", \"dave@example.com\", \"INACTIVE\", \"USER\")\n        );\n        when(userService.listAllUsers()).thenReturn(users);\n\n        UserStatusSummaryResponse response = userController.usersStatusSummary();\n\n        assertThat(response).isNotNull();\n        assertThat(response.statuses()).isEqualTo(expectedMap);\n\n        verify(userService, times(1)).listAllUsers();\n    }\n}"
+    },
+    "memory_query": "Testes para java-api/src/main/java/com/repoalvo/javaapi/controller/UserController.java. Código: package com.repoalvo.javaapi.controller;\n\nimport com.repoalvo.javaapi.model.AgeEstimateResponse;\nimport com.repoalvo.javaapi.model.CountResponse;\nimport com.repoalvo.javaapi.model.EmailResponse;\nimpor",
+    "memories_used_raw": "[distance=1.083] (PR #33 em jrcosta/repo_alvo_api_simples, por Copilot)\n  Lição: Cenários que dependem do ciclo completo do Spring MVC para validação devem ser testados em testes de integração usando MockMvc, não em testes unitários.\n\n[distance=1.151] (PR #33 em jrcosta/repo_alvo_api_simples, por Copilot)\n  Lição: Em testes unitários puros, não assumir que validações Bean Validation anotadas com `@Valid` ou `@NotBlank` serão acionadas; essas validações ocorrem no contexto do Spring MVC.\n\n[distance=1.228] (PR #45 em jrcosta/repo_alvo_api_simples, por Copilot)\n  Lição: Conheça o comportamento real das anotações de validação usadas (ex: `@Email` do Hibernate Validator aceita strings vazias como válidas).\n\n[distance=1.246] (PR #39 em jrcosta/repo_alvo_api_simples, por Copilot)\n  Lição: Inicialize mocks seguindo o padrão do projeto, preferencialmente em um método `@BeforeEach setUp()`.\n\n[distance=1.251] (PR #47 em jrcosta/repo_alvo_api_simples, por Copilot)\n  Lição: Ajustar expectativas de status HTTP conforme a lógica atual da aplicação, como considerar `trim()` em entradas de e-mail para evitar falhas de teste.",
+    "memories_used": [
+      {
+        "distance": 1.083,
+        "pr_number": 33,
+        "repo": "jrcosta/repo_alvo_api_simples",
+        "author": "Copilot",
+        "lesson": "Cenários que dependem do ciclo completo do Spring MVC para validação devem ser testados em testes de integração usando MockMvc, não em testes unitários."
+      },
+      {
+        "distance": 1.151,
+        "pr_number": 33,
+        "repo": "jrcosta/repo_alvo_api_simples",
+        "author": "Copilot",
+        "lesson": "Em testes unitários puros, não assumir que validações Bean Validation anotadas com `@Valid` ou `@NotBlank` serão acionadas; essas validações ocorrem no contexto do Spring MVC."
+      },
+      {
+        "distance": 1.228,
+        "pr_number": 45,
+        "repo": "jrcosta/repo_alvo_api_simples",
+        "author": "Copilot",
+        "lesson": "Conheça o comportamento real das anotações de validação usadas (ex: `@Email` do Hibernate Validator aceita strings vazias como válidas)."
+      },
+      {
+        "distance": 1.246,
+        "pr_number": 39,
+        "repo": "jrcosta/repo_alvo_api_simples",
+        "author": "Copilot",
+        "lesson": "Inicialize mocks seguindo o padrão do projeto, preferencialmente em um método `@BeforeEach setUp()`."
+      },
+      {
+        "distance": 1.251,
+        "pr_number": 47,
+        "repo": "jrcosta/repo_alvo_api_simples",
+        "author": "Copilot",
+        "lesson": "Ajustar expectativas de status HTTP conforme a lógica atual da aplicação, como considerar `trim()` em entradas de e-mail para evitar falhas de teste."
+      }
+    ],
+    "risk_level": "HIGH",
+    "review_quality": "OK",
+    "test_generation_recommendation": "RECOMMENDED",
+    "executed_steps": [
+      "parse_review",
+      "evaluate_risk",
+      "build_strategy",
+      "high_risk_enrichment",
+      "evaluate_final",
+      "test_generation"
+    ],
+    "skipped_steps": [],
+    "applied_policies": [
+      "strategy_HIGH",
+      "high_risk_llm_enrichment"
+    ],
+    "fallbacks_triggered": [],
+    "step_durations_ms": {
+      "evaluate_risk": 0.04,
+      "build_strategy": 0.1,
+      "high_risk_enrichment": 10541.02,
+      "test_generation": 13325.48
+    },
+    "diagnostic_notes": []
+  },
+  {
+    "file_path": "java-api/src/main/java/com/repoalvo/javaapi/model/UserStatusSummaryResponse.java",
+    "context_result": null,
+    "raw_review_markdown": "# Tipo da mudança\nInclusão de novo modelo de dados (record) para resposta de resumo de status de usuários.\n\n# Evidências observadas\n- O diff mostra a criação do arquivo `UserStatusSummaryResponse.java` contendo um `record` Java com um único campo: `Map<String, Long> statuses`.\n- O arquivo está vazio antes da mudança (`new file mode 100644`).\n- O contexto do repositório indica que `UserStatusSummaryResponse` já é referenciado no `UserController.java` (importado), sugerindo que este novo record será usado para representar respostas relacionadas a status de usuários.\n- Não há implementação de lógica, apenas a definição do tipo de dado.\n- Não há testes específicos para este record no contexto fornecido, mas há testes para o controller e serviço de usuários.\n\n# Impacto provável\n- Introdução de um novo tipo de resposta para endpoints que retornam um resumo de status dos usuários, provavelmente um mapeamento de status (ex: \"ACTIVE\", \"INACTIVE\") para contagem de usuários em cada status.\n- Pode impactar endpoints que agregam ou resumem dados de usuários por status, facilitando a serialização e deserialização JSON.\n- Como é um record, a imutabilidade e a simplicidade do objeto são garantidas, o que pode melhorar a clareza e segurança do código.\n- Nenhuma alteração funcional direta no comportamento da aplicação, apenas adição de modelo para uso futuro.\n\n# Riscos identificados\n- Risco baixo, pois é apenas uma definição de modelo sem lógica.\n- Risco de incompatibilidade futura se o mapa `statuses` não for populado corretamente ou se a serialização JSON não for tratada adequadamente (ex: nomes de chaves, valores nulos).\n- Se o controller ou serviço que usar este record não tratar corretamente o mapa, pode haver erros de runtime.\n- Ausência de testes específicos para este record pode levar a regressões ou erros não detectados na serialização/deserialização.\n\n# Cenários de testes manuais\n- Verificar se o endpoint que retorna o resumo de status de usuários (se existir) retorna JSON com o formato esperado: um objeto com chaves de status e valores numéricos.\n- Testar o endpoint com diferentes estados do banco de dados (ex: nenhum usuário, usuários com múltiplos status, usuários com status desconhecido).\n- Validar que o JSON retornado corresponde ao conteúdo do mapa `statuses` do record.\n- Testar a integração do controller que utiliza `UserStatusSummaryResponse` para garantir que o objeto é criado e retornado corretamente.\n\n# Sugestões de testes unitários\n- Criar teste unitário para `UserStatusSummaryResponse` que:\n  - Instancie o record com um mapa de status e verifique se o getter `statuses()` retorna o mapa correto.\n  - Testar serialização e deserialização JSON do record para garantir compatibilidade com o formato esperado (usando Jackson ou biblioteca equivalente).\n- Testar o método do serviço ou controller que cria e retorna `UserStatusSummaryResponse` para garantir que o mapa está correto e completo.\n\n# Sugestões de testes de integração\n- Testar o endpoint REST que retorna o resumo de status de usuários (se existir) para garantir que a resposta HTTP tem status 200 e o corpo JSON corresponde ao `UserStatusSummaryResponse`.\n- Testar com dados reais no banco para validar contagem correta dos status.\n- Testar comportamento com dados vazios (nenhum usuário) para garantir que o mapa retornado não cause erros (ex: mapa vazio).\n- Validar headers HTTP e content-type da resposta.\n\n# Sugestões de testes de carga ou desempenho\n- Não aplicável, pois a mudança é apenas a inclusão de um modelo de dados sem lógica ou processamento.\n\n# Pontos que precisam de esclarecimento\n- Qual endpoint(s) ou serviço(s) irão utilizar este novo record `UserStatusSummaryResponse`? O contexto mostra importação no controller, mas não há implementação visível.\n- Qual é a origem dos dados que irão popular o mapa `statuses`? Existe alguma regra de negócio para agregação dos status?\n- Como será tratado o caso de status desconhecidos ou nulos no mapa?\n- Há necessidade de validação ou restrição sobre as chaves e valores do mapa?\n- Existe padrão de serialização JSON esperado para este record (ex: nomes das chaves, formatação dos números)?\n\n---\n\n**Resumo:** A mudança introduz um novo record Java para representar um resumo de status de usuários via um mapa de contagens. A alteração é estrutural e não altera comportamento existente, mas requer testes para garantir que o modelo será usado corretamente em endpoints e serviços que o consumirem. Riscos são baixos, mas a ausência de testes específicos para o novo tipo pode levar a problemas de serialização ou uso incorreto. Recomenda-se clarificar o uso pretendido e criar testes unitários e de integração focados na serialização e na resposta dos endpoints que utilizarem este record.",
+    "review_result": {
+      "summary": "Inclusão de novo modelo de dados (record) para resposta de resumo de status de usuários.\n\n- Introdução de um novo tipo de resposta para endpoints que retornam um resumo de status dos usuários, provavelmente um mapeamento de status (ex: \"ACTIVE\", \"INACTIVE\") para contagem de usuários em cada status.\n- Pode impactar endpoints que agregam ou resumem dados de usuários por status, facilitando a serialização e deserialização JSON.\n- Como é um record, a imutabilidade e a simplicidade do objeto são garantidas, o que pode melhorar a clareza e segurança do código.\n- Nenhuma alteração funcional direta no comportamento da aplicação, apenas adição de modelo para uso futuro.",
+      "findings": [
+        {
+          "description": "Risco baixo, pois é apenas uma definição de modelo sem lógica.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Risco de incompatibilidade futura se o mapa `statuses` não for populado corretamente ou se a serialização JSON não for tratada adequadamente (ex: nomes de chaves, valores nulos).",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Se o controller ou serviço que usar este record não tratar corretamente o mapa, pode haver erros de runtime.",
+          "severity": "ERROR",
+          "line_number": null
+        },
+        {
+          "description": "Ausência de testes específicos para este record pode levar a regressões ou erros não detectados na serialização/deserialização.",
+          "severity": "ERROR",
+          "line_number": null
+        },
+        {
+          "description": "O diff mostra a criação do arquivo `UserStatusSummaryResponse.java` contendo um `record` Java com um único campo: `Map<String, Long> statuses`.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "O arquivo está vazio antes da mudança (`new file mode 100644`).",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "O contexto do repositório indica que `UserStatusSummaryResponse` já é referenciado no `UserController.java` (importado), sugerindo que este novo record será usado para representar respostas relacionadas a status de usuários.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Não há implementação de lógica, apenas a definição do tipo de dado.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Não há testes específicos para este record no contexto fornecido, mas há testes para o controller e serviço de usuários.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Introdução de um novo tipo de resposta para endpoints que retornam um resumo de status dos usuários, provavelmente um mapeamento de status (ex: \"ACTIVE\", \"INACTIVE\") para contagem de usuários em cada status.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Pode impactar endpoints que agregam ou resumem dados de usuários por status, facilitando a serialização e deserialização JSON.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Como é um record, a imutabilidade e a simplicidade do objeto são garantidas, o que pode melhorar a clareza e segurança do código.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Nenhuma alteração funcional direta no comportamento da aplicação, apenas adição de modelo para uso futuro.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Qual endpoint(s) ou serviço(s) irão utilizar este novo record `UserStatusSummaryResponse`? O contexto mostra importação no controller, mas não há implementação visível.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Qual é a origem dos dados que irão popular o mapa `statuses`? Existe alguma regra de negócio para agregação dos status?",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Como será tratado o caso de status desconhecidos ou nulos no mapa?",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Há necessidade de validação ou restrição sobre as chaves e valores do mapa?",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Existe padrão de serialização JSON esperado para este record (ex: nomes das chaves, formatação dos números)?",
+          "severity": "INFO",
+          "line_number": null
+        }
+      ],
+      "test_needs": [
+        "Verificar se o endpoint que retorna o resumo de status de usuários (se existir) retorna JSON com o formato esperado: um objeto com chaves de status e valores numéricos.",
+        "Testar o endpoint com diferentes estados do banco de dados (ex: nenhum usuário, usuários com múltiplos status, usuários com status desconhecido).",
+        "Validar que o JSON retornado corresponde ao conteúdo do mapa `statuses` do record.",
+        "Testar a integração do controller que utiliza `UserStatusSummaryResponse` para garantir que o objeto é criado e retornado corretamente.",
+        "Criar teste unitário para `UserStatusSummaryResponse` que:",
+        "Instancie o record com um mapa de status e verifique se o getter `statuses()` retorna o mapa correto.",
+        "Testar serialização e deserialização JSON do record para garantir compatibilidade com o formato esperado (usando Jackson ou biblioteca equivalente).",
+        "Testar o método do serviço ou controller que cria e retorna `UserStatusSummaryResponse` para garantir que o mapa está correto e completo.",
+        "Testar o endpoint REST que retorna o resumo de status de usuários (se existir) para garantir que a resposta HTTP tem status 200 e o corpo JSON corresponde ao `UserStatusSummaryResponse`.",
+        "Testar com dados reais no banco para validar contagem correta dos status.",
+        "Testar comportamento com dados vazios (nenhum usuário) para garantir que o mapa retornado não cause erros (ex: mapa vazio).",
+        "Validar headers HTTP e content-type da resposta.",
+        "Não aplicável, pois a mudança é apenas a inclusão de um modelo de dados sem lógica ou processamento."
+      ]
+    },
+    "test_strategy_result": {
+      "recommended_tests": [
+        {
+          "name": "Verificar se o endpoint que retorna o resumo de status de usuários (se existir) retorna JSON com o formato esperado: um objeto com chaves de status e valores numéricos.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar o endpoint com diferentes estados do banco de dados (ex: nenhum usuário, usuários com múltiplos status, usuários com status desconhecido).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Validar que o JSON retornado corresponde ao conteúdo do mapa `statuses` do record.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar a integração do controller que utiliza `UserStatusSummaryResponse` para garantir que o objeto é criado e retornado corretamente.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Criar teste unitário para `UserStatusSummaryResponse` que:",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Instancie o record com um mapa de status e verifique se o getter `statuses()` retorna o mapa correto.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar serialização e deserialização JSON do record para garantir compatibilidade com o formato esperado (usando Jackson ou biblioteca equivalente).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar o método do serviço ou controller que cria e retorna `UserStatusSummaryResponse` para garantir que o mapa está correto e completo.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar o endpoint REST que retorna o resumo de status de usuários (se existir) para garantir que a resposta HTTP tem status 200 e o corpo JSON corresponde ao `UserStatusSummaryResponse`.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar com dados reais no banco para validar contagem correta dos status.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar comportamento com dados vazios (nenhum usuário) para garantir que o mapa retornado não cause erros (ex: mapa vazio).",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Validar headers HTTP e content-type da resposta.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Não aplicável, pois a mudança é apenas a inclusão de um modelo de dados sem lógica ou processamento.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Risco baixo, pois é apenas uma definição de modelo sem lógica.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Risco de incompatibilidade futura se o mapa `statuses` não for populado corretamente ou se a serialização JSON não for tratada adequadamente (ex: nomes de chaves, valores nulos).",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Se o controller ou serviço que usar este record não tratar corretamente o mapa, pode haver erros de runtime.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Ausência de testes específicos para este record pode levar a regressões ou erros não detectados na serialização/deserialização.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O diff mostra a criação do arquivo `UserStatusSummaryResponse.java` contendo um `record` Java com um único campo: `Map<String, Long> statuses`.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O arquivo está vazio antes da mudança (`new file mode 100644`).",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O contexto do repositório indica que `UserStatusSummaryResponse` já é referenciado no `UserController.java` (importado), sugerindo que este novo record será usado para representar respostas relacionadas a status de usuários.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Não há implementação de lógica, apenas a definição do tipo de dado.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Não há testes específicos para este record no contexto fornecido, mas há testes para o controller e serviço de usuários.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Introdução de um novo tipo de resposta para endpoints que retornam um resumo de status dos usuários, provavelmente um mapeamento de status (ex: \"ACTIVE\", \"INACTIVE\") para contagem de usuários em cada status.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Pode impactar endpoints que agregam ou resumem dados de usuários por status, facilitando a serialização e deserialização JSON.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Como é um record, a imutabilidade e a simplicidade do objeto são garantidas, o que pode melhorar a clareza e segurança do código.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Nenhuma alteração funcional direta no comportamento da aplicação, apenas adição de modelo para uso futuro.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Qual endpoint(s) ou serviço(s) irão utilizar este novo record `UserStatusSummaryResponse`? O contexto mostra importação no controller, mas não há implementação visível.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Qual é a origem dos dados que irão popular o mapa `statuses`? Existe alguma regra de negócio para agregação dos status?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Como será tratado o caso de status desconhecidos ou nulos no mapa?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Há necessidade de validação ou restrição sobre as chaves e valores do mapa?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Existe padrão de serialização JSON esperado para este record (ex: nomes das chaves, formatação dos números)?",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Teste de regressão geral para 'java-api/src/main/java/com/repoalvo/javaapi/model/UserStatusSummaryResponse.java'",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar comportamento do record `UserStatusSummaryResponse` quando o mapa `statuses` contém chaves com valores nulos ou negativos, garantindo que o objeto se comporte conforme esperado ou lance exceções apropriadas.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Validar que o mapa `statuses` não aceita chaves nulas ou vazias, assegurando integridade dos dados no record.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar serialização JSON do record com mapa `statuses` contendo caracteres especiais ou espaços nas chaves para garantir conformidade com o padrão JSON esperado.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar deserialização JSON com campos extras ou ausentes no objeto para verificar robustez do parser e compatibilidade futura.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar integração do `UserStatusSummaryResponse` com o mecanismo de cache (se existir) para garantir que a serialização e deserialização não causem inconsistências.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Validar que o uso do `UserStatusSummaryResponse` em endpoints que agregam dados por status não impacta negativamente a performance, especialmente com grandes volumes de dados.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar o comportamento do endpoint que utiliza `UserStatusSummaryResponse` quando o serviço de agregação de status retorna dados inconsistentes ou incompletos (ex: mapa parcial).",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Validar que o contrato do JSON retornado pelo endpoint que usa `UserStatusSummaryResponse` está documentado e alinhado com o cliente consumidor (ex: front-end ou API externa).",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar fluxo completo de requisição ao endpoint que retorna `UserStatusSummaryResponse`, incluindo autenticação, autorização, e validação do JSON retornado em ambiente de homologação.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar cenário de concorrência onde múltiplas requisições simultâneas solicitam o resumo de status para garantir consistência e ausência de condições de corrida.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testar comportamento do sistema ao receber dados de usuários com status desconhecido ou inválido, garantindo que o resumo de status trate esses casos sem falhas.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        }
+      ],
+      "notes": "⚠️ Política HIGH aplicada para 'java-api/src/main/java/com/repoalvo/javaapi/model/UserStatusSummaryResponse.java'.\nTodos os cenários foram priorizados como críticos.\nResumo do QA: Inclusão de novo modelo de dados (record) para resposta de resumo de status de usuários.\n\n- Introdução de um novo tipo de resposta para endpoints que retornam um resumo de status dos usuários, provave...\n\n--- Refinamento HIGH risk (via LLM) ---\n- A estratégia base cobre amplamente os testes unitários e de integração focados na criação, serialização e uso do record `UserStatusSummaryResponse`.\n- Os testes adicionais reforçam a robustez do modelo frente a dados inválidos, nulos ou incompletos, que são cenários críticos para evitar falhas silenciosas ou erros em runtime.\n- A inclusão de testes de performance e concorrência em integração e E2E é importante para garantir que o novo modelo não introduza regressões em ambientes de produção com alta carga.\n- A validação do contrato JSON e alinhamento com consumidores externos previne problemas de incompatibilidade futura, especialmente em APIs públicas ou integradas.\n- A estratégia mantém foco em prevenir regressões e garantir que o novo record, apesar de simples, seja tratado com rigor devido ao seu uso potencial em endpoints críticos de agregação de dados."
+    },
+    "generated_test_review_result": null,
+    "generated_tests_raw": "### FILE: java-api/src/test/java/com/repoalvo/javaapi/model/UserStatusSummaryResponseUnitTest.java\n```java\npackage com.repoalvo.javaapi.model;\n\nimport com.fasterxml.jackson.core.JsonProcessingException;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport org.junit.jupiter.api.DisplayName;\nimport org.junit.jupiter.api.Test;\n\nimport java.util.Collections;\nimport java.util.HashMap;\nimport java.util.Map;\n\nimport static org.assertj.core.api.Assertions.*;\n\nclass UserStatusSummaryResponseUnitTest {\n\n    private final ObjectMapper objectMapper = new ObjectMapper();\n\n    @Test\n    @DisplayName(\"Instanciar UserStatusSummaryResponse com mapa e verificar getter retorna mapa correto\")\n    void instanciarRecordComMapaDeveRetornarMapaCorreto() {\n        Map<String, Long> statusMap = new HashMap<>();\n        statusMap.put(\"ACTIVE\", 10L);\n        statusMap.put(\"INACTIVE\", 5L);\n\n        UserStatusSummaryResponse response = new UserStatusSummaryResponse(statusMap);\n\n        assertThat(response).isNotNull();\n        assertThat(response.statuses()).isEqualTo(statusMap);\n    }\n\n    @Test\n    @DisplayName(\"Serializar UserStatusSummaryResponse para JSON deve gerar objeto JSON com chaves e valores corretos\")\n    void serializarParaJsonDeveGerarFormatoEsperado() throws JsonProcessingException {\n        Map<String, Long> statusMap = new HashMap<>();\n        statusMap.put(\"ACTIVE\", 7L);\n        statusMap.put(\"INACTIVE\", 3L);\n\n        UserStatusSummaryResponse response = new UserStatusSummaryResponse(statusMap);\n\n        String json = objectMapper.writeValueAsString(response);\n\n        assertThat(json).contains(\"\\\"ACTIVE\\\":7\");\n        assertThat(json).contains(\"\\\"INACTIVE\\\":3\");\n        assertThat(json).contains(\"statuses\");\n    }\n\n    @Test\n    @DisplayName(\"Deserializar JSON para UserStatusSummaryResponse deve reconstruir objeto corretamente\")\n    void desserializarJsonDeveReconstruirObjetoCorretamente() throws JsonProcessingException {\n        String json = \"{\\\"statuses\\\":{\\\"ACTIVE\\\":12,\\\"INACTIVE\\\":4}}\";\n\n        UserStatusSummaryResponse response = objectMapper.readValue(json, UserStatusSummaryResponse.class);\n\n        assertThat(response).isNotNull();\n        assertThat(response.statuses()).containsEntry(\"ACTIVE\", 12L);\n        assertThat(response.statuses()).containsEntry(\"INACTIVE\", 4L);\n    }\n\n    @Test\n    @DisplayName(\"Serializar e desserializar UserStatusSummaryResponse com mapa vazio deve funcionar corretamente\")\n    void serializarEDesserializarComMapaVazio() throws JsonProcessingException {\n        UserStatusSummaryResponse response = new UserStatusSummaryResponse(Collections.emptyMap());\n\n        String json = objectMapper.writeValueAsString(response);\n        assertThat(json).contains(\"\\\"statuses\\\":{}\");\n\n        UserStatusSummaryResponse deserialized = objectMapper.readValue(json, UserStatusSummaryResponse.class);\n        assertThat(deserialized.statuses()).isEmpty();\n    }\n\n    @Test\n    @DisplayName(\"Instanciar UserStatusSummaryResponse com mapa contendo chave nula deve aceitar sem erro\")\n    void instanciarComChaveNulaNoMapa() {\n        Map<String, Long> statusMap = new HashMap<>();\n        statusMap.put(null, 5L);\n        statusMap.put(\"ACTIVE\", 10L);\n\n        UserStatusSummaryResponse response = new UserStatusSummaryResponse(statusMap);\n\n        assertThat(response.statuses()).containsEntry(null, 5L);\n        assertThat(response.statuses()).containsEntry(\"ACTIVE\", 10L);\n    }\n\n    @Test\n    @DisplayName(\"Instanciar UserStatusSummaryResponse com mapa contendo valor nulo deve aceitar sem erro\")\n    void instanciarComValorNuloNoMapa() {\n        Map<String, Long> statusMap = new HashMap<>();\n        statusMap.put(\"ACTIVE\", null);\n        statusMap.put(\"INACTIVE\", 3L);\n\n        UserStatusSummaryResponse response = new UserStatusSummaryResponse(statusMap);\n\n        assertThat(response.statuses()).containsEntry(\"ACTIVE\", null);\n        assertThat(response.statuses()).containsEntry(\"INACTIVE\", 3L);\n    }\n\n    @Test\n    @DisplayName(\"Serializar UserStatusSummaryResponse com chaves contendo caracteres especiais e espaços\")\n    void serializarComChavesEspeciais() throws JsonProcessingException {\n        Map<String, Long> statusMap = new HashMap<>();\n        statusMap.put(\"ACTIVE USER\", 8L);\n        statusMap.put(\"INACTIVE-USER\", 2L);\n        statusMap.put(\"UNKNOWN@STATUS\", 1L);\n\n        UserStatusSummaryResponse response = new UserStatusSummaryResponse(statusMap);\n\n        String json = objectMapper.writeValueAsString(response);\n\n        assertThat(json).contains(\"\\\"ACTIVE USER\\\":8\");\n        assertThat(json).contains(\"\\\"INACTIVE-USER\\\":2\");\n        assertThat(json).contains(\"\\\"UNKNOWN@STATUS\\\":1\");\n    }\n\n    @Test\n    @DisplayName(\"Desserializar JSON com campos extras deve ignorar campos extras e desserializar corretamente\")\n    void desserializarComCamposExtras() throws JsonProcessingException {\n        String json = \"{\\\"statuses\\\":{\\\"ACTIVE\\\":5},\\\"extraField\\\":\\\"ignored\\\"}\";\n\n        UserStatusSummaryResponse response = objectMapper.readValue(json, UserStatusSummaryResponse.class);\n\n        assertThat(response.statuses()).containsEntry(\"ACTIVE\", 5L);\n    }\n\n    @Test\n    @DisplayName(\"Desserializar JSON com campo statuses ausente deve lançar exceção\")\n    void desserializarSemCampoStatusesDeveLancarExcecao() {\n        String json = \"{\\\"otherField\\\":123}\";\n\n        assertThatThrownBy(() -> objectMapper.readValue(json, UserStatusSummaryResponse.class))\n                .isInstanceOf(JsonProcessingException.class);\n    }\n}\n```\n\n### FILE: java-api/src/test/java/com/repoalvo/javaapi/controller/UserControllerIntegrationTest.java\n```java\npackage com.repoalvo.javaapi;\n\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport com.repoalvo.javaapi.model.UserStatusSummaryResponse;\nimport org.junit.jupiter.api.DisplayName;\nimport org.junit.jupiter.api.Test;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.http.MediaType;\nimport org.springframework.test.web.servlet.MockMvc;\n\nimport java.util.Map;\n\nimport static org.hamcrest.Matchers.*;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\n\n@SpringBootTest\n@AutoConfigureMockMvc\nclass UserControllerIntegrationTest {\n\n    @Autowired\n    private MockMvc mockMvc;\n\n    @Autowired\n    private ObjectMapper objectMapper;\n\n    @Test\n    @DisplayName(\"GET /users/status-summary retorna 200 e JSON com mapa de status e contagem\")\n    void getUsersStatusSummaryReturnsStatusMap() throws Exception {\n        mockMvc.perform(get(\"/users/status-summary\")\n                        .accept(MediaType.APPLICATION_JSON))\n                .andExpect(status().isOk())\n                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))\n                .andExpect(jsonPath(\"$.statuses\").isMap())\n                .andExpect(jsonPath(\"$.statuses.ACTIVE\").isNumber())\n                .andExpect(jsonPath(\"$.statuses.INACTIVE\").isNumber());\n    }\n\n    @Test\n    @DisplayName(\"GET /users/status-summary com base vazia retorna mapa vazio sem erro\")\n    void getUsersStatusSummaryWithEmptyDatabaseReturnsEmptyMap() throws Exception {\n        // Para garantir base vazia, poderia mockar userService.listAllUsers() se fosse unitário,\n        // mas aqui é integração real, assumimos base limpa ou isolada.\n\n        mockMvc.perform(get(\"/users/status-summary\")\n                        .accept(MediaType.APPLICATION_JSON))\n                .andExpect(status().isOk())\n                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))\n                .andExpect(jsonPath(\"$.statuses\").isMap());\n        // Não falha mesmo que o mapa esteja vazio\n    }\n\n    @Test\n    @DisplayName(\"GET /users/status-summary valida headers HTTP e content-type\")\n    void getUsersStatusSummaryResponseHeaders() throws Exception {\n        mockMvc.perform(get(\"/users/status-summary\")\n                        .accept(MediaType.APPLICATION_JSON))\n                .andExpect(status().isOk())\n                .andExpect(header().string(\"Content-Type\", containsString(MediaType.APPLICATION_JSON_VALUE)));\n    }\n\n    @Test\n    @DisplayName(\"GET /users/status-summary JSON corresponde ao conteúdo do mapa retornado\")\n    void getUsersStatusSummaryJsonMatchesMap() throws Exception {\n        String json = mockMvc.perform(get(\"/users/status-summary\")\n                        .accept(MediaType.APPLICATION_JSON))\n                .andReturn()\n                .getResponse()\n                .getContentAsString();\n\n        UserStatusSummaryResponse response = objectMapper.readValue(json, UserStatusSummaryResponse.class);\n\n        // Verifica que o mapa não é nulo e contém chaves e valores plausíveis\n        Map<String, Long> statuses = response.statuses();\n        assertThat(statuses).isNotNull();\n        statuses.forEach((key, value) -> {\n            assertThat(key).isNotNull();\n            assertThat(value).isNotNull();\n            assertThat(value).isGreaterThanOrEqualTo(0L);\n        });\n    }\n}\n```",
+    "generated_test_files": {
+      "java-api/src/test/java/com/repoalvo/javaapi/model/UserStatusSummaryResponseUnitTest.java": "package com.repoalvo.javaapi.model;\n\nimport com.fasterxml.jackson.core.JsonProcessingException;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport org.junit.jupiter.api.DisplayName;\nimport org.junit.jupiter.api.Test;\n\nimport java.util.Collections;\nimport java.util.HashMap;\nimport java.util.Map;\n\nimport static org.assertj.core.api.Assertions.*;\n\nclass UserStatusSummaryResponseUnitTest {\n\n    private final ObjectMapper objectMapper = new ObjectMapper();\n\n    @Test\n    @DisplayName(\"Instanciar UserStatusSummaryResponse com mapa e verificar getter retorna mapa correto\")\n    void instanciarRecordComMapaDeveRetornarMapaCorreto() {\n        Map<String, Long> statusMap = new HashMap<>();\n        statusMap.put(\"ACTIVE\", 10L);\n        statusMap.put(\"INACTIVE\", 5L);\n\n        UserStatusSummaryResponse response = new UserStatusSummaryResponse(statusMap);\n\n        assertThat(response).isNotNull();\n        assertThat(response.statuses()).isEqualTo(statusMap);\n    }\n\n    @Test\n    @DisplayName(\"Serializar UserStatusSummaryResponse para JSON deve gerar objeto JSON com chaves e valores corretos\")\n    void serializarParaJsonDeveGerarFormatoEsperado() throws JsonProcessingException {\n        Map<String, Long> statusMap = new HashMap<>();\n        statusMap.put(\"ACTIVE\", 7L);\n        statusMap.put(\"INACTIVE\", 3L);\n\n        UserStatusSummaryResponse response = new UserStatusSummaryResponse(statusMap);\n\n        String json = objectMapper.writeValueAsString(response);\n\n        assertThat(json).contains(\"\\\"ACTIVE\\\":7\");\n        assertThat(json).contains(\"\\\"INACTIVE\\\":3\");\n        assertThat(json).contains(\"statuses\");\n    }\n\n    @Test\n    @DisplayName(\"Deserializar JSON para UserStatusSummaryResponse deve reconstruir objeto corretamente\")\n    void desserializarJsonDeveReconstruirObjetoCorretamente() throws JsonProcessingException {\n        String json = \"{\\\"statuses\\\":{\\\"ACTIVE\\\":12,\\\"INACTIVE\\\":4}}\";\n\n        UserStatusSummaryResponse response = objectMapper.readValue(json, UserStatusSummaryResponse.class);\n\n        assertThat(response).isNotNull();\n        assertThat(response.statuses()).containsEntry(\"ACTIVE\", 12L);\n        assertThat(response.statuses()).containsEntry(\"INACTIVE\", 4L);\n    }\n\n    @Test\n    @DisplayName(\"Serializar e desserializar UserStatusSummaryResponse com mapa vazio deve funcionar corretamente\")\n    void serializarEDesserializarComMapaVazio() throws JsonProcessingException {\n        UserStatusSummaryResponse response = new UserStatusSummaryResponse(Collections.emptyMap());\n\n        String json = objectMapper.writeValueAsString(response);\n        assertThat(json).contains(\"\\\"statuses\\\":{}\");\n\n        UserStatusSummaryResponse deserialized = objectMapper.readValue(json, UserStatusSummaryResponse.class);\n        assertThat(deserialized.statuses()).isEmpty();\n    }\n\n    @Test\n    @DisplayName(\"Instanciar UserStatusSummaryResponse com mapa contendo chave nula deve aceitar sem erro\")\n    void instanciarComChaveNulaNoMapa() {\n        Map<String, Long> statusMap = new HashMap<>();\n        statusMap.put(null, 5L);\n        statusMap.put(\"ACTIVE\", 10L);\n\n        UserStatusSummaryResponse response = new UserStatusSummaryResponse(statusMap);\n\n        assertThat(response.statuses()).containsEntry(null, 5L);\n        assertThat(response.statuses()).containsEntry(\"ACTIVE\", 10L);\n    }\n\n    @Test\n    @DisplayName(\"Instanciar UserStatusSummaryResponse com mapa contendo valor nulo deve aceitar sem erro\")\n    void instanciarComValorNuloNoMapa() {\n        Map<String, Long> statusMap = new HashMap<>();\n        statusMap.put(\"ACTIVE\", null);\n        statusMap.put(\"INACTIVE\", 3L);\n\n        UserStatusSummaryResponse response = new UserStatusSummaryResponse(statusMap);\n\n        assertThat(response.statuses()).containsEntry(\"ACTIVE\", null);\n        assertThat(response.statuses()).containsEntry(\"INACTIVE\", 3L);\n    }\n\n    @Test\n    @DisplayName(\"Serializar UserStatusSummaryResponse com chaves contendo caracteres especiais e espaços\")\n    void serializarComChavesEspeciais() throws JsonProcessingException {\n        Map<String, Long> statusMap = new HashMap<>();\n        statusMap.put(\"ACTIVE USER\", 8L);\n        statusMap.put(\"INACTIVE-USER\", 2L);\n        statusMap.put(\"UNKNOWN@STATUS\", 1L);\n\n        UserStatusSummaryResponse response = new UserStatusSummaryResponse(statusMap);\n\n        String json = objectMapper.writeValueAsString(response);\n\n        assertThat(json).contains(\"\\\"ACTIVE USER\\\":8\");\n        assertThat(json).contains(\"\\\"INACTIVE-USER\\\":2\");\n        assertThat(json).contains(\"\\\"UNKNOWN@STATUS\\\":1\");\n    }\n\n    @Test\n    @DisplayName(\"Desserializar JSON com campos extras deve ignorar campos extras e desserializar corretamente\")\n    void desserializarComCamposExtras() throws JsonProcessingException {\n        String json = \"{\\\"statuses\\\":{\\\"ACTIVE\\\":5},\\\"extraField\\\":\\\"ignored\\\"}\";\n\n        UserStatusSummaryResponse response = objectMapper.readValue(json, UserStatusSummaryResponse.class);\n\n        assertThat(response.statuses()).containsEntry(\"ACTIVE\", 5L);\n    }\n\n    @Test\n    @DisplayName(\"Desserializar JSON com campo statuses ausente deve lançar exceção\")\n    void desserializarSemCampoStatusesDeveLancarExcecao() {\n        String json = \"{\\\"otherField\\\":123}\";\n\n        assertThatThrownBy(() -> objectMapper.readValue(json, UserStatusSummaryResponse.class))\n                .isInstanceOf(JsonProcessingException.class);\n    }\n}",
+      "java-api/src/test/java/com/repoalvo/javaapi/controller/UserControllerIntegrationTest.java": "package com.repoalvo.javaapi;\n\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport com.repoalvo.javaapi.model.UserStatusSummaryResponse;\nimport org.junit.jupiter.api.DisplayName;\nimport org.junit.jupiter.api.Test;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.http.MediaType;\nimport org.springframework.test.web.servlet.MockMvc;\n\nimport java.util.Map;\n\nimport static org.hamcrest.Matchers.*;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\n\n@SpringBootTest\n@AutoConfigureMockMvc\nclass UserControllerIntegrationTest {\n\n    @Autowired\n    private MockMvc mockMvc;\n\n    @Autowired\n    private ObjectMapper objectMapper;\n\n    @Test\n    @DisplayName(\"GET /users/status-summary retorna 200 e JSON com mapa de status e contagem\")\n    void getUsersStatusSummaryReturnsStatusMap() throws Exception {\n        mockMvc.perform(get(\"/users/status-summary\")\n                        .accept(MediaType.APPLICATION_JSON))\n                .andExpect(status().isOk())\n                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))\n                .andExpect(jsonPath(\"$.statuses\").isMap())\n                .andExpect(jsonPath(\"$.statuses.ACTIVE\").isNumber())\n                .andExpect(jsonPath(\"$.statuses.INACTIVE\").isNumber());\n    }\n\n    @Test\n    @DisplayName(\"GET /users/status-summary com base vazia retorna mapa vazio sem erro\")\n    void getUsersStatusSummaryWithEmptyDatabaseReturnsEmptyMap() throws Exception {\n        // Para garantir base vazia, poderia mockar userService.listAllUsers() se fosse unitário,\n        // mas aqui é integração real, assumimos base limpa ou isolada.\n\n        mockMvc.perform(get(\"/users/status-summary\")\n                        .accept(MediaType.APPLICATION_JSON))\n                .andExpect(status().isOk())\n                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))\n                .andExpect(jsonPath(\"$.statuses\").isMap());\n        // Não falha mesmo que o mapa esteja vazio\n    }\n\n    @Test\n    @DisplayName(\"GET /users/status-summary valida headers HTTP e content-type\")\n    void getUsersStatusSummaryResponseHeaders() throws Exception {\n        mockMvc.perform(get(\"/users/status-summary\")\n                        .accept(MediaType.APPLICATION_JSON))\n                .andExpect(status().isOk())\n                .andExpect(header().string(\"Content-Type\", containsString(MediaType.APPLICATION_JSON_VALUE)));\n    }\n\n    @Test\n    @DisplayName(\"GET /users/status-summary JSON corresponde ao conteúdo do mapa retornado\")\n    void getUsersStatusSummaryJsonMatchesMap() throws Exception {\n        String json = mockMvc.perform(get(\"/users/status-summary\")\n                        .accept(MediaType.APPLICATION_JSON))\n                .andReturn()\n                .getResponse()\n                .getContentAsString();\n\n        UserStatusSummaryResponse response = objectMapper.readValue(json, UserStatusSummaryResponse.class);\n\n        // Verifica que o mapa não é nulo e contém chaves e valores plausíveis\n        Map<String, Long> statuses = response.statuses();\n        assertThat(statuses).isNotNull();\n        statuses.forEach((key, value) -> {\n            assertThat(key).isNotNull();\n            assertThat(value).isNotNull();\n            assertThat(value).isGreaterThanOrEqualTo(0L);\n        });\n    }\n}"
+    },
+    "memory_query": "Testes para java-api/src/main/java/com/repoalvo/javaapi/model/UserStatusSummaryResponse.java. Código: package com.repoalvo.javaapi.model;\n\nimport java.util.Map;\n\npublic record UserStatusSummaryResponse(Map<String, Long> statuses) {\n}\n",
+    "memories_used_raw": "Nenhuma memória relevante encontrada para esta consulta.",
+    "memories_used": [],
+    "risk_level": "HIGH",
+    "review_quality": "OK",
+    "test_generation_recommendation": "RECOMMENDED",
+    "executed_steps": [
+      "parse_review",
+      "evaluate_risk",
+      "build_strategy",
+      "high_risk_enrichment",
+      "evaluate_final",
+      "test_generation"
+    ],
+    "skipped_steps": [],
+    "applied_policies": [
+      "strategy_HIGH",
+      "high_risk_llm_enrichment"
+    ],
+    "fallbacks_triggered": [],
+    "step_durations_ms": {
+      "evaluate_risk": 0.01,
+      "build_strategy": 0.08,
+      "high_risk_enrichment": 9716.41,
+      "test_generation": 19930.33
+    },
+    "diagnostic_notes": []
+  }
+]
