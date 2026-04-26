@@ -159,6 +159,7 @@ class CIFailureCollector:
     def _build_failing_check(self, check: dict) -> CIFailingCheck:
         link = check.get("link", "")
         run_id = _extract_run_id(link)
+        job_id = _extract_job_id(link)
         excerpt = ""
         if run_id:
             log_result = self._run_gh(
@@ -166,6 +167,20 @@ class CIFailureCollector:
             )
             if log_result.returncode == 0:
                 excerpt = _compact_failure_log(log_result.stdout, self.max_log_chars)
+            elif log_result.stderr:
+                excerpt = _compact_failure_log(log_result.stderr, self.max_log_chars)
+
+        if not excerpt and job_id:
+            job_log_result = self._run_gh(
+                [
+                    "api",
+                    f"/repos/{self.repo_full_name}/actions/jobs/{job_id}/logs",
+                ]
+            )
+            if job_log_result.returncode == 0:
+                excerpt = _compact_failure_log(job_log_result.stdout, self.max_log_chars)
+            elif job_log_result.stderr:
+                excerpt = _compact_failure_log(job_log_result.stderr, self.max_log_chars)
 
         return CIFailingCheck(
             name=check.get("name", ""),
@@ -199,26 +214,56 @@ def _extract_run_id(link: str) -> str:
     return match.group(1) if match else ""
 
 
+def _extract_job_id(link: str) -> str:
+    match = re.search(r"/actions/runs/\d+/job/(\d+)", link)
+    return match.group(1) if match else ""
+
+
 def _compact_failure_log(log_text: str, max_chars: int) -> str:
     if not log_text:
         return ""
 
     lines = [line for line in log_text.splitlines() if line.strip()]
-    interesting = [
-        line
-        for line in lines
-        if "FAILED " in line
-        or "FAILURES" in line
-        or "Error:" in line
-        or "AssertionError" in line
-        or "DID NOT RAISE" in line
-        or "assert " in line
-        or "Process completed with exit code" in line
+    failure_indexes = [
+        index
+        for index, line in enumerate(lines)
+        if _is_failure_line(line)
     ]
-    compact = "\n".join(interesting or lines[-120:])
+
+    if failure_indexes:
+        selected_indexes: set[int] = set()
+        for index in failure_indexes:
+            start = max(0, index - 4)
+            end = min(len(lines), index + 8)
+            selected_indexes.update(range(start, end))
+        compact = "\n".join(lines[index] for index in sorted(selected_indexes))
+    else:
+        compact = "\n".join(lines[-160:])
+
     if len(compact) <= max_chars:
         return compact
     return compact[:max_chars] + "\n... [LOG DE CI TRUNCADO]"
+
+
+def _is_failure_line(line: str) -> bool:
+    failure_tokens = (
+        "FAILED ",
+        " FAIL ",
+        "FAILURES",
+        "Failures:",
+        "Errors:",
+        "Error:",
+        "AssertionError",
+        "DID NOT RAISE",
+        "expected",
+        "Expecting",
+        "assert ",
+        "Process completed with exit code",
+        "[ERROR]",
+        "BUILD FAILURE",
+        "npm ERR!",
+    )
+    return any(token in line for token in failure_tokens)
 
 
 def _render_ci_summary(
