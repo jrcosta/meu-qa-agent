@@ -25,7 +25,7 @@ No estado atual do código, o sistema de memórias usa:
 | Item | Implementação atual |
 |------|---------------------|
 | Banco de memória | LanceDB |
-| Diretório padrão | `data/lancedb` |
+| Diretório padrão | `data/lancedb` (local e ignorado pelo Git) |
 | Tabela | `memories` |
 | Modelo de embedding | `sentence-transformers/all-MiniLM-L6-v2` |
 | Dimensão do vetor | 384 |
@@ -339,7 +339,7 @@ Como comentários de PR podem conter trechos de código, decisões técnicas ou 
 - O modelo `all-MiniLM-L6-v2` é leve e prático, mas pode perder nuances de domínio em casos complexos.
 - O threshold de distância ainda é heurístico e precisa ser calibrado com dados reais.
 - A ingestão automatizada precisa estar alinhada ao schema atual do LanceDB.
-- Persistir `data/lancedb` no repositório pode ser útil no MVP, mas pode se tornar pesado com o tempo.
+- `data/lancedb` é local e ignorado pelo Git; para CI/produção, defina uma estratégia explícita de persistência externa ou cache controlado.
 
 ---
 
