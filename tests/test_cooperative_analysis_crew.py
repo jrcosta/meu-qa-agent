@@ -59,6 +59,19 @@ class FakeCrew:
         return FakeCrewResult()
 
 
+class FakeAgent:
+    def __init__(self, role: str) -> None:
+        self.role = role
+
+
+class FakeAgentFactory:
+    def __init__(self, role: str) -> None:
+        self.role = role
+
+    def create(self) -> FakeAgent:
+        return FakeAgent(self.role)
+
+
 def test_cooperative_runner_uses_hierarchical_process_with_manager(
     monkeypatch, tmp_path: Path
 ) -> None:
@@ -67,6 +80,26 @@ def test_cooperative_runner_uses_hierarchical_process_with_manager(
     source.write_text("def validate(payload):\n    return bool(payload)\n", encoding="utf-8")
 
     monkeypatch.setattr("src.crew.cooperative_analysis_crew.Crew", FakeCrew)
+    monkeypatch.setattr(
+        "src.crew.cooperative_analysis_crew.CooperativeManagerAgentFactory",
+        lambda settings: FakeAgentFactory(
+            "Gerente de Qualidade e Coordenação Multiagente"
+        ),
+    )
+    monkeypatch.setattr(
+        "src.crew.cooperative_analysis_crew.QAAgentFactory",
+        lambda settings: FakeAgentFactory("QA Sênior Investigador"),
+    )
+    monkeypatch.setattr(
+        "src.crew.cooperative_analysis_crew.HighRiskStrategyAgentFactory",
+        lambda settings: FakeAgentFactory(
+            "Especialista em Estratégia de Testes para Código de Alto Risco"
+        ),
+    )
+    monkeypatch.setattr(
+        "src.crew.cooperative_analysis_crew.AnalysisCriticAgentFactory",
+        lambda settings: FakeAgentFactory("Crítico de Análise de QA"),
+    )
 
     runner = CooperativeAnalysisCrewRunner(Settings(llm_api_key="test-key"))
     result = runner.run(
