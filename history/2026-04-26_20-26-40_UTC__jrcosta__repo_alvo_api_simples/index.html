@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>QAgent · jrcosta/repo_alvo_api_simples · 26 Apr 2026 – 20:26:40 UTC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-hover: #1c2129;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+  --purple: #bc8cff;
+  --radius: 10px;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  margin: 0; padding: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; transition: color .15s; }
+a:hover { color: var(--accent-hover); }
+.container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+}
+.topbar a { font-size: .9rem; }
+.topbar .sep { color: var(--border); }
+.topbar .slug { color: var(--text-muted); font-size: .85rem; font-family: var(--font-mono); }
+.report { padding-top: 16px; }
+.report h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.report h2 { font-size: 1.3rem; margin-top: 32px; color: var(--accent); }
+.report h3 { font-size: 1.1rem; margin-top: 24px; }
+.report p { margin: 12px 0; }
+.report ul, .report ol { padding-left: 24px; }
+.report li { margin: 6px 0; }
+.report code {
+  font-family: var(--font-mono); font-size: .88em;
+  background: var(--surface); padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.report pre {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: .88rem; line-height: 1.5;
+}
+.report pre code { background: none; border: none; padding: 0; }
+.report blockquote {
+  border-left: 3px solid var(--accent); margin: 16px 0;
+  padding: 8px 16px; color: var(--text-muted); background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.report table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.report th, .report td {
+  border: 1px solid var(--border); padding: 8px 12px; text-align: left;
+}
+.report th { background: var(--surface); font-weight: 600; }
+.report hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.report strong { color: #f0f6fc; }
+.meta-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px;
+  display: flex; flex-wrap: wrap; gap: 24px; font-size: .88rem;
+}
+.meta-item label { color: var(--text-muted); display: block; font-size: .78rem; margin-bottom: 2px; }
+.meta-item span { font-family: var(--font-mono); }
+
+/* Novas seções de artefatos */
+.section-title { font-size: 1.4rem; margin: 40px 0 20px; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; }
+.stat-value { font-size: 1.8rem; font-weight: 700; color: var(--accent); display: block; }
+.stat-label { color: var(--text-muted); font-size: .8rem; text-transform: uppercase; letter-spacing: 1px; }
+
+.artifact-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px; }
+.artifact-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.artifact-header { padding: 12px 20px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background .15s; }
+.artifact-header:hover { background: var(--surface-hover); }
+.artifact-title { font-family: var(--font-mono); font-size: .9rem; display: flex; align-items: center; gap: 8px; }
+.artifact-content { padding: 0 20px 20px; border-top: 1px solid var(--border); background: #161b2255; }
+
+.sub-section { margin-top: 20px; }
+.sub-section-title { font-size: .9rem; font-weight: 600; margin-bottom: 10px; color: var(--text-muted); text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.data-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.data-item { background: #0d111755; padding: 10px 14px; border-radius: 6px; border: 1px solid var(--border); }
+.data-label { font-size: .75rem; color: var(--text-muted); display: block; }
+.data-value { font-size: .9rem; }
+
+.badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: .75rem; font-weight: 600; }
+.badge-low { background: #23863633; color: #3fb950; border: 1px solid #238636; }
+.badge-medium { background: #9e6a0333; color: #d29922; border: 1px solid #9e6a03; }
+.badge-high { background: #da363333; color: #f85149; border: 1px solid #da3633; }
+.badge-info { background: #388bfd33; color: #58a6ff; border: 1px solid #388bfd; }
+.badge-policy { background: #8957e533; color: #bc8cff; border: 1px solid #8957e5; }
+.memory-list { display: flex; flex-direction: column; gap: 10px; }
+.memory-item { background: #0d111755; border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; }
+.memory-meta { color: var(--text-muted); font-size: .75rem; font-family: var(--font-mono); margin-bottom: 6px; }
+.memory-lesson { font-size: .86rem; margin: 0; }
+.memory-empty { color: var(--text-muted); font-size: .86rem; background: #0d111755; border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; }
+
+details summary { cursor: pointer; padding: 8px 0; color: var(--accent); font-size: .9rem; font-weight: 500; }
+details summary:hover { color: var(--accent-hover); }
+.raw-json { font-family: var(--font-mono); font-size: .8rem; background: #00000044; padding: 12px; border-radius: 6px; overflow-x: auto; margin-top: 10px; border: 1px solid var(--border); }
+
+.error-msg { background: #f8514922; border: 1px solid var(--red); color: var(--red); padding: 12px; border-radius: var(--radius); margin: 20px 0; font-size: .9rem; }
+footer { text-align: center; color: var(--text-muted); font-size: .8rem; padding: 40px 0 20px;
+         border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+  <nav class="topbar">
+    <a href="../../index.html">← Histórico</a>
+    <span class="sep">|</span>
+    <span class="slug">2026-04-26_20-26-40_UTC__jrcosta__repo_alvo_api_simples</span>
+  </nav>
+  <div class="container">
+    <div class="meta-box">
+      <div class="meta-item"><label>Repositório</label><span>jrcosta/repo_alvo_api_simples</span></div>
+      <div class="meta-item"><label>Execução</label><span>26 Apr 2026 – 20:26:40 UTC</span></div>
+    </div>
+    <div class="meta-box" style="margin-top:12px;font-size:.85rem"><a href="artifacts.json" style="margin-right:16px">📦 artifacts.json</a> <a href="run_summary.json">📊 run_summary.json</a></div>
+    <div id="run-summary-container"></div>
+    <div id="artifacts-container"></div>
+    <article class="report">
+      <h1 id="arquivo-analisado-java-apisrcmainjavacomrepoalvojavaapimodeluserupdaterequestjava">Arquivo analisado: java-api/src/main/java/com/repoalvo/javaapi/model/UserUpdateRequest.java</h1>
+<h1 id="analise-da-mudanca-no-arquivo-userupdaterequestjava">Análise da Mudança no arquivo <code>UserUpdateRequest.java</code></h1>
+<hr />
+<h2 id="tipo-da-mudanca">Tipo da mudança</h2>
+<ul>
+<li><strong>Extensão de modelo de dados (DTO) com adição de novos campos opcionais</strong></li>
+<li><strong>Adição de construtor sobrecarregado para compatibilidade</strong></li>
+</ul>
+<hr />
+<h2 id="evidencias-observadas">Evidências observadas</h2>
+<ul>
+<li>O record <code>UserUpdateRequest</code> foi alterado para incluir dois novos campos: <code>String role</code> e <code>String phoneNumber</code>.</li>
+<li>Foi adicionado um construtor secundário que aceita apenas <code>name</code> e <code>email</code>, delegando para o construtor principal com <code>role</code> e <code>phoneNumber</code> como <code>null</code>.</li>
+<li>O campo <code>name</code> mantém a validação <code>@Size(min = 3, max = 100)</code>.</li>
+<li>O campo <code>email</code> mantém a validação <code>@Email</code>.</li>
+<li>Não há validações explícitas para os novos campos <code>role</code> e <code>phoneNumber</code>.</li>
+<li>Contexto adicional mostra que <code>UserUpdateRequest</code> é usado em <code>UserController</code> e <code>UserService</code>, sugerindo que é um DTO para atualização de usuário.</li>
+<li>Existe um arquivo de testes unitários relacionado: <code>UserUpdateRequestTest.java</code>.</li>
+</ul>
+<hr />
+<h2 id="impacto-provavel">Impacto provável</h2>
+<ul>
+<li><strong>Funcionalidade de atualização de usuário</strong>: agora pode aceitar e transportar informações adicionais (<code>role</code> e <code>phoneNumber</code>).</li>
+<li><strong>Compatibilidade com chamadas existentes</strong>: o construtor adicional permite criar instâncias com apenas <code>name</code> e <code>email</code>, preservando compatibilidade com código legado que não usa os novos campos.</li>
+<li><strong>Validação</strong>: os novos campos não possuem restrições de validação, o que pode permitir valores nulos ou inválidos, dependendo do uso posterior.</li>
+<li><strong>Serialização/Deserialização</strong>: se o record for usado em APIs REST, a inclusão dos novos campos pode alterar o payload esperado, impactando clientes que consomem essa API.</li>
+</ul>
+<hr />
+<h2 id="riscos-identificados">Riscos identificados</h2>
+<ul>
+<li><strong>Ausência de validação para <code>role</code> e <code>phoneNumber</code></strong>:</li>
+<li>Pode permitir valores inválidos ou mal formatados (ex: <code>phoneNumber</code> com caracteres não numéricos).</li>
+<li>Pode causar problemas downstream se o serviço ou banco de dados esperarem formatos específicos.</li>
+<li><strong>Impacto em clientes da API</strong>:</li>
+<li>Clientes que não esperam os novos campos podem ignorá-los, mas se houver validação ou lógica no backend que dependa deles, pode haver falhas.</li>
+<li><strong>Possível inconsistência de dados</strong>:</li>
+<li>Se <code>role</code> for um campo crítico para autorização/permissões, aceitar valores nulos ou inválidos pode causar problemas de segurança ou inconsistência.</li>
+<li><strong>Testes existentes podem não cobrir os novos campos</strong>:</li>
+<li>Se os testes unitários e de integração não forem atualizados, pode haver regressões não detectadas.</li>
+</ul>
+<hr />
+<h2 id="cenarios-de-testes-manuais">Cenários de testes manuais</h2>
+<ol>
+<li><strong>Atualização de usuário com apenas <code>name</code> e <code>email</code></strong>:<br />
+   - Enviar requisição com apenas esses campos e verificar se a atualização ocorre sem erros.</li>
+<li><strong>Atualização de usuário incluindo <code>role</code> e <code>phoneNumber</code></strong>:<br />
+   - Testar com valores válidos para ambos os campos.<br />
+   - Verificar se os valores são persistidos e refletidos corretamente.</li>
+<li><strong>Atualização com <code>role</code> e <code>phoneNumber</code> nulos ou ausentes</strong>:<br />
+   - Confirmar que a ausência desses campos não causa erro.</li>
+<li><strong>Atualização com valores inválidos para <code>phoneNumber</code></strong>:<br />
+   - Ex: caracteres alfabéticos, símbolos, strings vazias.<br />
+   - Verificar se há rejeição ou tratamento adequado.</li>
+<li><strong>Atualização com valores inválidos para <code>role</code></strong>:<br />
+   - Ex: strings não esperadas, valores que não correspondem a roles válidos (se houver regra).</li>
+<li><strong>Testar comportamento da API para payloads antigos (sem os novos campos)</strong>:<br />
+   - Garantir que a API continua aceitando payloads antigos sem falhas.</li>
+</ol>
+<hr />
+<h2 id="sugestoes-de-testes-unitarios">Sugestões de testes unitários</h2>
+<ul>
+<li><strong>Testar criação do <code>UserUpdateRequest</code> com todos os campos preenchidos</strong>:</li>
+<li>Verificar se os getters retornam os valores corretos.</li>
+<li><strong>Testar criação com o construtor secundário (apenas <code>name</code> e <code>email</code>)</strong>:</li>
+<li>Confirmar que <code>role</code> e <code>phoneNumber</code> são <code>null</code>.</li>
+<li><strong>Testar validação das anotações existentes (<code>@Size</code> e <code>@Email</code>)</strong>:</li>
+<li>Embora não tenha sido alterado, garantir que continuam funcionando.</li>
+<li><strong>Testar comportamento com valores nulos para <code>role</code> e <code>phoneNumber</code></strong>:</li>
+<li>Confirmar que não lançam exceções.</li>
+<li><strong>Testar serialização/deserialização JSON (se aplicável)</strong>:</li>
+<li>Confirmar que os novos campos são corretamente serializados e desserializados.</li>
+</ul>
+<hr />
+<h2 id="sugestoes-de-testes-de-integracao">Sugestões de testes de integração</h2>
+<ul>
+<li><strong>Testar endpoint de atualização de usuário (<code>UserController</code>) com payload contendo os novos campos</strong>:</li>
+<li>Verificar se a atualização é processada corretamente e os dados são persistidos.</li>
+<li><strong>Testar fluxo completo no <code>UserService</code> para atualização com os novos campos</strong>:</li>
+<li>Confirmar que a lógica de negócio aceita e processa os novos campos.</li>
+<li><strong>Testar integração com banco de dados</strong>:</li>
+<li>Verificar se os campos <code>role</code> e <code>phoneNumber</code> são armazenados corretamente.</li>
+<li><strong>Testar comportamento da API com payloads antigos e novos</strong>:</li>
+<li>Garantir compatibilidade e ausência de regressão.</li>
+<li><strong>Testar validação e tratamento de erros para valores inválidos nos novos campos</strong>:</li>
+<li>Confirmar que a API responde adequadamente (ex: 400 Bad Request) se houver validação implementada posteriormente.</li>
+</ul>
+<hr />
+<h2 id="sugestoes-de-testes-de-carga-ou-desempenho">Sugestões de testes de carga ou desempenho</h2>
+<ul>
+<li><strong>Não aplicável</strong>: a mudança é estrutural no modelo de dados e não indica impacto direto em performance ou carga.</li>
+</ul>
+<hr />
+<h2 id="pontos-que-precisam-de-esclarecimento">Pontos que precisam de esclarecimento</h2>
+<ul>
+<li><strong>Regras de validação para <code>role</code> e <code>phoneNumber</code></strong>:</li>
+<li>Há alguma restrição esperada para esses campos? (ex: formato de telefone, valores permitidos para role)</li>
+<li><strong>Impacto esperado no banco de dados e persistência</strong>:</li>
+<li>Os campos <code>role</code> e <code>phoneNumber</code> já existem na camada de persistência? Se não, há planos para alteração do schema?</li>
+<li><strong>Uso dos novos campos na lógica de negócio</strong>:</li>
+<li>Como <code>role</code> e <code>phoneNumber</code> serão utilizados? Há regras específicas que devem ser validadas ou aplicadas?</li>
+<li><strong>Compatibilidade com clientes da API</strong>:</li>
+<li>Os clientes foram informados ou preparados para receber esses novos campos?</li>
+<li><strong>Cobertura de testes atualizada</strong>:</li>
+<li>O arquivo <code>UserUpdateRequestTest.java</code> foi atualizado para contemplar os novos campos? Caso contrário, é necessário.</li>
+</ul>
+<hr />
+<h1 id="resumo">Resumo</h1>
+<p>A mudança adiciona dois novos campos opcionais ao DTO <code>UserUpdateRequest</code> e um construtor para manter compatibilidade. Isso amplia a capacidade de atualização de usuário, mas introduz riscos relacionados à ausência de validação e possível impacto em clientes da API. É fundamental validar o uso e regras desses campos, atualizar testes unitários e de integração para cobrir os novos atributos, e realizar testes manuais focados na aceitação e persistência dos dados. Pontos de negócio e técnicos precisam ser esclarecidos para garantir segurança e consistência.</p>
+<hr />
+<h1 id="arquivo-analisado-java-apisrcmainjavacomrepoalvojavaapiserviceuserservicejava">Arquivo analisado: java-api/src/main/java/com/repoalvo/javaapi/service/UserService.java</h1>
+<h1 id="tipo-da-mudanca_1">Tipo da mudança</h1>
+<p>Mudança funcional e evolutiva no serviço de usuário, com adição de novos métodos (update com UserCreateRequest, delete, searchByPhoneNumber) e ampliação do método update existente para incluir atualização dos campos role e phoneNumber.</p>
+<h1 id="evidencias-observadas_1">Evidências observadas</h1>
+<ul>
+<li>Alteração no método <code>update(int userId, UserUpdateRequest payload)</code> para atualizar também <code>role</code> e <code>phoneNumber</code>.</li>
+<li>Inclusão do método <code>update(int userId, UserCreateRequest payload)</code> que converte para <code>UserUpdateRequest</code> e chama o update principal.</li>
+<li>Inclusão do método <code>delete(int userId)</code> que remove usuário da lista sincronizada.</li>
+<li>Inclusão do método <code>searchByPhoneNumber(String phoneNumber)</code> que filtra usuários pelo número de telefone.</li>
+<li>Serviço mantém lista sincronizada em memória (<code>synchronized</code> em métodos).</li>
+<li>Contexto do repositório indica existência de testes unitários para UserService e uso em API REST com Spring Boot.</li>
+</ul>
+<h1 id="impacto-provavel_1">Impacto provável</h1>
+<ul>
+<li>Ampliação da capacidade de atualização dos usuários, incluindo campos sensíveis como role (permissões) e phoneNumber.</li>
+<li>Introdução da operação de exclusão de usuários, impactando a integridade dos dados e possíveis dependências.</li>
+<li>Inclusão de busca por telefone, facilitando consultas específicas.</li>
+<li>Potencial impacto na segurança e consistência dos dados devido à atualização de role e exclusão de usuários.</li>
+<li>Necessidade de garantir sincronização e integridade em ambiente concorrente.</li>
+</ul>
+<h1 id="riscos-identificados_1">Riscos identificados</h1>
+<ul>
+<li>Atualização incorreta ou parcial dos campos role e phoneNumber, causando inconsistência.</li>
+<li>Falta de validação rigorosa para role pode permitir atribuição indevida de permissões.</li>
+<li>Atualização do phoneNumber sem validação pode levar a dados inválidos ou inconsistentes.</li>
+<li>Possível conflito ou confusão entre os dois métodos update com payloads diferentes.</li>
+<li>Exclusão de usuário inexistente pode causar erros não tratados.</li>
+<li>Falta de controle de permissões para exclusão pode permitir remoção indevida.</li>
+<li>Busca por phoneNumber pode falhar se não houver normalização ou validação do formato.</li>
+<li>Riscos de condições de corrida ou inconsistências devido à sincronização da lista em ambiente concorrente.</li>
+<li>Impacto na API REST e necessidade de testes de integração para garantir comportamento esperado.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_1">Cenários de testes manuais</h1>
+<ul>
+<li>Atualizar usuário existente alterando role e phoneNumber com valores válidos e inválidos.</li>
+<li>Atualizar usuário existente usando UserCreateRequest e verificar integridade dos dados.</li>
+<li>Tentar atualizar usuário inexistente e verificar tratamento de erro.</li>
+<li>Deletar usuário existente e verificar remoção efetiva.</li>
+<li>Tentar deletar usuário inexistente e observar comportamento.</li>
+<li>Buscar usuários por phoneNumber existente, inexistente, nulo e com formatos variados.</li>
+<li>Testar concorrência com múltiplas operações simultâneas de update, delete e busca.</li>
+<li>Verificar comportamento da API REST para as operações de update, delete e busca.</li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios_1">Sugestões de testes unitários</h1>
+<ul>
+<li>Testar atualização via <code>update(int, UserUpdateRequest)</code> incluindo role e phoneNumber, com validação de valores válidos e inválidos.</li>
+<li>Testar atualização via <code>update(int, UserCreateRequest)</code> para garantir conversão correta e atualização consistente.</li>
+<li>Testar exclusão de usuário existente e inexistente, verificando integridade da lista.</li>
+<li>Testar busca por phoneNumber com valores válidos, inválidos, nulos e formatos diversos.</li>
+<li>Testar atualização parcial (sem alterar role e phoneNumber) para garantir comportamento anterior preservado.</li>
+<li>Testar comportamento em casos de erro, como usuário não encontrado.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_1">Sugestões de testes de integração</h1>
+<ul>
+<li>Testar endpoints REST que utilizam os métodos update, delete e searchByPhoneNumber, validando códigos HTTP, payloads e mensagens de erro.</li>
+<li>Testar fluxo completo de criação, atualização, busca e exclusão de usuários via API.</li>
+<li>Validar que as alterações no serviço refletem corretamente na camada de API.</li>
+<li>Testar integração com outras partes do sistema que dependem dos dados de usuário, para verificar impacto da exclusão.</li>
+<li>Testar concorrência e consistência em ambiente integrado.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_1">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável diretamente, pois a mudança não indica impacto claro em performance ou carga.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_1">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>Quais são os valores válidos e regras de negócio para o campo role? Há validação ou restrição?</li>
+<li>Existe validação de formato para phoneNumber? Como tratar formatos diferentes?</li>
+<li>Há regras específicas para exclusão de usuários (ex: restrição para usuários admin)?</li>
+<li>Como a API REST expõe os novos métodos? Há endpoints específicos para update com UserCreateRequest, delete e busca por telefone?</li>
+<li>Como é garantida a sincronização e integridade da lista em ambiente concorrente? Há testes de concorrência existentes?</li>
+</ul>
+<h1 id="validacao-cooperativa">Validação cooperativa</h1>
+<p>A análise foi coordenada com o QA Sênior Investigador, que detalhou os riscos técnicos e de negócio, incluindo segurança e integridade dos dados. O Especialista em Estratégia de Testes elaborou uma estratégia abrangente contemplando testes unitários, de integração e cenários de borda, com foco em validação dos novos campos e métodos. O Crítico de Análise de QA revisou as propostas, apontando omissões e fragilidades, especialmente sobre validações específicas, concorrência e integração com API REST, contribuindo para o refinamento da análise final.</p>
+<hr />
+<h1 id="arquivo-analisado-javascript-apisrctestsusers-has-emailtestjs">Arquivo analisado: javascript-api/src/<strong>tests</strong>/users-has-email.test.js</h1>
+<h1 id="tipo-da-mudanca_2">Tipo da mudança</h1>
+<ul>
+<li>Inclusão de testes automatizados (test suite) para o endpoint <code>GET /users/has-email</code>.</li>
+</ul>
+<h1 id="evidencias-observadas_2">Evidências observadas</h1>
+<ul>
+<li>O diff mostra a criação do arquivo <code>users-has-email.test.js</code> contendo testes para o endpoint <code>/users/has-email</code>.</li>
+<li>O arquivo configura um servidor Express com o router <code>/users</code> importado de <code>../routes/users</code>.</li>
+<li>O serviço <code>userService</code> é mockado diretamente no array <code>userService.users</code> para simular dados de usuários.</li>
+<li>Os testes cobrem:</li>
+<li>Validação da obrigatoriedade do parâmetro <code>email</code> (ausente ou vazio) retornando HTTP 400 com mensagem específica.</li>
+<li>Retorno correto de <code>exists: true</code> quando o email existe na base simulada.</li>
+<li>Tratamento de espaços em branco no parâmetro <code>email</code> (trim).</li>
+<li>Retorno de <code>exists: false</code> quando o email não é encontrado.</li>
+<li>O contexto adicional do repositório não apresenta testes anteriores para esse endpoint, confirmando que esta é uma adição inicial.</li>
+<li>Não há evidência de mudanças no código de produção, apenas a inclusão de testes.</li>
+</ul>
+<h1 id="impacto-provavel_2">Impacto provável</h1>
+<ul>
+<li>A mudança não altera o código de produção, apenas adiciona uma cobertura de testes para o endpoint <code>/users/has-email</code>.</li>
+<li>Provavelmente melhora a confiabilidade e a manutenção do endpoint, garantindo que:</li>
+<li>Parâmetros obrigatórios sejam validados.</li>
+<li>Emails sejam buscados corretamente, inclusive com tratamento de espaços.</li>
+<li>Respostas estejam no formato esperado.</li>
+<li>Facilita futuras refatorações ou correções no endpoint com menor risco de regressão.</li>
+</ul>
+<h1 id="riscos-identificados_2">Riscos identificados</h1>
+<ul>
+<li>Como não há alteração no código de produção, o risco de regressão funcional é baixo.</li>
+<li>Risco potencial de falso positivo/negativo nos testes caso o mock <code>userService.users</code> não reflita fielmente a implementação real do serviço.</li>
+<li>Se o endpoint <code>/users/has-email</code> não estiver implementado ou estiver implementado de forma diferente, os testes podem falhar, indicando inconsistência entre testes e código.</li>
+<li>A dependência direta da estrutura interna <code>userService.users</code> para mockar dados pode ser frágil se a implementação mudar para outro mecanismo de armazenamento.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_2">Cenários de testes manuais</h1>
+<ol>
+<li>
+<p><strong>Requisição sem parâmetro <code>email</code></strong><br />
+   - Enviar GET para <code>/users/has-email</code> sem query string.<br />
+   - Esperar HTTP 400 com corpo <code>{ detail: "Parâmetro email é obrigatório" }</code>.</p>
+</li>
+<li>
+<p><strong>Requisição com parâmetro <code>email</code> vazio</strong><br />
+   - Enviar GET para <code>/users/has-email?email=</code>.<br />
+   - Esperar HTTP 400 com corpo <code>{ detail: "Parâmetro email é obrigatório" }</code>.</p>
+</li>
+<li>
+<p><strong>Requisição com email existente</strong><br />
+   - Enviar GET para <code>/users/has-email?email=alice@example.com</code>.<br />
+   - Esperar HTTP 200 com corpo <code>{ email: "alice@example.com", exists: true }</code>.</p>
+</li>
+<li>
+<p><strong>Requisição com email existente com espaços em branco</strong><br />
+   - Enviar GET para <code>/users/has-email?email= alice@example.com</code> (com espaços).<br />
+   - Esperar HTTP 200 com corpo <code>{ email: "alice@example.com", exists: true }</code>.</p>
+</li>
+<li>
+<p><strong>Requisição com email não existente</strong><br />
+   - Enviar GET para <code>/users/has-email?email=unknown@example.com</code>.<br />
+   - Esperar HTTP 200 com corpo <code>{ email: "unknown@example.com", exists: false }</code>.</p>
+</li>
+</ol>
+<h1 id="sugestoes-de-testes-unitarios_2">Sugestões de testes unitários</h1>
+<ul>
+<li>Testar a função/método que processa o parâmetro <code>email</code> para garantir que o trim é aplicado corretamente.</li>
+<li>Testar a função que verifica a existência do email na lista de usuários, incluindo casos com emails em maiúsculas/minúsculas para verificar sensibilidade.</li>
+<li>Testar o comportamento quando o array de usuários está vazio ou indefinido.</li>
+<li>Testar o retorno de erro quando o parâmetro <code>email</code> é do tipo incorreto (ex: número, objeto).</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_2">Sugestões de testes de integração</h1>
+<ul>
+<li>Validar o endpoint <code>/users/has-email</code> com a aplicação rodando, usando dados reais ou mockados via injeção de dependência, para garantir que a rota está registrada e responde conforme esperado.</li>
+<li>Testar integração com o banco de dados (se aplicável) para verificar se a busca pelo email funciona com dados persistidos.</li>
+<li>Testar o endpoint com diferentes headers HTTP (ex: autenticação, content-type) para verificar comportamento.</li>
+<li>Testar o endpoint com emails contendo caracteres especiais, maiúsculas/minúsculas, para validar normalização e busca.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_2">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável, pois a mudança é apenas inclusão de testes unitários/integrados e não altera lógica de negócio ou performance.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_2">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>
+<p>O mock <code>userService.users</code> é uma estrutura real usada na aplicação? Ou é apenas um mock para testes?<br />
+  Isso impacta a fidelidade dos testes.</p>
+</li>
+<li>
+<p>O endpoint <code>/users/has-email</code> está documentado? Qual o comportamento esperado para emails com maiúsculas/minúsculas? O teste atual não cobre isso explicitamente.</p>
+</li>
+<li>
+<p>Existe algum limite ou regra de validação para o formato do email no endpoint? Os testes não verificam formatos inválidos.</p>
+</li>
+<li>
+<p>O endpoint deve ser acessível sem autenticação? Os testes não simulam autenticação, mas o contexto do repositório não deixa claro.</p>
+</li>
+</ul>
+<hr />
+<p><strong>Resumo:</strong> A mudança adiciona uma suíte de testes para o endpoint <code>/users/has-email</code>, cobrindo validação de parâmetros e respostas para emails existentes e não existentes. Não há alteração no código de produção, portanto o impacto funcional é nulo, mas a cobertura de testes melhora a qualidade do projeto. Recomenda-se validar a fidelidade do mock e ampliar testes para casos de formato de email e sensibilidade a maiúsculas/minúsculas.</p>
+<hr />
+<h1 id="arquivo-analisado-javascript-apisrcroutesusersjs">Arquivo analisado: javascript-api/src/routes/users.js</h1>
+<h1 id="tipo-da-mudanca_3">Tipo da mudança</h1>
+<ul>
+<li><strong>Nova funcionalidade (feature)</strong>: inclusão de um novo endpoint HTTP GET <code>/has-email</code> para verificar a existência de um e-mail no sistema.</li>
+</ul>
+<h1 id="evidencias-observadas_3">Evidências observadas</h1>
+<ul>
+<li>O diff adiciona um novo endpoint <code>router.get('/has-email', ...)</code> que recebe um parâmetro de query <code>email</code>, valida sua presença e retorna um JSON com <code>{ email, exists }</code>, onde <code>exists</code> é um booleano indicando se o e-mail está cadastrado.</li>
+<li>O código do novo endpoint reutiliza o método <code>userService.findByEmail(email.trim())</code> para verificar a existência do e-mail, retornando <code>true</code> ou <code>false</code>.</li>
+<li>No arquivo atual, já existe um endpoint <code>/by-email</code> que também usa <code>userService.findByEmail</code> para buscar o usuário pelo e-mail, porém retorna os dados do usuário (sem campos sensíveis) ou erro 404 se não encontrado.</li>
+<li>O novo endpoint é mais simples e retorna apenas a existência do e-mail, sem expor dados do usuário.</li>
+<li>O tratamento de erro para ausência do parâmetro <code>email</code> é consistente com o endpoint <code>/by-email</code> (status 400 e mensagem "Parâmetro email é obrigatório").</li>
+<li>O contexto do repositório indica que há testes unitários e de integração para usuários, inclusive um arquivo específico <code>users-has-email.test.js</code> que provavelmente cobre este endpoint.</li>
+</ul>
+<h1 id="impacto-provavel_3">Impacto provável</h1>
+<ul>
+<li><strong>Funcionalidade adicionada</strong>: clientes da API agora podem consultar rapidamente se um e-mail está cadastrado, sem receber dados do usuário.</li>
+<li><strong>Nenhuma alteração nos endpoints existentes</strong>: o endpoint <code>/by-email</code> e outros permanecem inalterados.</li>
+<li><strong>Possível uso para validação prévia em cadastro ou formulários</strong>: o endpoint pode ser usado para checar disponibilidade de e-mail sem expor dados do usuário.</li>
+<li><strong>Baixo impacto funcional no sistema atual</strong>, pois é uma adição isolada e não altera lógica existente.</li>
+</ul>
+<h1 id="riscos-identificados_3">Riscos identificados</h1>
+<ul>
+<li><strong>Validação do parâmetro <code>email</code> é básica</strong>: apenas verifica se existe e se não é vazio após trim, mas não valida formato. Isso pode permitir consultas com e-mails malformados, diferente do endpoint <code>/by-email</code> que faz validação regex e retorna 404 para e-mails inválidos.</li>
+<li><strong>Possível exposição de existência de e-mails</strong>: embora não retorne dados do usuário, o endpoint confirma se um e-mail está cadastrado, o que pode ser usado para enumeração de usuários (risco de segurança/privacidade).</li>
+<li><strong>Dependência direta do <code>userService.findByEmail</code></strong>: se este método for alterado, o comportamento do endpoint pode mudar.</li>
+<li><strong>Ausência de tratamento de erros inesperados</strong>: diferente do <code>/by-email</code>, que tem bloco try/catch, o novo endpoint não trata exceções, podendo resultar em erro 500 não controlado.</li>
+<li><strong>Não há limite de taxa (rate limiting) aparente</strong>: pode ser vulnerável a ataques de enumeração em massa.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_3">Cenários de testes manuais</h1>
+<ol>
+<li>
+<p><strong>Consulta com e-mail válido e cadastrado</strong><br />
+   - Requisição: <code>GET /has-email?email=usuario@exemplo.com</code><br />
+   - Esperado: status 200, JSON <code>{ email: "usuario@exemplo.com", exists: true }</code></p>
+</li>
+<li>
+<p><strong>Consulta com e-mail válido e não cadastrado</strong><br />
+   - Requisição: <code>GET /has-email?email=naoexiste@exemplo.com</code><br />
+   - Esperado: status 200, JSON <code>{ email: "naoexiste@exemplo.com", exists: false }</code></p>
+</li>
+<li>
+<p><strong>Consulta com parâmetro <code>email</code> ausente</strong><br />
+   - Requisição: <code>GET /has-email</code><br />
+   - Esperado: status 400, JSON <code>{ detail: "Parâmetro email é obrigatório" }</code></p>
+</li>
+<li>
+<p><strong>Consulta com parâmetro <code>email</code> vazio ou só espaços</strong><br />
+   - Requisição: <code>GET /has-email?email=</code><br />
+   - Esperado: status 400, JSON <code>{ detail: "Parâmetro email é obrigatório" }</code></p>
+</li>
+<li>
+<p><strong>Consulta com e-mail malformado (ex: "abc@@")</strong><br />
+   - Requisição: <code>GET /has-email?email=abc@@</code><br />
+   - Esperado: status 200, JSON <code>{ email: "abc@@", exists: false }</code> (pois não há validação de formato)</p>
+</li>
+<li>
+<p><strong>Teste de comportamento em caso de erro interno (simular falha em <code>userService.findByEmail</code>)</strong><br />
+   - Esperado: resposta 500 ou erro não tratado (verificar comportamento real)</p>
+</li>
+</ol>
+<h1 id="sugestoes-de-testes-unitarios_3">Sugestões de testes unitários</h1>
+<ul>
+<li>Testar que o endpoint retorna 400 quando o parâmetro <code>email</code> está ausente ou vazio.</li>
+<li>Testar que o endpoint retorna <code>{ exists: true }</code> quando <code>userService.findByEmail</code> retorna um usuário.</li>
+<li>Testar que o endpoint retorna <code>{ exists: false }</code> quando <code>userService.findByEmail</code> retorna <code>null</code> ou <code>undefined</code>.</li>
+<li>Testar que o parâmetro <code>email</code> é corretamente trimado antes da consulta.</li>
+<li>Testar que o endpoint retorna JSON com as chaves <code>email</code> e <code>exists</code>.</li>
+<li>Testar comportamento quando <code>userService.findByEmail</code> lança exceção (se possível, para avaliar ausência de try/catch).</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_3">Sugestões de testes de integração</h1>
+<ul>
+<li>Testar o fluxo completo do endpoint <code>/has-email</code> com e-mails cadastrados e não cadastrados, validando status e corpo da resposta.</li>
+<li>Testar integração com o banco/dados reais para garantir que a consulta reflete o estado atual.</li>
+<li>Testar que o endpoint não retorna dados sensíveis, apenas o booleano <code>exists</code>.</li>
+<li>Testar que o endpoint responde corretamente para requisições com e sem parâmetro <code>email</code>.</li>
+<li>Testar que o endpoint não conflita com <code>/by-email</code> e que ambos coexistem sem interferência.</li>
+<li>Testar comportamento sob carga leve para verificar estabilidade (não necessariamente performance).</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_3">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável: a mudança é um endpoint simples de consulta, sem alteração em lógica pesada ou loops complexos.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_3">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li><strong>Deve o endpoint validar o formato do e-mail?</strong><br />
+  O endpoint <code>/by-email</code> faz validação regex e retorna 404 para e-mails inválidos, mas <code>/has-email</code> não valida formato. Isso é intencional?  </li>
+<li><strong>Qual o comportamento esperado em caso de erro interno no <code>userService.findByEmail</code>?</strong><br />
+  O endpoint atual não trata exceções, diferente do <code>/by-email</code>. Deve-se adicionar tratamento para evitar crash da API?  </li>
+<li><strong>Há preocupação com segurança e privacidade quanto à enumeração de e-mails?</strong><br />
+  O endpoint expõe se um e-mail está cadastrado, o que pode ser explorado para descobrir usuários. Existe algum mecanismo de rate limiting ou proteção?  </li>
+<li><strong>Deve o endpoint aceitar e-mails com espaços em branco ou malformados?</strong><br />
+  Atualmente, o endpoint apenas trim e consulta, sem validação de formato. Isso pode gerar resultados inesperados.</li>
+</ul>
+<hr />
+<p><strong>Resumo:</strong> A mudança adiciona um endpoint simples e útil para verificar existência de e-mail, com baixo impacto funcional, mas com riscos de segurança e ausência de validação e tratamento de erros que devem ser avaliados. Testes específicos para validação de parâmetros, resposta correta e tratamento de erros são recomendados.</p>
+    </article>
+  </div>
+  <footer>QAgent — análise automatizada de QA com IA</footer>
+  
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const summaryContainer = document.getElementById('run-summary-container');
+  const artifactsContainer = document.getElementById('artifacts-container');
+
+  const formatMs = (ms) => {
+    if (!ms) return '0ms';
+    if (ms < 1000) return `${Math.round(ms)}ms`;
+    return `${(ms / 1000).toFixed(2)}s`;
+  };
+
+  const getRiskBadge = (level) => {
+    const map = {
+      'HIGH': { text: 'Alto risco', class: 'badge-high' },
+      'MEDIUM': { text: 'Risco médio', class: 'badge-medium' },
+      'LOW': { text: 'Baixo risco', class: 'badge-low' }
+    };
+    const info = map[level] || { text: level, class: 'badge-info' };
+    return `<span class="badge ${info.class}">${info.text}</span>`;
+  };
+
+  const getQualityBadge = (quality) => {
+    const map = {
+      'OK': { text: 'Review suficiente', class: 'badge-low' },
+      'INCOMPLETE': { text: 'Review incompleto', class: 'badge-high' }
+    };
+    const info = map[quality] || { text: quality, class: 'badge-info' };
+    return `<span class="badge ${info.class}">${info.text}</span>`;
+  };
+
+  const getRecBadge = (rec) => {
+    const map = {
+      'RECOMMENDED': { text: 'Geração recomendada', class: 'badge-low' },
+      'SKIPPED': { text: 'Geração pulada', class: 'badge-medium' }
+    };
+    const info = map[rec] || { text: rec, class: 'badge-info' };
+    return `<span class="badge ${info.class}">${info.text}</span>`;
+  };
+
+  const escapeHtml = (value) => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+  const renderMemories = (artifact) => {
+    const memories = artifact.memories_used || [];
+    if (!memories.length) {
+      return `
+        <div class="memory-empty">
+          Nenhuma memória relevante do banco vetorial foi usada na geração deste arquivo.
+        </div>
+      `;
+    }
+
+    return `
+      <div class="memory-list">
+        ${memories.map((mem) => `
+          <div class="memory-item">
+            <div class="memory-meta">
+              PR #${escapeHtml(mem.pr_number || '--')} · ${escapeHtml(mem.repo || 'repo desconhecido')} ·
+              distância ${escapeHtml(mem.distance ?? '--')} · por ${escapeHtml(mem.author || '--')}
+            </div>
+            <p class="memory-lesson">${escapeHtml(mem.lesson || '')}</p>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  };
+
+  // 1. Carregar Run Summary
+  try {
+    const resp = await fetch('run_summary.json');
+    if (resp.ok) {
+      const data = await resp.json();
+      summaryContainer.innerHTML = `
+        <div class="section-title">📊 Resumo da Execução</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-value">${data.total_files || 0}</span>
+            <span class="stat-label">Arquivos</span>
+          </div>
+          <div class="stat-card">
+            <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
+              ${getRiskBadge('HIGH')} x ${data.risk_distribution?.HIGH || 0}
+              ${getRiskBadge('MEDIUM')} x ${data.risk_distribution?.MEDIUM || 0}
+              ${getRiskBadge('LOW')} x ${data.risk_distribution?.LOW || 0}
+            </div>
+            <span class="stat-label" style="margin-top:8px">Distribuição</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">${data.total_steps_skipped || 0}</span>
+            <span class="stat-label">Etapas Puladas</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">${data.total_fallbacks_triggered || 0}</span>
+            <span class="stat-label">Fallbacks</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">${formatMs(data.total_duration_ms)}</span>
+            <span class="stat-label">Duração Total</span>
+          </div>
+        </div>
+        <details>
+          <summary>Ver dados brutos do resumo</summary>
+          <pre class="raw-json">${JSON.stringify(data, null, 2)}</pre>
+        </details>
+      `;
+    }
+  } catch (e) {
+    console.error('Erro ao carregar run_summary.json', e);
+  }
+
+  // 2. Carregar Artifacts
+  try {
+    const resp = await fetch('artifacts.json');
+    if (resp.ok) {
+      const artifacts = await resp.json();
+      let html = '<div class="section-title">📦 Artefatos Estruturados</div><div class="artifact-list">';
+      
+      artifacts.forEach((a, index) => {
+        const id = `art-${index}`;
+        html += `
+          <div class="artifact-card">
+            <div class="artifact-header" onclick="document.getElementById('${id}').style.display = document.getElementById('${id}').style.display === 'none' ? 'block' : 'none'">
+              <div class="artifact-title">
+                <span>📄</span> <strong>${a.file_path}</strong>
+              </div>
+              <div style="display:flex; gap:8px">
+                ${getRiskBadge(a.risk_level)}
+                ${getQualityBadge(a.review_quality)}
+              </div>
+            </div>
+            <div id="${id}" class="artifact-content" style="display:none">
+              
+              <div class="data-grid" style="margin-top:20px">
+                <div class="data-item">
+                  <span class="data-label">Recomendação de Testes</span>
+                  <span class="data-value">${getRecBadge(a.test_generation_recommendation)}</span>
+                </div>
+                <div class="data-item">
+                  <span class="data-label">Políticas Aplicadas</span>
+                  <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px">
+                    ${(a.applied_policies || []).map(p => `<span class="badge badge-policy">${p}</span>`).join('') || '--'}
+                  </div>
+                </div>
+              </div>
+
+              <div class="sub-section">
+                <div class="sub-section-title">🔍 Visão Geral e Contexto</div>
+                <div class="data-grid">
+                   <div class="data-item">
+                    <span class="data-label">Linguagem</span>
+                    <span class="data-value">${a.context_result?.language || '--'}</span>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Propósito</span>
+                    <span class="data-value">${a.context_result?.file_purpose || '--'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sub-section">
+                <div class="sub-section-title">🛡️ Review de QA</div>
+                <p style="font-size:.85rem; color:var(--text-muted)">${a.review_result?.summary || 'Sem resumo disponível'}</p>
+                <div class="data-grid">
+                  <div class="data-item">
+                    <span class="data-label">Principais Riscos</span>
+                    <ul style="margin:5px 0; padding-left:18px; font-size:.85rem">
+                      ${(a.review_result?.security_vulnerabilities || []).slice(0,2).map(v => `<li>${v}</li>`).join('') || '<li>Nenhum detectado</li>'}
+                    </ul>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Impacto Funcional</span>
+                    <span class="data-value">${a.review_result?.impact_assessment || '--'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sub-section">
+                <div class="sub-section-title">⏱️ Observabilidade e Performance</div>
+                <div class="data-grid">
+                  <div class="data-item">
+                    <span class="data-label">Etapas Executadas</span>
+                    <div style="font-size:.8rem; display:flex; flex-wrap:wrap; gap:4px">
+                      ${(a.executed_steps || []).map(s => `<span class="badge badge-info">${s}</span>`).join('')}
+                    </div>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Etapas Puladas</span>
+                    <div style="font-size:.8rem; color:var(--red)">
+                      ${(a.skipped_steps || []).join(', ') || 'Nenhuma'}
+                    </div>
+                  </div>
+                   <div class="data-item">
+                    <span class="data-label">Duração das Etapas</span>
+                    <div style="font-size:.8rem">
+                      ${Object.entries(a.step_durations_ms || {}).map(([s, d]) => `<div>${s}: <strong>${formatMs(d)}</strong></div>`).join('')}
+                    </div>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Fallbacks</span>
+                    <div style="font-size:.8rem; color:var(--yellow)">
+                      ${(a.fallbacks_triggered || []).join(', ') || 'Nenhum'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sub-section">
+                <div class="sub-section-title">🧠 Memórias do Banco Vetorial</div>
+                <div class="data-grid" style="margin-bottom:12px">
+                  <div class="data-item">
+                    <span class="data-label">Memória usada na geração</span>
+                    <span class="data-value">${(a.memories_used || []).length ? 'Sim' : 'Não'}</span>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Quantidade recuperada</span>
+                    <span class="data-value">${(a.memories_used || []).length}</span>
+                  </div>
+                </div>
+                ${renderMemories(a)}
+                ${a.memory_query ? `
+                  <details style="margin-top:10px">
+                    <summary>Ver consulta usada no banco vetorial</summary>
+                    <pre class="raw-json">${escapeHtml(a.memory_query)}</pre>
+                  </details>
+                ` : ''}
+              </div>
+
+              <details style="margin-top:20px">
+                <summary>Ver JSON completo do arquivo</summary>
+                <pre class="raw-json">${JSON.stringify(a, null, 2)}</pre>
+              </details>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      artifactsContainer.innerHTML = html;
+    }
+  } catch (e) {
+    console.error('Erro ao carregar artifacts.json', e);
+    artifactsContainer.innerHTML = '<div class="error-msg">Aviso: Não foi possível carregar os artefatos estruturados para esta execução.</div>';
+  }
+});
+</script>
+
+</body>
+</html>
