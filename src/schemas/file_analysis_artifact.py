@@ -6,6 +6,7 @@ from src.schemas.review_result import ReviewResult
 from src.schemas.test_strategy_result import TestStrategyResult
 from src.schemas.generated_test_review_result import GeneratedTestsReviewResult
 from src.schemas.test_execution_result import TestExecutionResult
+from src.schemas.token_budget import TokenBudgetPlan
 
 
 # ---------------------------------------------------------------------------
@@ -35,6 +36,9 @@ class FileAnalysisArtifact(BaseModel):
     file_path: str = Field(..., description="Caminho do arquivo analisado")
     context_result: Optional[ContextResult] = Field(
         None, description="Resultado da etapa de extração de contexto"
+    )
+    token_budget_plan: Optional[TokenBudgetPlan] = Field(
+        None, description="Plano de orçamento de tokens aplicado ao arquivo"
     )
     raw_review_markdown: Optional[str] = Field(
         None, description="Markdown bruto retornado pelo QA Agent"
