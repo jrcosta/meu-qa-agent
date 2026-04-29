@@ -1,0 +1,1570 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>QAgent · jrcosta/repo_alvo_api_simples · 29 Apr 2026 – 15:36:17 UTC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-hover: #1c2129;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+  --purple: #bc8cff;
+  --radius: 10px;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  margin: 0; padding: 0;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; transition: color .15s; }
+a:hover { color: var(--accent-hover); }
+.container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+}
+.topbar a { font-size: .9rem; }
+.topbar .sep { color: var(--border); }
+.topbar .slug { color: var(--text-muted); font-size: .85rem; font-family: var(--font-mono); }
+.report { padding-top: 16px; }
+.report h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.report h2 { font-size: 1.3rem; margin-top: 32px; color: var(--accent); }
+.report h3 { font-size: 1.1rem; margin-top: 24px; }
+.report p { margin: 12px 0; }
+.report ul, .report ol { padding-left: 24px; }
+.report li { margin: 6px 0; }
+.report code {
+  font-family: var(--font-mono); font-size: .88em;
+  background: var(--surface); padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.report pre {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: .88rem; line-height: 1.5;
+}
+.report pre code { background: none; border: none; padding: 0; }
+.report blockquote {
+  border-left: 3px solid var(--accent); margin: 16px 0;
+  padding: 8px 16px; color: var(--text-muted); background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.report table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.report th, .report td {
+  border: 1px solid var(--border); padding: 8px 12px; text-align: left;
+}
+.report th { background: var(--surface); font-weight: 600; }
+.report hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.report strong { color: #f0f6fc; }
+.meta-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px;
+  display: flex; flex-wrap: wrap; gap: 24px; font-size: .88rem;
+}
+.meta-item label { color: var(--text-muted); display: block; font-size: .78rem; margin-bottom: 2px; }
+.meta-item span { font-family: var(--font-mono); }
+
+/* Novas seções de artefatos */
+.section-title { font-size: 1.4rem; margin: 40px 0 20px; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; }
+.stat-value { font-size: 1.8rem; font-weight: 700; color: var(--accent); display: block; }
+.stat-label { color: var(--text-muted); font-size: .8rem; text-transform: uppercase; letter-spacing: 1px; }
+
+.artifact-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px; }
+.artifact-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.artifact-header { padding: 12px 20px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background .15s; }
+.artifact-header:hover { background: var(--surface-hover); }
+.artifact-title { font-family: var(--font-mono); font-size: .9rem; display: flex; align-items: center; gap: 8px; }
+.artifact-content { padding: 0 20px 20px; border-top: 1px solid var(--border); background: #161b2255; }
+
+.sub-section { margin-top: 20px; }
+.sub-section-title { font-size: .9rem; font-weight: 600; margin-bottom: 10px; color: var(--text-muted); text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.data-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.data-item { background: #0d111755; padding: 10px 14px; border-radius: 6px; border: 1px solid var(--border); }
+.data-label { font-size: .75rem; color: var(--text-muted); display: block; }
+.data-value { font-size: .9rem; }
+
+.badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: .75rem; font-weight: 600; }
+.badge-low { background: #23863633; color: #3fb950; border: 1px solid #238636; }
+.badge-medium { background: #9e6a0333; color: #d29922; border: 1px solid #9e6a03; }
+.badge-high { background: #da363333; color: #f85149; border: 1px solid #da3633; }
+.badge-info { background: #388bfd33; color: #58a6ff; border: 1px solid #388bfd; }
+.badge-policy { background: #8957e533; color: #bc8cff; border: 1px solid #8957e5; }
+.memory-list { display: flex; flex-direction: column; gap: 10px; }
+.memory-item { background: #0d111755; border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; }
+.memory-meta { color: var(--text-muted); font-size: .75rem; font-family: var(--font-mono); margin-bottom: 6px; }
+.memory-lesson { font-size: .86rem; margin: 0; }
+.memory-empty { color: var(--text-muted); font-size: .86rem; background: #0d111755; border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; }
+
+details summary { cursor: pointer; padding: 8px 0; color: var(--accent); font-size: .9rem; font-weight: 500; }
+details summary:hover { color: var(--accent-hover); }
+.raw-json { font-family: var(--font-mono); font-size: .8rem; background: #00000044; padding: 12px; border-radius: 6px; overflow-x: auto; margin-top: 10px; border: 1px solid var(--border); }
+
+.error-msg { background: #f8514922; border: 1px solid var(--red); color: var(--red); padding: 12px; border-radius: var(--radius); margin: 20px 0; font-size: .9rem; }
+.md-content p { margin: 8px 0; }
+.md-content ul, .md-content ol { padding-left: 20px; margin: 8px 0; }
+.md-content li { margin: 4px 0; }
+.md-content hr { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+footer { text-align: center; color: var(--text-muted); font-size: .8rem; padding: 40px 0 20px;
+         border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+  <nav class="topbar">
+    <a href="../../index.html">← Histórico</a>
+    <span class="sep">|</span>
+    <span class="slug">2026-04-29_15-36-17_UTC__jrcosta__repo_alvo_api_simples</span>
+  </nav>
+  <div class="container">
+    <div class="meta-box">
+      <div class="meta-item"><label>Repositório</label><span>jrcosta/repo_alvo_api_simples</span></div>
+      <div class="meta-item"><label>Execução</label><span>29 Apr 2026 – 15:36:17 UTC</span></div>
+    </div>
+    <div class="meta-box" style="margin-top:12px;font-size:.85rem"><a href="artifacts.json" style="margin-right:16px">📦 artifacts.json</a> <a href="run_summary.json">📊 run_summary.json</a></div>
+    <div id="run-summary-container"></div>
+    <div id="artifacts-container"></div>
+    <article class="report">
+      <h1 id="arquivo-analisado-java-apisrcmainjavacomrepoalvojavaapiserviceuserservicejava">Arquivo analisado: java-api/src/main/java/com/repoalvo/javaapi/service/UserService.java</h1>
+<h1 id="tipo-da-mudanca">Tipo da mudança</h1>
+<p>Melhoria funcional com adição de método para reinicialização do estado interno e sincronização para segurança em concorrência.</p>
+<h1 id="evidencias-observadas">Evidências observadas</h1>
+<ul>
+<li>Inclusão do método <code>reset()</code> que limpa a lista <code>users</code>, adiciona dois usuários padrão e reseta o contador <code>nextId</code> para 3.</li>
+<li>O construtor da classe chama <code>reset()</code>, garantindo estado inicial padronizado.</li>
+<li>Todos os métodos que acessam ou modificam <code>users</code> e <code>nextId</code> são sincronizados.</li>
+<li>Contexto do repositório indica que <code>UserService</code> é um serviço Spring que gerencia usuários em memória com operações CRUD.</li>
+<li>Testes unitários existentes para <code>UserService</code> não indicam cobertura explícita para <code>reset()</code>.</li>
+</ul>
+<h1 id="impacto-provavel">Impacto provável</h1>
+<ul>
+<li>Inicialização determinística do serviço com estado padrão consistente.</li>
+<li>Possibilidade de reinicialização do estado em runtime via <code>reset()</code>.</li>
+<li>Sincronização previne condições de corrida, melhorando consistência em ambiente concorrente.</li>
+<li>Potencial impacto em testes existentes que assumem estado inicial diferente.</li>
+<li>Possível contenção e impacto de performance em cenários de alta concorrência.</li>
+</ul>
+<h1 id="riscos-identificados">Riscos identificados</h1>
+<ul>
+<li>Uso indevido do método <code>reset()</code> pode causar perda inesperada de dados.</li>
+<li>Risco de deadlocks ou contenção devido à sincronização, especialmente se métodos sincronizados forem chamados recursivamente ou em cadeia.</li>
+<li>Testes existentes podem não cobrir adequadamente o novo método e seus efeitos.</li>
+<li>Impacto no ciclo de vida do objeto e múltiplas instâncias não totalmente explorado.</li>
+<li>Falta de tratamento explícito para falhas ou exceções durante <code>reset()</code>.</li>
+<li>Ausência de testes de integração que avaliem impacto em componentes dependentes.</li>
+<li>Documentação técnica possivelmente desatualizada quanto à nova funcionalidade.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais">Cenários de testes manuais</h1>
+<ul>
+<li>Executar sequência de operações CRUD, chamar <code>reset()</code> e verificar se o estado volta ao padrão esperado.</li>
+<li>Testar chamadas concorrentes via API REST para validar ausência de inconsistências ou erros.</li>
+<li>Observar comportamento do serviço após múltiplas reinicializações em runtime.</li>
+<li>Monitorar logs para identificar possíveis deadlocks ou lentidões causadas pela sincronização.</li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios">Sugestões de testes unitários</h1>
+<ul>
+<li>Verificar que <code>reset()</code> limpa a lista <code>users</code> e adiciona os dois usuários padrão.</li>
+<li>Confirmar que <code>nextId</code> é reiniciado para 3 após <code>reset()</code>.</li>
+<li>Testar que o construtor inicializa o estado via <code>reset()</code>.</li>
+<li>Simular chamadas concorrentes aos métodos sincronizados para detectar condições de corrida.</li>
+<li>Validar operações CRUD antes e depois de <code>reset()</code>.</li>
+<li>Testar múltiplos ciclos de criação e reinicialização do serviço.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao">Sugestões de testes de integração</h1>
+<ul>
+<li>Testar endpoints REST que dependem do estado do <code>UserService</code> para garantir comportamento consistente após <code>reset()</code>.</li>
+<li>Simular chamadas REST concorrentes para verificar integridade dos dados.</li>
+<li>Avaliar impacto da sincronização e reinicialização no fluxo completo da aplicação.</li>
+<li>Testar integração com componentes que dependem do <code>UserService</code> para detectar efeitos colaterais.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável diretamente, pois não há evidência clara de impacto significativo em performance ou carga.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>O método <code>reset()</code> é exposto publicamente ou utilizado apenas internamente?</li>
+<li>Há necessidade de tratamento específico para falhas durante a execução de <code>reset()</code>?</li>
+<li>Como o serviço é instanciado e gerenciado no ciclo de vida da aplicação (múltiplas instâncias, singleton)?</li>
+<li>Existe documentação atualizada que descreva o comportamento do <code>reset()</code> e a sincronização?</li>
+<li>Quais são as expectativas de uso do método <code>reset()</code> em ambiente de produção?</li>
+</ul>
+<h1 id="validacao-cooperativa">Validação cooperativa</h1>
+<p>A análise de riscos foi detalhada pelo QA Sênior Investigador, que destacou os impactos funcionais e riscos de concorrência. A estratégia de testes foi elaborada pelo Especialista em Estratégia de Testes para Código de Alto Risco, propondo testes unitários, de integração e manuais focados no método <code>reset()</code> e sincronização. O Crítico de Análise de QA revisou as propostas, apontando omissões e sugerindo aprofundamento em testes de concorrência, tratamento de exceções, impacto no ciclo de vida e documentação. A consolidação final reflete a integração dessas contribuições para uma análise robusta e contextualizada.</p>
+<hr />
+<h1 id="arquivo-analisado-java-apisrctestjavacomrepoalvojavaapiusercontrollerdeleteintegrationtestjava">Arquivo analisado: java-api/src/test/java/com/repoalvo/javaapi/UserControllerDeleteIntegrationTest.java</h1>
+<h1 id="tipo-da-mudanca_1">Tipo da mudança</h1>
+<p>Simplificação e remoção de testes de integração para o endpoint DELETE /users/{userId}.</p>
+<h1 id="evidencias-observadas_1">Evidências observadas</h1>
+<ul>
+<li>O diff mostra que o arquivo <code>UserControllerDeleteIntegrationTest.java</code> foi drasticamente reduzido, removendo quase todos os testes que envolviam autenticação, autorização, validação de formatos inválidos, concorrência, integridade de dados e tratamento detalhado de erros.</li>
+<li>Restam apenas dois testes básicos: um que verifica a deleção de um usuário existente e outro que verifica a resposta ao tentar deletar um usuário inexistente, ambos sem autenticação.</li>
+<li>O método <code>setup</code> foi alterado para usar <code>userService.reset()</code> para resetar o estado do banco antes de cada teste.</li>
+<li>O contexto do repositório indica que existem outros testes para UserService e UserController, mas não há evidência clara de cobertura para autorização, concorrência e integridade de dados na deleção de usuários.</li>
+</ul>
+<h1 id="impacto-provavel_1">Impacto provável</h1>
+<ul>
+<li>A cobertura de testes para o endpoint DELETE /users/{userId} foi reduzida a cenários básicos de sucesso e falha, sem considerar aspectos críticos como segurança, validação de entrada, concorrência e integridade referencial.</li>
+<li>Possível ocultação de regressões relacionadas a falhas de autenticação/autorização, aceitação de entradas inválidas, condições de corrida e corrupção de dados relacionados.</li>
+<li>Redução da robustez da suíte de testes, com maior risco de falhas em produção não detectadas automaticamente.</li>
+</ul>
+<h1 id="riscos-identificados_1">Riscos identificados</h1>
+<ul>
+<li><strong>Segurança:</strong> Endpoint pode ficar acessível sem autenticação/autorização, permitindo deleção indevida.</li>
+<li><strong>Robustez:</strong> Falta de validação de formatos inválidos pode causar erros não tratados.</li>
+<li><strong>Integridade de dados:</strong> Deleção de usuários com dados relacionados pode gerar inconsistências no banco.</li>
+<li><strong>Concorrência:</strong> Ausência de testes para deleções simultâneas pode permitir condições de corrida.</li>
+<li><strong>Cobertura insuficiente:</strong> Testes simplificados não refletem fluxos reais de uso e regras de negócio.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_1">Cenários de testes manuais</h1>
+<ul>
+<li>Tentar deletar usuários com e sem autenticação válida, verificando respostas 401 e 403.</li>
+<li>Deletar usuários com IDs inválidos (strings, negativos, nulos) e observar tratamento de erro.</li>
+<li>Realizar deleções simultâneas do mesmo usuário e de usuários diferentes para verificar comportamento.</li>
+<li>Deletar usuários que possuem dados relacionados (ex: posts) e verificar integridade do banco.</li>
+<li>Testar deleção de usuários críticos (ex: administradores) para garantir restrições de negócio.</li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios_1">Sugestões de testes unitários</h1>
+<ul>
+<li>Validar métodos de serviço que processam a deleção, incluindo tratamento de exceções para IDs inválidos e inexistentes.</li>
+<li>Testar regras de autorização no serviço, simulando diferentes perfis de usuário.</li>
+<li>Testar lógica de integridade referencial e cascata de deleção no serviço.</li>
+<li>Simular condições de concorrência em métodos de serviço para garantir consistência.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_1">Sugestões de testes de integração</h1>
+<ul>
+<li>Reintroduzir testes de integração que validem autenticação e autorização no endpoint DELETE /users/{userId}.</li>
+<li>Testar respostas para formatos inválidos de userId, garantindo retorno 400 Bad Request.</li>
+<li>Testar deleção concorrente via múltiplas requisições paralelas.</li>
+<li>Testar deleção de usuários com dados relacionados, verificando integridade e consistência.</li>
+<li>Testar cenários de erro detalhados, como falhas no banco de dados ou restrições de negócio.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_1">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável, pois a mudança não indica impacto direto em performance ou carga.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_1">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>Qual a justificativa para a remoção dos testes de autenticação e autorização? Há cobertura equivalente em outros arquivos?</li>
+<li>O método <code>userService.reset()</code> garante estado consistente e isolado para todos os testes?</li>
+<li>Existem políticas específicas para deleção de usuários críticos ou com dados relacionados que devem ser refletidas nos testes?</li>
+<li>Há planos para reintroduzir testes de concorrência e integridade em outra camada ou arquivo?</li>
+</ul>
+<h1 id="validacao-cooperativa_1">Validação cooperativa</h1>
+<ul>
+<li>A análise de riscos foi detalhada pelo QA Sênior Investigador, que destacou os impactos da remoção dos testes críticos.</li>
+<li>A estratégia de testes proposta pelo Especialista em Estratégia de Testes para Código de Alto Risco sugere uma abordagem integrada para compensar as lacunas, incluindo criação de novos arquivos de teste focados em autorização, validação, concorrência e integridade.</li>
+<li>O Crítico de Análise de QA reforçou a importância de não subestimar os riscos de regressão e lacunas de cobertura, alertando para a necessidade de evitar conclusões genéricas e enfatizando a criticidade dos testes removidos.</li>
+<li>A consolidação final reflete a convergência das análises, destacando riscos reais e propondo ações concretas para mitigação.</li>
+</ul>
+<hr />
+<h1 id="arquivo-analisado-java-apisrctestjavacomrepoalvojavaapiusercontrollerintegrationtestjava">Arquivo analisado: java-api/src/test/java/com/repoalvo/javaapi/UserControllerIntegrationTest.java</h1>
+<h1 id="tipo-da-mudanca_2">Tipo da mudança</h1>
+<p>Melhoria na infraestrutura de testes (setup para resetar estado do serviço antes de cada teste).</p>
+<h1 id="evidencias-observadas_2">Evidências observadas</h1>
+<ul>
+<li>Inclusão do método <code>setup()</code> anotado com <code>@BeforeEach</code> que chama <code>userService.reset()</code> para reinicializar o estado do serviço antes de cada teste.</li>
+<li>Testes existentes focados no endpoint <code>GET /users/by-email</code> que cobrem casos de email existente, não existente, parâmetro ausente, email vazio e caracteres especiais.</li>
+<li>Contexto do repositório indica uso de Spring Boot, MockMvc e JUnit 5 para testes de integração.</li>
+</ul>
+<h1 id="impacto-provavel_2">Impacto provável</h1>
+<ul>
+<li>Melhora no isolamento dos testes, evitando interferência de estado residual entre execuções.</li>
+<li>Potencial aumento da confiabilidade e reprodutibilidade dos testes.</li>
+<li>Possível impacto em testes que dependam de estado pré-carregado ou dados externos não reinicializados pelo <code>reset()</code>.</li>
+</ul>
+<h1 id="riscos-identificados_2">Riscos identificados</h1>
+<ul>
+<li>Se <code>userService.reset()</code> não for idempotente ou não restaurar um estado baseline esperado, pode causar falhas inesperadas.</li>
+<li>Possibilidade de apagar dados necessários para testes específicos, levando a falsos negativos.</li>
+<li>Efeitos colaterais caso o reset afete componentes compartilhados além do UserService (cache, banco de dados, contexto).</li>
+<li>Ausência de análise sobre comportamento em execução paralela dos testes, podendo haver interferência em ambientes concorrentes.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_2">Cenários de testes manuais</h1>
+<ul>
+<li>Executar a suíte completa para verificar estabilidade após inclusão do reset.</li>
+<li>Modificar estado do UserService manualmente e validar se o reset limpa corretamente antes do próximo teste.</li>
+<li>Testar endpoints com dados pré-carregados para garantir que reset não apague dados necessários.</li>
+<li>Verificar comportamento do sistema em ambiente com execução paralela de testes.</li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios_2">Sugestões de testes unitários</h1>
+<ul>
+<li>Testar diretamente o método <code>userService.reset()</code> para garantir que ele limpa todo o estado mutável esperado.</li>
+<li>Criar testes parametrizados para validar entradas inválidas no endpoint <code>/users/by-email</code> (ex: formatos inválidos, espaços, case sensitivity).</li>
+<li>Testar tratamento de exceções internas no UserService para garantir respostas adequadas.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_2">Sugestões de testes de integração</h1>
+<ul>
+<li>Adicionar testes para casos de borda não cobertos: emails com formato inválido, espaços em branco, usuários inativos, limites de tamanho do parâmetro.</li>
+<li>Testar concorrência com múltiplas requisições simultâneas para avaliar comportamento sob carga.</li>
+<li>Validar que o reset não impacta negativamente outros testes que dependam de estado compartilhado.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_2">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável, pois a mudança não indica impacto direto em performance ou carga.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_2">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>O que exatamente o método <code>userService.reset()</code> faz internamente? Ele limpa apenas estado em memória ou também dados persistidos?</li>
+<li>Há dependências externas (banco de dados, cache) que precisam ser resetadas para garantir isolamento completo?</li>
+<li>Os testes são executados em paralelo no pipeline? O UserService e seu reset são thread-safe?</li>
+<li>Existe algum teste que dependa de estado pré-carregado que possa ser afetado pelo reset?</li>
+</ul>
+<h1 id="validacao-cooperativa_2">Validação cooperativa</h1>
+<ul>
+<li>A análise de riscos foi detalhada pelo QA Sênior Investigador, destacando potenciais efeitos colaterais e necessidade de validação do reset.</li>
+<li>O Especialista em Estratégia de Testes avaliou a cobertura atual e sugeriu melhorias específicas para aumentar robustez e abrangência dos testes.</li>
+<li>O Crítico de Análise de QA apontou fragilidades na análise inicial, recomendando maior detalhamento, evidências concretas e consideração de execução paralela.</li>
+<li>A consolidação final reflete essas contribuições, equilibrando cautela e recomendações práticas para garantir qualidade e confiabilidade dos testes.</li>
+</ul>
+<hr />
+<h1 id="arquivo-analisado-java-apisrctestjavacomrepoalvojavaapiuserserviceunittestjava">Arquivo analisado: java-api/src/test/java/com/repoalvo/javaapi/UserServiceUnitTest.java</h1>
+<h1 id="tipo-da-mudanca_3">Tipo da mudança</h1>
+<p>Refinamento em teste unitário.</p>
+<h1 id="evidencias-observadas_3">Evidências observadas</h1>
+<ul>
+<li>Remoção do valor <code>null</code> do array <code>phoneNumbers</code> no teste <code>updateExistingUserWithVariousPhoneNumberFormatsShouldAcceptAsIs</code> no arquivo <code>UserServiceUnitTest.java</code>.</li>
+<li>O teste original validava que vários formatos de telefone, incluindo <code>null</code>, eram aceitos e armazenados "as is".</li>
+<li>O contexto do repositório mostra que o teste é parte da cobertura unitária do serviço <code>UserService</code> para atualização de usuários.</li>
+</ul>
+<h1 id="impacto-provavel_3">Impacto provável</h1>
+<ul>
+<li>O teste deixa de validar explicitamente o comportamento do serviço ao receber números de telefone nulos.</li>
+<li>Pode haver redução na cobertura de casos de borda relacionados a valores nulos, comuns em dados de entrada.</li>
+<li>Se não houver outro teste cobrindo <code>null</code>, pode haver risco de regressão ou falha silenciosa no tratamento de <code>null</code>.</li>
+</ul>
+<h1 id="riscos-identificados_3">Riscos identificados</h1>
+<ul>
+<li>Possível regressão no tratamento de números de telefone nulos, levando a exceções ou comportamento inesperado.</li>
+<li>Redução da robustez do teste unitário ao não validar explicitamente o cenário <code>null</code>.</li>
+<li>Potencial falha em produção se o serviço não tratar corretamente valores nulos.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_3">Cenários de testes manuais</h1>
+<ul>
+<li>Atualizar usuário com número de telefone <code>null</code> e verificar comportamento do sistema (aceitação, rejeição ou erro controlado).</li>
+<li>Atualizar usuário com vários formatos válidos de telefone e confirmar armazenamento correto.</li>
+<li>Atualizar usuário com lista vazia ou nula de telefones e observar resposta do sistema.</li>
+<li>Atualizar usuário com números de telefone inválidos ou duplicados para validar tratamento.</li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios_3">Sugestões de testes unitários</h1>
+<ul>
+<li>Reintroduzir teste específico para atualização com número de telefone <code>null</code>, validando comportamento esperado (ex: aceitar, ignorar ou lançar exceção).</li>
+<li>Manter teste com vários formatos válidos, excluindo <code>null</code>.</li>
+<li>Criar testes para lista vazia e lista nula de telefones.</li>
+<li>Testar atualização com números duplicados e formatos inválidos para garantir robustez.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_3">Sugestões de testes de integração</h1>
+<ul>
+<li>Testar fluxo completo de atualização de usuário com números de telefone <code>null</code> para validar integração e persistência.</li>
+<li>Validar que chamadas REST que atualizam telefone com <code>null</code> são tratadas conforme esperado.</li>
+<li>Testar atualização com múltiplos formatos de telefone em ambiente integrado para garantir consistência.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_3">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável, pois a mudança é restrita a testes unitários e não impacta performance.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_3">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>Qual o comportamento esperado do serviço <code>UserService</code> ao receber número de telefone <code>null</code>? Deve aceitar, rejeitar ou tratar de forma especial?</li>
+<li>Existem outros testes que cobrem explicitamente o tratamento de <code>null</code> para números de telefone?</li>
+<li>Há regras de negócio específicas para formatos ou valores nulos de telefone que devem ser refletidas nos testes?</li>
+</ul>
+<h1 id="validacao-cooperativa_3">Validação cooperativa</h1>
+<ul>
+<li>O QA Sênior Investigador identificou que a remoção do <code>null</code> reduz a cobertura de casos de borda e pode impactar a robustez.</li>
+<li>O Especialista em Estratégia de Testes recomendou manter o teste principal para formatos válidos e criar testes separados para <code>null</code> e outros casos relevantes.</li>
+<li>O Crítico de Análise de QA reforçou que a remoção pode gerar lacunas de teste e riscos de regressão se o tratamento de <code>null</code> não estiver coberto em outro lugar.</li>
+<li>As conclusões foram consolidadas para garantir uma análise objetiva, rastreável e útil para revisão humana.</li>
+</ul>
+<hr />
+<h1 id="arquivo-analisado-java-apisrctestjavacomrepoalvojavaapicontrollerusercontrollerunittestjava">Arquivo analisado: java-api/src/test/java/com/repoalvo/javaapi/controller/UserControllerUnitTest.java</h1>
+<h1 id="tipo-da-mudanca_4">Tipo da mudança</h1>
+<p>Correção técnica em testes unitários para atualização de API.</p>
+<h1 id="evidencias-observadas_4">Evidências observadas</h1>
+<ul>
+<li>No diff, a substituição de <code>ex.getStatus()</code> por <code>ex.getStatusCode()</code> nas asserções que verificam o status HTTP da exceção <code>ResponseStatusException</code>.</li>
+<li>O arquivo <code>UserControllerUnitTest.java</code> contém testes unitários para o método <code>deleteUser</code> do controller, com mocks para <code>UserService</code> e <code>ExternalService</code>.</li>
+<li>O contexto do repositório confirma que o arquivo é um teste unitário focado no controller, com cobertura para casos de sucesso, usuário não encontrado, exceções inesperadas e validação de IDs inválidos.</li>
+</ul>
+<h1 id="impacto-provavel_4">Impacto provável</h1>
+<ul>
+<li>A mudança adapta os testes para a API atual do Spring, onde <code>getStatusCode()</code> substitui <code>getStatus()</code>.</li>
+<li>Não altera a lógica dos testes nem do código de produção.</li>
+<li>Mantém a validação do status HTTP 404 para exceções lançadas quando o usuário não é encontrado.</li>
+<li>Baixo risco de regressão funcional, limitado a possíveis incompatibilidades de versão do Spring.</li>
+</ul>
+<h1 id="riscos-identificados_4">Riscos identificados</h1>
+<ul>
+<li>Possível incompatibilidade se a versão do Spring usada não suportar <code>getStatusCode()</code>, causando falha na compilação ou nos testes.</li>
+<li>Nenhum risco funcional no comportamento do controller ou nos testes, pois a alteração é apenas na forma de acessar o status da exceção.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_4">Cenários de testes manuais</h1>
+<ul>
+<li>Testar a exclusão de usuário existente, confirmando que o usuário é removido e o status retornado é 204 No Content.</li>
+<li>Testar a exclusão de usuário inexistente, verificando que a resposta é 404 Not Found com a mensagem "Usuário não encontrado".</li>
+<li>Testar exclusão com IDs inválidos (negativos, zero), confirmando retorno 404 Not Found.</li>
+<li>Testar comportamento do sistema diante de falhas inesperadas no serviço, garantindo que exceções são propagadas corretamente.</li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios_4">Sugestões de testes unitários</h1>
+<ul>
+<li>Validar que a exceção <code>ResponseStatusException</code> lança o status HTTP correto usando <code>getStatusCode()</code>.</li>
+<li>Confirmar que o método <code>delete</code> do <code>UserService</code> é chamado apenas quando o usuário existe.</li>
+<li>Testar tratamento de exceções específicas adicionais, se houver, para garantir cobertura completa.</li>
+<li>Adicionar testes para validar mensagens de erro e conteúdo da exceção além do status.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_4">Sugestões de testes de integração</h1>
+<ul>
+<li>Testar a rota DELETE <code>/users/{userId}</code> para usuários existentes e inexistentes, verificando os códigos HTTP retornados.</li>
+<li>Validar integração entre controller e serviço para exclusão de usuários, incluindo casos de erro.</li>
+<li>Testar comportamento da API com IDs inválidos e limites.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_4">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável, pois a mudança é restrita a testes unitários e não impacta performance.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_4">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>Confirmar a versão do Spring utilizada para garantir compatibilidade com <code>getStatusCode()</code>.</li>
+<li>Verificar se há outras ocorrências de <code>getStatus()</code> no código que precisem ser atualizadas.</li>
+<li>Avaliar se o controller trata outras exceções específicas que deveriam ser cobertas por testes.</li>
+</ul>
+<h1 id="validacao-cooperativa_4">Validação cooperativa</h1>
+<ul>
+<li>O QA Sênior Investigador confirmou que a mudança é uma atualização técnica para compatibilidade com a API do Spring, com baixo risco de regressão.</li>
+<li>O Especialista em Estratégia de Testes avaliou que a cobertura atual é adequada, recomendando enriquecimento com testes adicionais para exceções específicas e validação de conteúdo.</li>
+<li>O Crítico de Análise de QA considerou a alteração relevante para correção técnica, sem impacto significativo na qualidade dos testes, e sugeriu confirmar a compatibilidade da API e a cobertura dos testes.</li>
+</ul>
+<hr />
+<p>A análise consolidada indica que a mudança é segura, necessária para manter a correção dos testes e não altera o comportamento funcional. Recomenda-se validar a versão do Spring e ampliar a cobertura de testes conforme sugerido para maior robustez.</p>
+<hr />
+<h1 id="arquivo-analisado-python-apiappapiroutespy">Arquivo analisado: python-api/app/api/routes.py</h1>
+<h1 id="analise-da-mudanca-no-arquivo-python-apiappapiroutespy">Análise da Mudança no arquivo <code>python-api/app/api/routes.py</code></h1>
+<hr />
+<h2 id="tipo-da-mudanca_5">Tipo da mudança</h2>
+<ul>
+<li><strong>Melhoria de validação de entrada (input validation) no endpoint de atualização de usuário (<code>PUT /users/{user_id}</code>)</strong></li>
+</ul>
+<hr />
+<h2 id="evidencias-observadas_5">Evidências observadas</h2>
+<ul>
+<li>O diff mostra que foi removida a docstring detalhada do método <code>update_user</code> e substituída por uma mais sucinta.</li>
+<li>Foi adicionada uma validação explícita para verificar se o payload recebido contém ao menos um campo para atualização:<br />
+<code>python
+  if not payload.model_dump(exclude_unset=True):
+      raise HTTPException(status_code=422, detail="Informe ao menos um campo para atualizar")</code></li>
+<li>O restante da lógica para verificar conflito de email e atualização do usuário permanece inalterado.</li>
+<li>O arquivo atual mostra que o endpoint <code>update_user</code> já tratava erros 404 (usuário não encontrado) e 409 (email duplicado), mas não validava se o payload estava vazio.</li>
+<li>O contexto do repositório indica que o endpoint é parte da API REST construída com FastAPI, com testes unitários e de integração existentes para usuários (<code>test_user_update.py</code>, <code>test_api.py</code>, <code>test_integration.py</code>).</li>
+</ul>
+<hr />
+<h2 id="impacto-provavel_5">Impacto provável</h2>
+<ul>
+<li><strong>Comportamento alterado:</strong> Agora o endpoint <code>PUT /users/{user_id}</code> rejeita explicitamente requisições onde o corpo da requisição não contenha nenhum campo para atualização, retornando HTTP 422 com mensagem clara.</li>
+<li><strong>Melhoria na robustez da API:</strong> Evita chamadas desnecessárias ao serviço de atualização com payload vazio, que provavelmente não faz sentido e poderia causar comportamento inesperado ou confuso.</li>
+<li><strong>Mudança no contrato da API:</strong> Clientes que enviavam payloads vazios para atualizar usuário passarão a receber erro 422, enquanto antes poderiam ter um comportamento indefinido ou silencioso.</li>
+</ul>
+<hr />
+<h2 id="riscos-identificados_5">Riscos identificados</h2>
+<ul>
+<li><strong>Rejeição de payloads vazios pode impactar clientes existentes:</strong> Se algum cliente da API atualmente envia payloads vazios para o endpoint de atualização, ele passará a receber erro 422, o que pode quebrar integrações.</li>
+<li><strong>Mensagem de erro em português:</strong> A mensagem <code>"Informe ao menos um campo para atualizar"</code> está em português, o que pode ser inconsistente com outras mensagens de erro da API (que também estão em português, mas é bom confirmar padrão).</li>
+<li><strong>Remoção da docstring detalhada:</strong> A docstring anterior explicava os códigos de erro 404 e 409, que agora não estão documentados explicitamente. Isso pode impactar a documentação automática da API.</li>
+<li><strong>Possível duplicidade de validação:</strong> Se o serviço <code>user_service.update_user</code> já trata payloads vazios de alguma forma, pode haver redundância ou conflito.</li>
+</ul>
+<hr />
+<h2 id="cenarios-de-testes-manuais_5">Cenários de testes manuais</h2>
+<ol>
+<li>
+<p><strong>Atualização com payload vazio</strong><br />
+   - Enviar <code>PUT /users/{user_id}</code> com corpo JSON vazio <code>{}</code> ou sem campos.<br />
+   - Esperar resposta HTTP 422 com mensagem <code>"Informe ao menos um campo para atualizar"</code>.</p>
+</li>
+<li>
+<p><strong>Atualização com campos válidos</strong><br />
+   - Enviar <code>PUT /users/{user_id}</code> com pelo menos um campo para atualizar (ex: <code>{"name": "Novo Nome"}</code>).<br />
+   - Esperar atualização bem-sucedida (HTTP 200) e dados atualizados no retorno.</p>
+</li>
+<li>
+<p><strong>Atualização com email já existente em outro usuário</strong><br />
+   - Enviar <code>PUT /users/{user_id}</code> com email que já pertence a outro usuário.<br />
+   - Esperar HTTP 409 com mensagem <code>"E-mail já cadastrado por outro usuário"</code>.</p>
+</li>
+<li>
+<p><strong>Atualização de usuário inexistente</strong><br />
+   - Enviar <code>PUT /users/{user_id}</code> com <code>user_id</code> que não existe.<br />
+   - Esperar HTTP 404 com mensagem <code>"Usuário não encontrado"</code>.</p>
+</li>
+</ol>
+<hr />
+<h2 id="sugestoes-de-testes-unitarios_5">Sugestões de testes unitários</h2>
+<ul>
+<li>Testar que <code>update_user</code> lança <code>HTTPException</code> 422 quando o payload está vazio (sem campos setados).</li>
+<li>Testar que <code>update_user</code> permite atualização quando payload tem pelo menos um campo.</li>
+<li>Testar que conflito de email retorna HTTP 409.</li>
+<li>Testar que usuário inexistente retorna HTTP 404.</li>
+<li>Testar que a mensagem de erro 422 está correta e consistente.</li>
+</ul>
+<hr />
+<h2 id="sugestoes-de-testes-de-integracao_5">Sugestões de testes de integração</h2>
+<ul>
+<li>Testar fluxo completo de atualização de usuário com payload vazio, verificando resposta 422.</li>
+<li>Testar atualização com dados válidos e verificar persistência da alteração.</li>
+<li>Testar atualização com email duplicado e verificar resposta 409.</li>
+<li>Testar atualização de usuário inexistente e verificar resposta 404.</li>
+<li>Testar integração com clientes que possam enviar payloads vazios para garantir que o erro 422 é tratado adequadamente.</li>
+</ul>
+<hr />
+<h2 id="sugestoes-de-testes-de-carga-ou-desempenho_5">Sugestões de testes de carga ou desempenho</h2>
+<ul>
+<li><strong>Não aplicável:</strong> A mudança é de validação de entrada e não impacta diretamente performance ou carga.</li>
+</ul>
+<hr />
+<h2 id="pontos-que-precisam-de-esclarecimento_5">Pontos que precisam de esclarecimento</h2>
+<ul>
+<li><strong>Qual o comportamento esperado para payloads vazios antes da mudança?</strong> O endpoint aceitava e ignorava ou causava erro silencioso?</li>
+<li><strong>Existe padrão de mensagens de erro na API?</strong> A mensagem em português está alinhada com o padrão do projeto?</li>
+<li><strong>O serviço <code>user_service.update_user</code> trata payloads vazios?</strong> Pode haver redundância na validação.</li>
+<li><strong>A remoção da docstring detalhada foi intencional?</strong> Isso pode impactar documentação automática e entendimento do endpoint.</li>
+</ul>
+<hr />
+<h1 id="resumo">Resumo</h1>
+<p>A mudança introduz uma validação importante para garantir que o payload de atualização de usuário contenha ao menos um campo, evitando chamadas inúteis e melhorando a robustez da API. Isso altera o contrato do endpoint, podendo impactar clientes que enviavam payloads vazios. É recomendada a criação de testes específicos para validar esse comportamento e a revisão da documentação para manter clareza sobre os erros possíveis.</p>
+<hr />
+<h1 id="arquivo-analisado-python-apiappschemaspy">Arquivo analisado: python-api/app/schemas.py</h1>
+<h1 id="analise-da-mudanca-no-arquivo-python-apiappschemaspy">Análise da Mudança no arquivo <code>python-api/app/schemas.py</code></h1>
+<hr />
+<h2 id="tipo-da-mudanca_6">Tipo da mudança</h2>
+<ul>
+<li><strong>Evolutiva / Extensão de modelo de dados e validação</strong><br />
+A mudança amplia os modelos Pydantic relacionados a usuários, adicionando novos campos, alterando restrições e incluindo validações adicionais.</li>
+</ul>
+<hr />
+<h2 id="evidencias-observadas_6">Evidências observadas</h2>
+<ul>
+<li><strong>Ampliação do campo <code>name</code></strong>:  </li>
+<li><code>max_length</code> alterado de 100 para 2000 em <code>UserCreate</code> e <code>UserUpdate</code>.  </li>
+<li>
+<p>Validação para rejeitar strings em branco mantida, mas com modo <code>"before"</code> no <code>UserUpdate</code>.</p>
+</li>
+<li>
+<p><strong>Novos campos adicionados em <code>UserCreate</code> e <code>UserUpdate</code></strong>:  </p>
+</li>
+<li><code>status</code> com valores literais <code>"active"</code>, <code>"inactive"</code>, <code>"pending"</code>.  </li>
+<li><code>role</code> com valores literais <code>"user"</code>, <code>"admin"</code>, <code>"guest"</code>.  </li>
+<li>
+<p><code>phone_number</code> (alias <code>"telefone"</code>) com validação regex para formato internacional simplificado.</p>
+</li>
+<li>
+<p><strong>Configurações Pydantic</strong>:  </p>
+</li>
+<li><code>model_config</code> com <code>extra='forbid'</code> para evitar campos extras não declarados.  </li>
+<li>
+<p><code>populate_by_name=True</code> para permitir uso do alias <code>"telefone"</code> na entrada.</p>
+</li>
+<li>
+<p><strong>Validação de telefone</strong>:  </p>
+</li>
+<li>
+<p>Regex <code>^\+?\d{10,15}$</code> para aceitar números com 10 a 15 dígitos, opcionalmente com <code>+</code> no início.</p>
+</li>
+<li>
+<p><strong>Campos adicionados em <code>UserResponse</code></strong>:  </p>
+</li>
+<li>
+<p><code>status</code>, <code>role</code> e <code>phone_number</code> com valores padrão e alias.</p>
+</li>
+<li>
+<p><strong>Manutenção das validações de nome em <code>UserResponse</code></strong>.</p>
+</li>
+<li>
+<p><strong>Outros modelos não alterados</strong>.</p>
+</li>
+<li>
+<p><strong>Contexto do repositório</strong>:  </p>
+</li>
+<li><code>schemas.py</code> define modelos Pydantic para requests e responses da API.  </li>
+<li>Testes relacionados a schemas existem em <code>python-api/tests/test_schemas.py</code>.  </li>
+<li>A API é REST com FastAPI, onde esses modelos impactam diretamente a validação e serialização dos dados.</li>
+</ul>
+<hr />
+<h2 id="impacto-provavel_6">Impacto provável</h2>
+<ul>
+<li><strong>Validação e estrutura dos dados de usuário</strong>:  </li>
+<li>Aumenta o limite máximo do nome para 2000 caracteres, permitindo nomes muito maiores.  </li>
+<li>Introduz novos campos obrigatórios (em <code>UserCreate</code>) e opcionais (em <code>UserUpdate</code>), que passam a ser validados e esperados.  </li>
+<li>A validação do telefone passa a ser aplicada em <code>UserUpdate</code>, rejeitando formatos inválidos.  </li>
+<li>
+<p>A configuração <code>extra='forbid'</code> reforça a rejeição de campos não declarados, podendo causar erros em payloads que enviem campos extras.</p>
+</li>
+<li>
+<p><strong>Compatibilidade e integração</strong>:  </p>
+</li>
+<li>Clientes que não enviarem os novos campos <code>status</code>, <code>role</code> e <code>phone_number</code> em criação de usuário usarão valores padrão.  </li>
+<li>
+<p>Alterações podem impactar endpoints que consomem ou produzem esses modelos, exigindo atualização dos clientes.</p>
+</li>
+<li>
+<p><strong>Possível impacto em testes existentes</strong>:  </p>
+</li>
+<li>Testes que validam criação e atualização de usuários devem contemplar os novos campos e validações.  </li>
+<li>Testes que enviam nomes com mais de 100 caracteres podem passar a ser válidos.</li>
+</ul>
+<hr />
+<h2 id="riscos-identificados_6">Riscos identificados</h2>
+<ul>
+<li><strong>Rejeição de payloads com campos extras</strong>:  </li>
+<li>
+<p><code>extra='forbid'</code> pode causar erros inesperados se clientes enviarem campos adicionais não previstos.</p>
+</li>
+<li>
+<p><strong>Validação de telefone pode ser restritiva</strong>:  </p>
+</li>
+<li>Regex simples pode rejeitar números válidos em formatos locais ou com espaços/hífens.  </li>
+<li>
+<p>Pode causar falhas em atualizações de usuário com telefone mal formatado.</p>
+</li>
+<li>
+<p><strong>Aumento do limite de nome para 2000 caracteres</strong>:  </p>
+</li>
+<li>Pode impactar armazenamento, performance e UI se não tratado adequadamente.  </li>
+<li>
+<p>Risco de injeção ou dados maliciosos se não houver sanitização adicional.</p>
+</li>
+<li>
+<p><strong>Campos <code>status</code> e <code>role</code> com valores literais</strong>:  </p>
+</li>
+<li>
+<p>Se a API ou banco de dados não estiverem preparados para esses valores, pode haver inconsistência.</p>
+</li>
+<li>
+<p><strong>Alias <code>telefone</code> pode causar confusão</strong>:  </p>
+</li>
+<li>Se o front-end ou clientes não estiverem alinhados com o alias, pode haver falha na serialização/desserialização.</li>
+</ul>
+<hr />
+<h2 id="cenarios-de-testes-manuais_6">Cenários de testes manuais</h2>
+<ol>
+<li>
+<p><strong>Criação de usuário com campos novos</strong><br />
+   - Enviar payload com <code>name</code> (3 a 2000 chars), <code>email</code>, <code>is_vip</code>, <code>status</code>, <code>role</code>, <code>telefone</code> (válido e inválido).<br />
+   - Verificar aceitação e erros de validação.</p>
+</li>
+<li>
+<p><strong>Atualização parcial de usuário</strong><br />
+   - Atualizar somente <code>name</code> com string em branco → deve rejeitar.<br />
+   - Atualizar <code>phone_number</code> com formatos válidos e inválidos → validar aceitação e rejeição.<br />
+   - Atualizar <code>status</code> e <code>role</code> com valores válidos e inválidos → validar erros.</p>
+</li>
+<li>
+<p><strong>Envio de campos extras não declarados</strong><br />
+   - Incluir campo extra no payload de criação e atualização → deve rejeitar com erro.</p>
+</li>
+<li>
+<p><strong>Resposta de usuário (<code>UserResponse</code>)</strong><br />
+   - Verificar se os campos <code>status</code>, <code>role</code> e <code>telefone</code> aparecem corretamente e com alias.</p>
+</li>
+<li>
+<p><strong>Testar nomes com mais de 100 caracteres</strong><br />
+   - Criar e atualizar usuários com nomes entre 101 e 2000 caracteres → validar aceitação.</p>
+</li>
+</ol>
+<hr />
+<h2 id="sugestoes-de-testes-unitarios_6">Sugestões de testes unitários</h2>
+<ul>
+<li><strong>Validação do campo <code>name</code></strong>:  </li>
+<li>Testar rejeição de strings vazias ou espaços em branco.  </li>
+<li>
+<p>Testar aceitação de nomes com até 2000 caracteres.</p>
+</li>
+<li>
+<p><strong>Validação do campo <code>phone_number</code> em <code>UserUpdate</code></strong>:  </p>
+</li>
+<li>Testar aceitação de números com e sem <code>+</code>, com 10 a 15 dígitos.  </li>
+<li>
+<p>Testar rejeição de números com caracteres inválidos, espaços, hífens, etc.</p>
+</li>
+<li>
+<p><strong>Validação dos campos <code>status</code> e <code>role</code></strong>:  </p>
+</li>
+<li>Testar aceitação apenas dos valores literais permitidos.  </li>
+<li>
+<p>Testar rejeição de valores fora do conjunto.</p>
+</li>
+<li>
+<p><strong>Testar comportamento com campos extras</strong>:  </p>
+</li>
+<li>
+<p>Garantir que modelos rejeitam campos não declarados.</p>
+</li>
+<li>
+<p><strong>Testar alias <code>telefone</code></strong>:  </p>
+</li>
+<li>Verificar que o campo pode ser populado via alias e serializado corretamente.</li>
+</ul>
+<hr />
+<h2 id="sugestoes-de-testes-de-integracao_6">Sugestões de testes de integração</h2>
+<ul>
+<li><strong>Fluxo completo de criação e atualização de usuário</strong>:  </li>
+<li>Criar usuário com todos os campos novos e verificar persistência e resposta.  </li>
+<li>Atualizar usuário com campos opcionais e validar resposta.  </li>
+<li>
+<p>Testar rejeição de payloads com campos extras ou inválidos.</p>
+</li>
+<li>
+<p><strong>Testar endpoints que retornam <code>UserResponse</code></strong>:  </p>
+</li>
+<li>
+<p>Validar que os campos <code>status</code>, <code>role</code> e <code>telefone</code> aparecem corretamente na resposta JSON.</p>
+</li>
+<li>
+<p><strong>Testar integração com front-end ou clientes que usam alias <code>telefone</code></strong>:  </p>
+</li>
+<li>Validar que o campo é corretamente interpretado e enviado.</li>
+</ul>
+<hr />
+<h2 id="sugestoes-de-testes-de-carga-ou-desempenho_6">Sugestões de testes de carga ou desempenho</h2>
+<ul>
+<li><strong>Não aplicável</strong>:  </li>
+<li>A mudança é focada em validação e estrutura de dados, sem indícios de impacto direto em performance ou carga.</li>
+</ul>
+<hr />
+<h2 id="pontos-que-precisam-de-esclarecimento_6">Pontos que precisam de esclarecimento</h2>
+<ul>
+<li><strong>Validação do telefone</strong>:  </li>
+<li>O regex atual é suficiente para todos os formatos esperados?  </li>
+<li>
+<p>Há necessidade de suportar formatos locais, com espaços, parênteses ou hífens?</p>
+</li>
+<li>
+<p><strong>Limite de 2000 caracteres para nome</strong>:  </p>
+</li>
+<li>Qual a justificativa para esse aumento tão grande?  </li>
+<li>
+<p>Há impacto esperado em banco de dados, UI ou outras camadas?</p>
+</li>
+<li>
+<p><strong>Campos <code>status</code> e <code>role</code></strong>:  </p>
+</li>
+<li>São valores fixos e imutáveis?  </li>
+<li>
+<p>Como são tratados no backend e banco de dados?</p>
+</li>
+<li>
+<p><strong>Uso do alias <code>telefone</code></strong>:  </p>
+</li>
+<li>Todos os clientes e front-end estão preparados para esse alias?  </li>
+<li>
+<p>Há documentação atualizada para isso?</p>
+</li>
+<li>
+<p><strong>Rejeição de campos extras (<code>extra='forbid'</code>)</strong>:  </p>
+</li>
+<li>Essa regra é consistente com o restante da API?  </li>
+<li>Pode impactar clientes antigos?</li>
+</ul>
+<hr />
+<h1 id="resumo_1">Resumo</h1>
+<p>A mudança amplia e reforça os modelos de usuário com novos campos e validações, aumentando a robustez e controle dos dados. Contudo, traz riscos de rejeição de payloads e possíveis incompatibilidades com clientes e formatos de telefone. Testes focados em validação, integração e compatibilidade são essenciais para mitigar regressões e garantir aderência ao novo contrato da API.</p>
+<hr />
+<h1 id="arquivo-analisado-python-apiappservicesuser_servicepy">Arquivo analisado: python-api/app/services/user_service.py</h1>
+<h1 id="tipo-da-mudanca_7">Tipo da mudança</h1>
+<p>Melhoria funcional com extensão do modelo de dados do serviço UserService para incluir novos campos: <code>status</code>, <code>role</code> e <code>phone_number</code>.</p>
+<h1 id="evidencias-observadas_7">Evidências observadas</h1>
+<ul>
+<li>O diff mostra que o modelo <code>UserResponse</code> foi estendido para incluir os campos <code>status</code>, <code>role</code> e <code>phone_number</code> em todas as instâncias de criação, atualização e reset de usuários.</li>
+<li>O código do serviço <code>UserService</code> foi modificado para manipular esses campos em métodos <code>create_user</code>, <code>update_user</code> e <code>reset</code>.</li>
+<li>O contexto do repositório indica que existem testes para <code>UserService</code>, porém não há evidência de cobertura para esses novos campos.</li>
+<li>O arquivo de rotas e testes existentes indicam que o serviço é consumido por APIs REST e que há testes unitários e de integração para o serviço.</li>
+</ul>
+<h1 id="impacto-provavel_7">Impacto provável</h1>
+<ul>
+<li>Ampliação do modelo de usuário com novos atributos que podem afetar a lógica de negócio, permissões e comunicação.</li>
+<li>Aumento da complexidade do serviço, exigindo validação e manipulação correta dos novos campos.</li>
+<li>Possível impacto em APIs que consomem o serviço, exigindo atualização de contratos e documentação.</li>
+<li>Necessidade de garantir consistência e integridade dos dados em operações CRUD.</li>
+<li>Potencial impacto em fluxos de negócio que dependem de <code>status</code> e <code>role</code> para controle de acesso ou estado do usuário.</li>
+</ul>
+<h1 id="riscos-identificados_7">Riscos identificados</h1>
+<ul>
+<li>Falta de validação explícita dos valores dos novos campos pode levar a dados inconsistentes ou inválidos.</li>
+<li>Ausência de testes específicos para os novos campos aumenta o risco de regressão e falhas silenciosas.</li>
+<li>Possíveis efeitos colaterais em serialização/deserialização e contratos de API, caso os campos não sejam tratados adequadamente.</li>
+<li>Risco de inconsistência no estado do serviço se o reset ou atualizações não manipularem corretamente os novos campos.</li>
+<li>Impacto em regras de negócio relacionadas a permissões e status do usuário, se não houver controle rigoroso.</li>
+<li>Potenciais problemas na integração com outras camadas ou sistemas externos que consumam o modelo <code>UserResponse</code>.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_7">Cenários de testes manuais</h1>
+<ul>
+<li>Criar usuário preenchendo os campos <code>status</code>, <code>role</code> e <code>phone_number</code> e verificar se são exibidos corretamente.</li>
+<li>Atualizar parcialmente os campos, alterando um ou dois deles, e validar que os demais permanecem inalterados.</li>
+<li>Testar criação e atualização com valores inválidos para os novos campos e verificar mensagens de erro.</li>
+<li>Realizar reset do serviço e confirmar que os usuários retornam ao estado inicial com os campos corretamente definidos.</li>
+<li>Validar a exibição e edição dos novos campos em interfaces de usuário (se aplicável).</li>
+<li>Testar fluxos de negócio que dependam de <code>status</code> e <code>role</code> para garantir comportamento esperado.</li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios_7">Sugestões de testes unitários</h1>
+<ul>
+<li>Validar aceitação apenas de valores permitidos para <code>status</code> (ex: "active", "inactive", "pending").</li>
+<li>Validar aceitação apenas de valores permitidos para <code>role</code> (ex: "admin", "user", "guest").</li>
+<li>Validar formato correto do <code>phone_number</code> (regex para números válidos).</li>
+<li>Testar criação de usuário com todos os campos preenchidos corretamente.</li>
+<li>Testar criação com campos opcionais omitidos ou nulos.</li>
+<li>Testar atualização parcial dos campos, garantindo que campos não enviados não sejam alterados.</li>
+<li>Testar reset do serviço para garantir que os campos retornem ao estado inicial.</li>
+<li>Testar rejeição de valores inválidos para os novos campos.</li>
+<li>Testar comportamento do serviço ao tentar atualizar usuário inexistente.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_7">Sugestões de testes de integração</h1>
+<ul>
+<li>Testar persistência e recuperação dos novos campos em operações CRUD completas.</li>
+<li>Validar que APIs que consomem <code>UserService</code> retornam os campos atualizados corretamente.</li>
+<li>Testar serialização e deserialização do modelo <code>UserResponse</code> com os novos campos.</li>
+<li>Testar concorrência em atualizações dos campos para evitar condições de corrida.</li>
+<li>Testar integração com outras camadas do sistema que dependam dos campos <code>status</code> e <code>role</code>.</li>
+<li>Validar que o reset do serviço reflete corretamente no estado persistido, se aplicável.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_7">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável diretamente, pois a mudança é de extensão funcional e não altera lógica de performance ou carga.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_7">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>Quais são os valores válidos e regras de negócio para os campos <code>status</code> e <code>role</code>? Há uma lista fechada ou são livres?</li>
+<li>Qual o formato esperado para o campo <code>phone_number</code>? Há necessidade de normalização ou validação internacional?</li>
+<li>Os novos campos impactam regras de autorização ou fluxos críticos do sistema? Se sim, quais?</li>
+<li>Existe alguma integração externa ou sistema legado que consome o modelo <code>UserResponse</code> e que precisa ser adaptado?</li>
+<li>O reset do serviço deve sempre restaurar os campos para valores fixos ou pode haver variações?</li>
+<li>Há necessidade de validação explícita ou sanitização dos dados recebidos para esses campos?</li>
+</ul>
+<h1 id="validacao-cooperativa_5">Validação cooperativa</h1>
+<ul>
+<li>A análise de riscos foi detalhada pelo QA Sênior Investigador, que identificou riscos técnicos e de negócio relacionados à integridade dos dados, consistência do serviço e efeitos colaterais.</li>
+<li>A estratégia de testes foi elaborada pelo Especialista em Estratégia de Testes para Código de Alto Risco, contemplando testes unitários, de integração e manuais, com foco em validação rigorosa e cobertura abrangente.</li>
+<li>O Crítico de Análise de QA revisou as análises e apontou fragilidades, recomendando maior detalhamento dos impactos funcionais, validações específicas, abrangência dos testes e documentação das incertezas.</li>
+<li>As contribuições foram consolidadas para garantir uma análise robusta, rastreável e útil para revisão humana, evitando conclusões genéricas e reforçando a necessidade de validação e testes específicos para os novos campos.</li>
+</ul>
+<hr />
+<h1 id="arquivo-analisado-python-apiteststest_apipy">Arquivo analisado: python-api/tests/test_api.py</h1>
+<h1 id="tipo-da-mudanca_8">Tipo da mudança</h1>
+<p>Correção / ajuste no comportamento esperado de resposta HTTP para atualização de usuário com payload vazio e ajuste no monkeypatch para teste de retorno None do serviço.</p>
+<hr />
+<h1 id="evidencias-observadas_8">Evidências observadas</h1>
+<ul>
+<li>No teste <code>test_api_update_user_no_fields_to_update</code>, a asserção do status HTTP mudou de <code>200</code> para <code>422</code> quando o payload enviado está vazio (<code>payload = {}</code>).</li>
+<li>O teste anterior esperava que a API retornasse o usuário sem alterações com status <code>200</code>, agora espera erro de validação <code>422</code>.</li>
+<li>No teste <code>test_api_update_user_returns_404_for_none_returned_by_service</code>, a importação e o monkeypatch foram alterados para usar <code>routes.user_service</code> em vez de importar diretamente <code>user_service</code> do módulo de serviço.</li>
+<li>O restante do arquivo e contexto indicam que a API usa FastAPI com validação Pydantic, que retorna <code>422</code> para payloads inválidos ou incompletos.</li>
+<li>O contexto do repositório mostra que o padrão para payload inválido é retornar <code>422</code> (exemplo: <code>test_api_update_user_invalid_payload</code>).</li>
+<li>O teste modificado para payload vazio agora está alinhado com o padrão de validação Pydantic, que rejeita payloads vazios para update.</li>
+</ul>
+<hr />
+<h1 id="impacto-provavel_8">Impacto provável</h1>
+<ul>
+<li>A API agora rejeita explicitamente requisições de atualização de usuário com payload vazio, retornando erro <code>422 Unprocessable Entity</code> em vez de aceitar e retornar o usuário sem alterações.</li>
+<li>Isso implica que o endpoint de update espera pelo menos um campo válido para atualização, reforçando a validação de entrada.</li>
+<li>O ajuste no monkeypatch do teste <code>test_api_update_user_returns_404_for_none_returned_by_service</code> corrige a forma como o serviço é mockado, garantindo que o teste simule corretamente o comportamento da rota.</li>
+<li>Pode impactar clientes que esperavam que enviar payload vazio fosse um no-op válido e retornasse sucesso.</li>
+</ul>
+<hr />
+<h1 id="riscos-identificados_8">Riscos identificados</h1>
+<ul>
+<li><strong>Regressão em clientes existentes:</strong> Clientes que enviavam payload vazio para update podem agora receber erro <code>422</code>, o que pode quebrar integrações que não tratam esse caso.</li>
+<li><strong>Cobertura de validação insuficiente:</strong> Se a validação do payload não estiver consistente em todos os endpoints ou camadas, pode haver inconsistência no tratamento de payloads vazios.</li>
+<li><strong>Monkeypatch incorreto:</strong> O ajuste no monkeypatch corrige um possível problema, mas se houver outros testes que usam importações diretas do serviço, podem estar mockando incorretamente e dando falso positivo.</li>
+<li><strong>Possível falta de mensagem de erro detalhada:</strong> O teste não verifica o conteúdo da mensagem de erro no <code>422</code> para payload vazio, o que pode dificultar o diagnóstico para o cliente.</li>
+</ul>
+<hr />
+<h1 id="cenarios-de-testes-manuais_8">Cenários de testes manuais</h1>
+<ol>
+<li>
+<p><strong>Atualização com payload vazio:</strong><br />
+   - Enviar <code>PUT /users/1</code> com corpo <code>{}</code>.<br />
+   - Verificar que a resposta é <code>422 Unprocessable Entity</code>.<br />
+   - Verificar mensagem de erro clara indicando que pelo menos um campo deve ser informado.</p>
+</li>
+<li>
+<p><strong>Atualização com payload válido:</strong><br />
+   - Enviar <code>PUT /users/1</code> com pelo menos um campo válido (ex: <code>{"name": "Novo Nome"}</code>).<br />
+   - Verificar resposta <code>200</code> e dados atualizados.</p>
+</li>
+<li>
+<p><strong>Atualização de usuário inexistente:</strong><br />
+   - Enviar <code>PUT /users/9999</code> com payload válido.<br />
+   - Verificar resposta <code>404</code>.</p>
+</li>
+<li>
+<p><strong>Simulação de retorno None do serviço:</strong><br />
+   - Usar ferramenta de teste para simular o comportamento do serviço que retorna <code>None</code> para update.<br />
+   - Verificar que a API retorna <code>404</code>.</p>
+</li>
+<li>
+<p><strong>Verificar comportamento com payload inválido (ex: email mal formatado):</strong><br />
+   - Enviar payload com email inválido.<br />
+   - Verificar retorno <code>422</code>.</p>
+</li>
+</ol>
+<hr />
+<h1 id="sugestoes-de-testes-unitarios_8">Sugestões de testes unitários</h1>
+<ul>
+<li>Testar explicitamente que o endpoint de update retorna <code>422</code> para payload vazio, verificando também o conteúdo da mensagem de erro para garantir clareza.</li>
+<li>Testar que o monkeypatch no teste <code>test_api_update_user_returns_404_for_none_returned_by_service</code> realmente substitui o método correto e que o endpoint responde com <code>404</code> quando o serviço retorna <code>None</code>.</li>
+<li>Adicionar teste unitário para payload com todos campos <code>null</code> (se aplicável) para garantir que também retorna <code>422</code>.</li>
+<li>Testar que o endpoint aceita e processa corretamente payloads com pelo menos um campo válido.</li>
+</ul>
+<hr />
+<h1 id="sugestoes-de-testes-de-integracao_8">Sugestões de testes de integração</h1>
+<ul>
+<li>Criar fluxo de integração que tenta atualizar usuário com payload vazio e valida que a API retorna <code>422</code>.</li>
+<li>Testar integração completa do endpoint de update com payload válido, garantindo persistência e resposta correta.</li>
+<li>Testar integração simulando falha no serviço de update (retorno <code>None</code>) e validar resposta <code>404</code>.</li>
+<li>Testar integração com payload inválido (ex: email mal formatado) para garantir que a validação Pydantic está ativa e consistente.</li>
+</ul>
+<hr />
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_8">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável, pois a mudança é de validação e comportamento funcional, sem impacto direto em performance ou carga.</li>
+</ul>
+<hr />
+<h1 id="pontos-que-precisam-de-esclarecimento_8">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>Qual é o comportamento esperado da API para payload vazio no update? A mudança indica que agora é erro, mas há clientes que dependem do comportamento anterior?</li>
+<li>A mensagem de erro retornada no <code>422</code> para payload vazio está padronizada e clara para o consumidor da API?</li>
+<li>Há outras rotas ou endpoints que aceitam payload vazio e retornam sucesso? Isso pode causar inconsistência na API?</li>
+<li>O monkeypatch para <code>routes.user_service.update_user</code> é o padrão adotado em todos os testes? Há risco de inconsistência se outros testes usam importações diretas do serviço?</li>
+</ul>
+<hr />
+<h1 id="resumo_2">Resumo</h1>
+<p>A mudança corrige o teste para refletir que a API rejeita payload vazio no update com erro <code>422</code>, alinhando-se à validação Pydantic já presente em outros testes. Também corrige o monkeypatch para mockar corretamente o serviço na rota. Essa alteração reforça a validação de entrada, mas pode impactar clientes que esperavam payload vazio como no-op válido. Recomenda-se testes manuais e unitários focados em payload vazio, mensagens de erro e consistência do monkeypatch.</p>
+<hr />
+<h1 id="arquivo-analisado-python-apiteststest_schemaspy">Arquivo analisado: python-api/tests/test_schemas.py</h1>
+<h1 id="tipo-da-mudanca_9">Tipo da mudança</h1>
+<p>Refatoração e limpeza de código nos testes unitários do schema <code>UserUpdate</code>.</p>
+<h1 id="evidencias-observadas_9">Evidências observadas</h1>
+<ul>
+<li>A principal alteração foi a remoção da classe <code>TestRejectBlankNameValidator</code> que continha testes específicos para o validador <code>reject_blank_name</code> do schema <code>UserUpdate</code>.</li>
+<li>Os testes da classe <code>TestUserUpdateSchema</code> foram renomeados para nomes mais claros e descritivos, por exemplo, <code>test_partial_update_all_fields_valid</code> para <code>test_update_all_fields_valid</code>.</li>
+<li>Ajustes nos asserts para validação de erros, tornando-os menos específicos quanto ao texto exato da mensagem e mais flexíveis, por exemplo:</li>
+<li>De <code>assert any("must not be blank" in e["msg"] for e in errors)</code> para <code>assert any("blank" in e["msg"].lower() for e in errors)</code>.</li>
+<li>De <code>assert any(e["loc"] == ("name",) and e["type"] == "value_error.any_str.min_length" for e in errors)</code> para <code>assert any(e["loc"] == ("name",) and "too_short" in e["type"] for e in errors)</code>.</li>
+<li>Pequenas mudanças nos dados de teste, como nomes e emails usados, sem alteração da lógica de validação.</li>
+<li>Remoção de duplicidade de testes: antes havia testes separados para criação e atualização, agora estão consolidados na mesma classe com nomes mais claros.</li>
+<li>Nenhuma alteração na lógica de validação do schema <code>UserUpdate</code> foi feita, apenas nos testes.</li>
+</ul>
+<h1 id="impacto-provavel_9">Impacto provável</h1>
+<ul>
+<li>A mudança não altera o comportamento funcional do schema <code>UserUpdate</code> nem da aplicação.</li>
+<li>O impacto é restrito à manutenção e clareza dos testes unitários, melhorando a legibilidade e robustez dos asserts contra mensagens de erro.</li>
+<li>A remoção dos testes diretos do validador <code>reject_blank_name</code> pode reduzir a granularidade da cobertura de testes para essa função específica, a menos que ela seja testada indiretamente via <code>UserUpdate</code>.</li>
+</ul>
+<h1 id="riscos-identificados_9">Riscos identificados</h1>
+<ul>
+<li><strong>Cobertura reduzida para o validador <code>reject_blank_name</code></strong>: a remoção dos testes específicos para esse validador pode deixar uma lacuna caso o validador tenha comportamento especial não coberto pelos testes do schema.</li>
+<li><strong>Assert menos específicos</strong>: ao tornar os asserts menos rigorosos (ex: verificar apenas se "blank" está na mensagem), pode haver risco de falsos positivos se outras mensagens de erro também contiverem essa palavra.</li>
+<li><strong>Possível perda de detalhamento na validação de erros</strong>: mudanças nos asserts que verificam o tipo de erro podem deixar passar erros diferentes do esperado, reduzindo a precisão dos testes.</li>
+<li><strong>Nenhum teste novo foi adicionado para compensar a remoção da classe de testes do validador</strong>, o que pode impactar a detecção de regressões futuras.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_9">Cenários de testes manuais</h1>
+<ol>
+<li>
+<p><strong>Validação de campos do schema <code>UserUpdate</code> com dados válidos completos</strong><br />
+   - Enviar payload com <code>name</code>, <code>email</code> e <code>is_vip</code> válidos e verificar que a instância é criada corretamente.</p>
+</li>
+<li>
+<p><strong>Validação de atualização parcial com apenas um campo</strong><br />
+   - Enviar payload com apenas <code>email</code> e verificar que os outros campos são <code>None</code>.</p>
+</li>
+<li>
+<p><strong>Validação de nome em branco ou espaços em branco</strong><br />
+   - Enviar payload com <code>name</code> vazio ou só espaços e verificar que ocorre erro de validação.</p>
+</li>
+<li>
+<p><strong>Validação de nome com menos de 3 caracteres</strong><br />
+   - Enviar payload com <code>name</code> muito curto e verificar erro de validação.</p>
+</li>
+<li>
+<p><strong>Validação de email inválido</strong><br />
+   - Enviar payload com email mal formatado e verificar erro.</p>
+</li>
+<li>
+<p><strong>Validação de tipo inválido para <code>is_vip</code></strong><br />
+   - Enviar valores não booleanos para <code>is_vip</code> e verificar erro.</p>
+</li>
+<li>
+<p><strong>Validação de payload vazio</strong><br />
+   - Enviar payload vazio e verificar que todos os campos são <code>None</code>.</p>
+</li>
+</ol>
+<h1 id="sugestoes-de-testes-unitarios_9">Sugestões de testes unitários</h1>
+<ul>
+<li><strong>Reintroduzir testes específicos para o validador <code>reject_blank_name</code></strong> para garantir que ele rejeita strings em branco e aceita <code>None</code> e strings válidas, pois a remoção desses testes pode deixar lacuna.</li>
+<li>Testar explicitamente o comportamento do validador com strings contendo apenas espaços, strings vazias e <code>None</code>.</li>
+<li>Testar que as mensagens de erro retornadas pelo schema <code>UserUpdate</code> continuam contendo as palavras-chave esperadas (<code>blank</code>, <code>too_short</code>, etc.) para evitar regressões na validação.</li>
+<li>Testar a criação de instâncias com combinações variadas de campos presentes e ausentes para garantir que o comportamento de atualização parcial está correto.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_9">Sugestões de testes de integração</h1>
+<ul>
+<li>Testar endpoints da API que recebem payloads para atualização de usuário, enviando dados que exercitem as validações do schema <code>UserUpdate</code>:</li>
+<li>Atualização com todos os campos válidos.</li>
+<li>Atualização parcial com apenas um campo.</li>
+<li>Atualização com nome em branco ou inválido.</li>
+<li>Atualização com email inválido.</li>
+<li>Atualização com <code>is_vip</code> em tipo inválido.</li>
+<li>Verificar que a API responde com erros de validação apropriados e mensagens claras.</li>
+<li>Validar que a persistência do usuário não ocorre quando o payload é inválido.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_9">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável, pois a mudança é restrita a testes unitários e refatoração sem impacto em performance.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_9">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>
+<p><strong>Por que a classe <code>TestRejectBlankNameValidator</code> foi removida?</strong><br />
+  É importante entender se o validador <code>reject_blank_name</code> está sendo testado adequadamente em outro lugar ou se a remoção foi para evitar duplicidade. Caso contrário, pode ser necessário reintroduzir esses testes para garantir cobertura.</p>
+</li>
+<li>
+<p><strong>Mudança nos asserts para mensagens de erro menos específicas foi intencional para aumentar a robustez?</strong><br />
+  Confirmar se essa alteração visa evitar fragilidade dos testes frente a mudanças nas mensagens, e se isso não compromete a precisão da validação.</p>
+</li>
+<li>
+<p><strong>Existe algum outro local no código ou testes onde o validador <code>reject_blank_name</code> é testado diretamente?</strong><br />
+  Caso contrário, a remoção dos testes pode deixar uma lacuna.</p>
+</li>
+</ul>
+<hr />
+<p><strong>Resumo:</strong> A mudança é uma refatoração dos testes unitários do schema <code>UserUpdate</code>, com remoção de testes específicos para um validador interno e ajustes nos asserts para mensagens de erro. Não há alteração funcional no schema ou na aplicação. O principal risco é a possível redução da cobertura para o validador <code>reject_blank_name</code>. Recomenda-se reintroduzir testes específicos para esse validador e validar a precisão dos asserts de erro. Testes manuais e de integração devem focar nas validações do schema via API para garantir que erros são corretamente detectados e reportados.</p>
+<hr />
+<h1 id="arquivo-analisado-python-apiteststest_user_servicepy">Arquivo analisado: python-api/tests/test_user_service.py</h1>
+<h1 id="tipo-da-mudanca_10">Tipo da mudança</h1>
+<p>Refatoração de testes unitários com simplificação dos payloads e ajuste em teste de limite máximo.</p>
+<h1 id="evidencias-observadas_10">Evidências observadas</h1>
+<ul>
+<li>Remoção explícita dos campos com valor <code>None</code> nos payloads <code>UserUpdate</code> em vários testes (<code>test_update_user_partial_fields</code>, <code>test_update_user_no_fields_to_update_returns_same_user</code>, <code>test_update_user_preserves_other_fields</code>, <code>test_concurrent_updates_do_not_corrupt_data</code>, <code>test_update_user_rejects_immutable_fields</code>).</li>
+<li>Alteração no teste <code>test_update_user_with_max_length_fields</code> reduzindo o tamanho do email de 255 para 61 caracteres.</li>
+<li>Presença de testes que cobrem atualização total, parcial, inexistente, validação de email, concorrência e imutabilidade.</li>
+<li>Uso de Pydantic para validação dos modelos de dados.</li>
+<li>Contexto do repositório indica uso de pytest para testes unitários e ausência de testes de integração específicos para essa funcionalidade.</li>
+</ul>
+<h1 id="impacto-provavel_10">Impacto provável</h1>
+<ul>
+<li>Melhora na clareza e manutenção dos testes ao evitar campos <code>None</code> explícitos, alinhando os testes com o comportamento esperado do serviço que deve tratar campos omitidos como não alterados.</li>
+<li>Possível redução da cobertura para casos onde a distinção entre campo ausente e campo com valor <code>None</code> é relevante.</li>
+<li>Diminuição da cobertura do limite máximo real do campo email, podendo permitir que emails maiores que o limite real passem sem erro.</li>
+<li>Manutenção da robustez dos testes de concorrência e imutabilidade, garantindo consistência e integridade dos dados.</li>
+</ul>
+<h1 id="riscos-identificados_10">Riscos identificados</h1>
+<ul>
+<li>Falha em detectar bugs relacionados à diferença entre omissão de campo e envio explícito de <code>None</code> no payload.</li>
+<li>Teste de limite máximo do email pode não validar o limite real de 255 caracteres, reduzindo a eficácia da validação.</li>
+<li>Possível impacto não detectado em integrações externas ou contratos de API que esperem comportamento específico para campos <code>None</code>.</li>
+<li>Ausência de testes de integração que validem o comportamento real do serviço com o banco de dados para atualizações parciais.</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_10">Cenários de testes manuais</h1>
+<ul>
+<li>Atualizar usuário enviando explicitamente campos com valor <code>None</code> e verificar se o sistema trata como remoção, erro ou ignora.</li>
+<li>Atualizar usuário omitindo campos e confirmar que os valores originais permanecem inalterados.</li>
+<li>Testar atualização com email no limite máximo real (255 caracteres) e verificar aceitação ou rejeição.</li>
+<li>Realizar atualizações concorrentes para o mesmo usuário e validar consistência dos dados.</li>
+<li>Verificar que campos imutáveis (como <code>id</code>) não são alterados após atualização.</li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios_10">Sugestões de testes unitários</h1>
+<ul>
+<li>Testes que diferenciem comportamento entre campos omitidos e campos com valor <code>None</code> no payload.</li>
+<li>Testes parametrizados para emails com tamanho no limite, abaixo e acima do limite real (ex: 254, 255, 256 caracteres).</li>
+<li>Testes que validem rejeição de campos extras no payload.</li>
+<li>Testes que confirmem que atualização parcial não altera campos não enviados.</li>
+<li>Testes que simulem falhas de validação e garantam rollback ou estado consistente.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_10">Sugestões de testes de integração</h1>
+<ul>
+<li>Testes que validem a integração do serviço de usuário com o banco de dados para atualizações parciais e totais.</li>
+<li>Testes que confirmem o comportamento do serviço ao receber payloads com campos omitidos versus campos com valor <code>None</code>.</li>
+<li>Testes que verifiquem a consistência dos dados após atualizações concorrentes em ambiente integrado.</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_10">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável, pois a mudança não indica impacto direto em performance ou carga.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_10">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>Qual o comportamento esperado do serviço ao receber campos com valor <code>None</code> no payload? Eles devem ser ignorados, causar erro ou remover o valor do campo?</li>
+<li>Existe alguma regra de negócio que diferencie explicitamente entre campo omitido e campo com valor <code>None</code>?</li>
+<li>Qual o limite real aceito para o tamanho do campo email na aplicação?</li>
+<li>Há contratos de API ou integrações externas que dependam do comportamento específico para campos <code>None</code>?</li>
+</ul>
+<h1 id="validacao-cooperativa_6">Validação cooperativa</h1>
+<p>As conclusões foram revisadas pelo QA Sênior Investigador, que destacou os riscos de omissão versus valor <code>None</code> e a redução da cobertura do limite máximo do email. O Especialista em Estratégia de Testes reforçou a necessidade de testes parametrizados, cobertura de bordas e testes de integração para garantir robustez. O Crítico de Análise de QA apontou a necessidade de evidências concretas, detalhamento dos riscos e rastreabilidade das conclusões, evitando achados genéricos. A análise final consolidou essas contribuições para produzir um relatório objetivo, rastreável e útil para revisão humana.</p>
+<hr />
+<h1 id="arquivo-analisado-python-apiteststest_user_updatepy">Arquivo analisado: python-api/tests/test_user_update.py</h1>
+<h1 id="tipo-da-mudanca_11">Tipo da mudança</h1>
+<p>Correção e ajuste nos testes de atualização de usuário, com mudanças no comportamento esperado para validação de payloads e tratamento de campos extras, além de correção de mocks para refletir a estrutura atual do código.</p>
+<h1 id="evidencias-observadas_11">Evidências observadas</h1>
+<ul>
+<li>
+<p>Alteração do parâmetro <code>raise_server_exceptions</code> de <code>True</code> para <code>False</code> na criação do <code>TestClient</code>:<br />
+<code>python
+  -client = TestClient(app, raise_server_exceptions=True)
+  +client = TestClient(app, raise_server_exceptions=False)</code><br />
+  Isso indica que exceções internas do servidor não serão propagadas diretamente para os testes, permitindo capturar respostas HTTP com códigos de erro.</p>
+</li>
+<li>
+<p>Remoção do teste que validava <code>{"name": None}</code> como payload inválido, agora esse caso foi removido do parâmetro <code>invalid_payload</code>:<br />
+  ```python</p>
+</li>
+<li>
+<p>{"name": None},     # name como null<br />
+  ```</p>
+</li>
+<li>
+<p>Alteração do comportamento esperado para payloads com campos extras não esperados:<br />
+  Antes:<br />
+  ```python</p>
+</li>
+<li>
+<h1 id="verifica-se-campos-extras-sao-ignorados-e-atualizacao-ocorre-normalmente">Verifica se campos extras são ignorados e atualização ocorre normalmente</h1>
+</li>
+<li>assert response.status_code == status.HTTP_200_OK<br />
+<code>Agora:</code>python</li>
+<li>
+<h1 id="campos-extras-devem-ser-rejeitados-422">Campos extras devem ser rejeitados (422)</h1>
+</li>
+<li>
+<p>assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY<br />
+  ```</p>
+</li>
+<li>
+<p>Alteração do comportamento esperado para envio de valores nulos nos campos atualizáveis:<br />
+  Antes:<br />
+  ```python</p>
+</li>
+<li>
+<h1 id="espera-se-erro-422-pois-campos-nao-podem-ser-nulos">Espera-se erro 422 pois campos não podem ser nulos</h1>
+</li>
+<li>assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY<br />
+<code>Agora:</code>python</li>
+<li>
+<h1 id="agora-aceitamos-nulos-200-ok">Agora aceitamos nulos (200 OK)</h1>
+</li>
+<li>
+<p>assert response.status_code == status.HTTP_200_OK<br />
+  ```</p>
+</li>
+<li>
+<p>Alteração do teste que enviava campos imutáveis (ex: <code>id</code>) no payload:<br />
+  Antes:<br />
+  ```python</p>
+</li>
+<li>assert response.status_code == status.HTTP_200_OK<br />
+<code>Agora:</code>python</li>
+<li>
+<h1 id="com-extraforbid-id-causa-422">Com extra='forbid', id causa 422</h1>
+</li>
+<li>
+<p>assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY<br />
+  ```</p>
+</li>
+<li>
+<p>Correção do caminho do mock para <code>update_user</code> de:<br />
+<code>python
+  -@patch("app.services.user_service.update_user")
+  +@patch("app.api.routes.user_service.update_user")</code><br />
+  e também em outro teste similar.</p>
+</li>
+<li>
+<p>Remoção de campos extras no payload do teste de payload grande:<br />
+  Antes:<br />
+  ```python</p>
+</li>
+<li>"extra1": "x" * 500,</li>
+<li>"extra2": "y" * 500,<br />
+<code>Agora:</code>python</li>
+<li>
+<h1 id="campos-extras-removidos">campos extras removidos</h1>
+<br />
+  ```</li>
+</ul>
+<h1 id="impacto-provavel_11">Impacto provável</h1>
+<ul>
+<li>
+<p><strong>Validação de payloads</strong>: A API agora rejeita explicitamente campos extras não definidos no modelo de atualização, retornando erro 422, o que reforça a validação estrita do payload. Isso pode impactar clientes que enviavam campos adicionais ignorados anteriormente.</p>
+</li>
+<li>
+<p><strong>Aceitação de valores nulos</strong>: Passa a aceitar valores nulos para campos atualizáveis, o que altera a semântica da atualização parcial, permitindo limpar ou resetar campos para <code>null</code>.</p>
+</li>
+<li>
+<p><strong>Campos imutáveis</strong>: O envio de campos imutáveis como <code>id</code> agora causa erro 422, reforçando a proteção contra alterações indevidas.</p>
+</li>
+<li>
+<p><strong>Tratamento de exceções no teste</strong>: Com <code>raise_server_exceptions=False</code>, os testes capturam respostas HTTP com códigos de erro em vez de falhar por exceção não tratada, permitindo validar melhor os erros esperados.</p>
+</li>
+<li>
+<p><strong>Mocks corrigidos</strong>: Ajuste no caminho do mock para refletir a estrutura atual do projeto, garantindo que os testes de exceção na camada de dados funcionem corretamente.</p>
+</li>
+</ul>
+<h1 id="riscos-identificados_11">Riscos identificados</h1>
+<ul>
+<li>
+<p><strong>Quebra de compatibilidade com clientes</strong>: Clientes que enviavam campos extras no payload podem ter suas requisições rejeitadas, causando falhas inesperadas.</p>
+</li>
+<li>
+<p><strong>Mudança no comportamento de aceitação de nulos</strong>: Se a API agora aceita nulos, pode haver impacto na lógica de negócio que não esperava campos com valor <code>null</code>, podendo causar inconsistências ou dados incompletos.</p>
+</li>
+<li>
+<p><strong>Testes que dependiam de exceções sendo lançadas diretamente podem precisar ser revisados</strong>: A mudança no parâmetro <code>raise_server_exceptions</code> pode mascarar erros se não for bem compreendida.</p>
+</li>
+<li>
+<p><strong>Possível confusão no teste <code>test_update_user_with_nested_json_field</code></strong>: O teste aceita tanto 422 quanto 200, o que pode indicar incerteza na validação de campos aninhados extras.</p>
+</li>
+</ul>
+<h1 id="cenarios-de-testes-manuais_11">Cenários de testes manuais</h1>
+<ul>
+<li>
+<p>Atualizar usuário enviando campos extras não definidos (ex: <code>"extra_field": "value"</code>) e verificar se retorna 422.</p>
+</li>
+<li>
+<p>Atualizar usuário enviando campos com valor <code>null</code> para <code>name</code>, <code>email</code> e <code>is_vip</code> e validar se a atualização é aceita e refletida corretamente.</p>
+</li>
+<li>
+<p>Tentar atualizar campos imutáveis (<code>id</code>, <code>created_at</code>, <code>updated_at</code>) e verificar se retorna erro 422.</p>
+</li>
+<li>
+<p>Enviar payload vazio <code>{}</code> e confirmar que retorna erro 422.</p>
+</li>
+<li>
+<p>Testar atualização parcial com apenas um campo válido para garantir que funciona normalmente.</p>
+</li>
+<li>
+<p>Testar concorrência de atualizações para verificar consistência dos dados (já existe teste automatizado).</p>
+</li>
+<li>
+<p>Testar comportamento da API quando ocorre exceção na camada de dados (simulada via mock).</p>
+</li>
+</ul>
+<h1 id="sugestoes-de-testes-unitarios_11">Sugestões de testes unitários</h1>
+<ul>
+<li>
+<p>Testar validação estrita do modelo de atualização para garantir que campos extras causam erro 422.</p>
+</li>
+<li>
+<p>Testar aceitação de valores nulos para campos atualizáveis, verificando que o modelo aceita e que a resposta é 200.</p>
+</li>
+<li>
+<p>Testar que campos imutáveis no payload causam erro de validação.</p>
+</li>
+<li>
+<p>Testar que payload vazio é rejeitado com erro 422.</p>
+</li>
+<li>
+<p>Testar que o mock do serviço <code>update_user</code> é chamado corretamente e que exceções são tratadas retornando 500.</p>
+</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-integracao_11">Sugestões de testes de integração</h1>
+<ul>
+<li>
+<p>Testar fluxo completo de atualização com campos nulos, extras e imutáveis para validar comportamento da API em ambiente real.</p>
+</li>
+<li>
+<p>Testar integração com banco de dados para verificar que valores nulos são persistidos corretamente.</p>
+</li>
+<li>
+<p>Testar que a rejeição de campos extras ocorre antes de qualquer alteração no banco.</p>
+</li>
+<li>
+<p>Testar rollback em caso de falha parcial na atualização (já existe teste, mas pode ser expandido para casos com nulos e extras).</p>
+</li>
+</ul>
+<h1 id="sugestoes-de-testes-de-carga-ou-desempenho_11">Sugestões de testes de carga ou desempenho</h1>
+<ul>
+<li>Não aplicável, pois não há evidência de impacto em performance ou carga.</li>
+</ul>
+<h1 id="pontos-que-precisam-de-esclarecimento_11">Pontos que precisam de esclarecimento</h1>
+<ul>
+<li>
+<p>Qual é a regra de negócio para aceitação de valores nulos? Eles significam remoção do valor anterior? Isso está documentado?</p>
+</li>
+<li>
+<p>A rejeição de campos extras é uma mudança intencional para reforçar a validação? Há clientes que dependem do comportamento anterior?</p>
+</li>
+<li>
+<p>O parâmetro <code>raise_server_exceptions=False</code> no <code>TestClient</code> é uma configuração definitiva para todos os testes? Isso pode mascarar erros inesperados?</p>
+</li>
+<li>
+<p>O teste <code>test_update_user_with_nested_json_field</code> aceita tanto 422 quanto 200, indicando incerteza. Qual é o comportamento esperado para campos aninhados extras?</p>
+</li>
+</ul>
+<hr />
+<h1 id="resumo_3">Resumo</h1>
+<p>A mudança ajusta os testes para refletir uma validação mais rigorosa do payload de atualização de usuário, rejeitando campos extras e aceitando valores nulos, além de corrigir mocks para o caminho correto do serviço. Isso impacta diretamente a forma como a API valida e responde a requisições de atualização, com risco de quebra de compatibilidade para clientes que enviavam campos extras ou não esperavam nulos. Os testes foram adaptados para validar esses novos comportamentos, e o tratamento de exceções no cliente de teste foi alterado para capturar respostas HTTP em vez de propagar exceções. É importante validar manualmente os cenários de campos extras, nulos e imutáveis, além de esclarecer regras de negócio relacionadas a esses casos.</p>
+    </article>
+  </div>
+  <footer>QAgent — análise automatizada de QA com IA</footer>
+  
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const summaryContainer = document.getElementById('run-summary-container');
+  const artifactsContainer = document.getElementById('artifacts-container');
+
+  const formatMs = (ms) => {
+    if (!ms) return '0ms';
+    if (ms < 1000) return `${Math.round(ms)}ms`;
+    return `${(ms / 1000).toFixed(2)}s`;
+  };
+
+  const getRiskBadge = (level) => {
+    const map = {
+      'HIGH': { text: 'Alto risco', class: 'badge-high' },
+      'MEDIUM': { text: 'Risco médio', class: 'badge-medium' },
+      'LOW': { text: 'Baixo risco', class: 'badge-low' }
+    };
+    const info = map[level] || { text: level, class: 'badge-info' };
+    return `<span class="badge ${info.class}">${info.text}</span>`;
+  };
+
+  const getQualityBadge = (quality) => {
+    const map = {
+      'OK': { text: 'Review suficiente', class: 'badge-low' },
+      'INCOMPLETE': { text: 'Review incompleto', class: 'badge-high' }
+    };
+    const info = map[quality] || { text: quality, class: 'badge-info' };
+    return `<span class="badge ${info.class}">${info.text}</span>`;
+  };
+
+  const getRecBadge = (rec) => {
+    const map = {
+      'RECOMMENDED': { text: 'Geração recomendada', class: 'badge-low' },
+      'SKIPPED': { text: 'Geração pulada', class: 'badge-medium' }
+    };
+    const info = map[rec] || { text: rec, class: 'badge-info' };
+    return `<span class="badge ${info.class}">${info.text}</span>`;
+  };
+
+  const escapeHtml = (value) => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+  const renderMemories = (artifact) => {
+    const memories = artifact.memories_used || [];
+    if (!memories.length) {
+      return `
+        <div class="memory-empty">
+          Nenhuma memória relevante do banco vetorial foi usada na geração deste arquivo.
+        </div>
+      `;
+    }
+
+    return `
+      <div class="memory-list">
+        ${memories.map((mem) => `
+          <div class="memory-item">
+            <div class="memory-meta">
+              PR #${escapeHtml(mem.pr_number || '--')} · ${escapeHtml(mem.repo || 'repo desconhecido')} ·
+              distância ${escapeHtml(mem.distance ?? '--')} · por ${escapeHtml(mem.author || '--')}
+            </div>
+            <p class="memory-lesson">${escapeHtml(mem.lesson || '')}</p>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  };
+
+  // 1. Carregar Run Summary
+  try {
+    const resp = await fetch('run_summary.json');
+    if (resp.ok) {
+      const data = await resp.json();
+      summaryContainer.innerHTML = `
+        <div class="section-title">📊 Resumo da Execução</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-value">${data.total_files || 0}</span>
+            <span class="stat-label">Arquivos</span>
+          </div>
+          <div class="stat-card">
+            <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
+              ${getRiskBadge('HIGH')} x ${data.risk_distribution?.HIGH || 0}
+              ${getRiskBadge('MEDIUM')} x ${data.risk_distribution?.MEDIUM || 0}
+              ${getRiskBadge('LOW')} x ${data.risk_distribution?.LOW || 0}
+            </div>
+            <span class="stat-label" style="margin-top:8px">Distribuição</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">${data.total_steps_skipped || 0}</span>
+            <span class="stat-label">Etapas Puladas</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">${data.total_fallbacks_triggered || 0}</span>
+            <span class="stat-label">Fallbacks</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">${formatMs(data.total_duration_ms)}</span>
+            <span class="stat-label">Duração Total</span>
+          </div>
+        </div>
+        <details>
+          <summary>Ver dados brutos do resumo</summary>
+          <pre class="raw-json">${JSON.stringify(data, null, 2)}</pre>
+        </details>
+      `;
+    }
+  } catch (e) {
+    console.error('Erro ao carregar run_summary.json', e);
+  }
+
+  // 2. Carregar Artifacts
+  try {
+    const resp = await fetch('artifacts.json');
+    if (resp.ok) {
+      const artifacts = await resp.json();
+      let html = '<div class="section-title">📦 Artefatos Estruturados</div><div class="artifact-list">';
+      
+      artifacts.forEach((a, index) => {
+        const id = `art-${index}`;
+        html += `
+          <div class="artifact-card">
+            <div class="artifact-header" onclick="document.getElementById('${id}').style.display = document.getElementById('${id}').style.display === 'none' ? 'block' : 'none'">
+              <div class="artifact-title">
+                <span>📄</span> <strong>${a.file_path}</strong>
+              </div>
+              <div style="display:flex; gap:8px">
+                ${getRiskBadge(a.risk_level)}
+                ${getQualityBadge(a.review_quality)}
+              </div>
+            </div>
+            <div id="${id}" class="artifact-content" style="display:none">
+              
+              <div class="data-grid" style="margin-top:20px">
+                <div class="data-item">
+                  <span class="data-label">Recomendação de Testes</span>
+                  <span class="data-value">${getRecBadge(a.test_generation_recommendation)}</span>
+                </div>
+                <div class="data-item">
+                  <span class="data-label">Políticas Aplicadas</span>
+                  <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px">
+                    ${(a.applied_policies || []).map(p => `<span class="badge badge-policy">${p}</span>`).join('') || '--'}
+                  </div>
+                </div>
+              </div>
+
+              <div class="sub-section">
+                <div class="sub-section-title">🔍 Visão Geral e Contexto</div>
+                <div class="data-grid">
+                   <div class="data-item">
+                    <span class="data-label">Linguagem</span>
+                    <span class="data-value">${a.context_result?.language || '--'}</span>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Propósito</span>
+                    <span class="data-value">${a.context_result?.file_purpose || '--'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sub-section">
+                <div class="sub-section-title">🛡️ Review de QA</div>
+                <div class="md-content" style="font-size:.85rem; color:var(--text-muted)">${a.review_result?.summary_html || escapeHtml(a.review_result?.summary || 'Sem resumo disponível')}</div>
+                <div class="data-grid">
+                  <div class="data-item">
+                    <span class="data-label">Principais Riscos</span>
+                    <ul style="margin:5px 0; padding-left:18px; font-size:.85rem">
+                      ${(a.review_result?.security_vulnerabilities || []).slice(0,2).map(v => `<li>${v}</li>`).join('') || '<li>Nenhum detectado</li>'}
+                    </ul>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Impacto Funcional</span>
+                    <span class="data-value">${a.review_result?.impact_assessment || '--'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sub-section">
+                <div class="sub-section-title">⏱️ Observabilidade e Performance</div>
+                <div class="data-grid">
+                  <div class="data-item">
+                    <span class="data-label">Etapas Executadas</span>
+                    <div style="font-size:.8rem; display:flex; flex-wrap:wrap; gap:4px">
+                      ${(a.executed_steps || []).map(s => `<span class="badge badge-info">${s}</span>`).join('')}
+                    </div>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Etapas Puladas</span>
+                    <div style="font-size:.8rem; color:var(--red)">
+                      ${(a.skipped_steps || []).join(', ') || 'Nenhuma'}
+                    </div>
+                  </div>
+                   <div class="data-item">
+                    <span class="data-label">Duração das Etapas</span>
+                    <div style="font-size:.8rem">
+                      ${Object.entries(a.step_durations_ms || {}).map(([s, d]) => `<div>${s}: <strong>${formatMs(d)}</strong></div>`).join('')}
+                    </div>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Fallbacks</span>
+                    <div style="font-size:.8rem; color:var(--yellow)">
+                      ${(a.fallbacks_triggered || []).join(', ') || 'Nenhum'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sub-section">
+                <div class="sub-section-title">🧠 Memórias do Banco Vetorial</div>
+                <div class="data-grid" style="margin-bottom:12px">
+                  <div class="data-item">
+                    <span class="data-label">Memória usada na geração</span>
+                    <span class="data-value">${(a.memories_used || []).length ? 'Sim' : 'Não'}</span>
+                  </div>
+                  <div class="data-item">
+                    <span class="data-label">Quantidade recuperada</span>
+                    <span class="data-value">${(a.memories_used || []).length}</span>
+                  </div>
+                </div>
+                ${renderMemories(a)}
+                ${a.memory_query ? `
+                  <details style="margin-top:10px">
+                    <summary>Ver consulta usada no banco vetorial</summary>
+                    <pre class="raw-json">${escapeHtml(a.memory_query)}</pre>
+                  </details>
+                ` : ''}
+              </div>
+
+              <details style="margin-top:20px">
+                <summary>Ver JSON completo do arquivo</summary>
+                <pre class="raw-json">${JSON.stringify(a, null, 2)}</pre>
+              </details>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      artifactsContainer.innerHTML = html;
+    }
+  } catch (e) {
+    console.error('Erro ao carregar artifacts.json', e);
+    artifactsContainer.innerHTML = '<div class="error-msg">Aviso: Não foi possível carregar os artefatos estruturados para esta execução.</div>';
+  }
+});
+</script>
+
+</body>
+</html>
