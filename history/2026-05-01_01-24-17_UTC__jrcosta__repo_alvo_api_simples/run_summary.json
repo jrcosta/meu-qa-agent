@@ -1,0 +1,24 @@
+{
+  "total_files": 1,
+  "risk_distribution": {
+    "LOW": 0,
+    "MEDIUM": 0,
+    "HIGH": 1
+  },
+  "total_steps_executed": 6,
+  "total_steps_skipped": 0,
+  "total_fallbacks_triggered": 0,
+  "policies_applied": [
+    "context_none",
+    "high_risk_llm_enrichment",
+    "strategy_HIGH",
+    "token_budget_skip"
+  ],
+  "analysis_flow_distribution": {
+    "skip": 1
+  },
+  "context_level_distribution": {
+    "none": 1
+  },
+  "total_duration_ms": 37895.2
+}

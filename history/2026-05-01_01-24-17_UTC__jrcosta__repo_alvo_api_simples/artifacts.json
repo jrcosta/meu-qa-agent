@@ -1,0 +1,388 @@
+[
+  {
+    "file_path": ".qagent/knowledge/qagent-context.md",
+    "context_result": {
+      "file_path": ".qagent/knowledge/qagent-context.md",
+      "summary": "\n\n... [CONTEXTO TRUNCADO PELO TOKEN BUDGET]",
+      "related_files": [
+        "outputs/artifacts.json",
+        "outputs/analysis.md"
+      ],
+      "existing_tests": [
+        "docs/testes.md",
+        "javascript-api/.env.test",
+        "java-api/src/test/java/com/repoalvo/javaapi/UserControllerDeleteIntegrationTest.java",
+        "java-api/src/test/java/com/repoalvo/javaapi/UserServiceUnitTest.java",
+        "java-api/src/test/java/com/repoalvo/javaapi/UserControllerIntegrationTest.java",
+        "java-api/src/test/java/com/repoalvo/javaapi/JavaApiApplicationSmokeTest.java",
+        "java-api/src/test/java/com/repoalvo/javaapi/controller/UserControllerUnitTest.java",
+        "java-api/src/test/java/com/repoalvo/javaapi/controller/UserControllerIntegrationTest.java",
+        "java-api/src/test/java/com/repoalvo/javaapi/controller/UserControllerTest.java",
+        "java-api/src/test/java/com/repoalvo/javaapi/model/CountResponseTest.java",
+        "java-api/src/test/java/com/repoalvo/javaapi/model/UserCreateRequestTest.java",
+        "java-api/src/test/java/com/repoalvo/javaapi/model/UserResponseTest.java",
+        "java-api/src/test/java/com/repoalvo/javaapi/model/UserUpdateRequestTest.java",
+        "java-api/src/test/java/com/repoalvo/javaapi/model/UserExistsResponseTest.java",
+        ".github/workflows/javascript-tests.yml",
+        ".github/workflows/java-tests.yml",
+        ".github/workflows/python-tests.yml",
+        "python-api/tests/test_external.py",
+        "python-api/tests/test_api.py",
+        "python-api/tests/test_github_workflow_trigger_qagent_integration.py",
+        "python-api/tests/test_cart_service.py",
+        "python-api/tests/test_schemas.py",
+        "python-api/tests/test_github_workflow_trigger_qagent.py",
+        "python-api/tests/test_workflow_forward_pr_comment.py",
+        "python-api/tests/conftest.py",
+        "python-api/tests/test_discount_service.py",
+        "python-api/tests/test_user_service.py",
+        "python-api/tests/test_integration.py",
+        "python-api/tests/test_user_update.py",
+        "javascript-api/tests/users.test.js",
+        "javascript-api/tests/ping.test.js",
+        "javascript-api/tests/app.test.js",
+        "javascript-api/tests/server.test.js",
+        "javascript-api/tests/basicApi.test.js",
+        "javascript-api/src/__tests__/users.test.js",
+        "javascript-api/src/__tests__/users-has-email.test.js",
+        "javascript-api/src/__tests__/server.test.js",
+        "javascript-api/src/services/userService.test.js",
+        "javascript-api/src/services/__tests__/externalService.test.js"
+      ],
+      "risks_from_context": []
+    },
+    "token_budget_plan": {
+      "file_path": ".qagent/knowledge/qagent-context.md",
+      "change_size": "small",
+      "risk_hint": "low",
+      "analysis_mode": "skip",
+      "context_level": "none",
+      "include_full_file": false,
+      "include_memory": false,
+      "max_context_chars": 0,
+      "reason": "Mudança pequena em arquivo sem lógica executável; review LLM não é necessária."
+    },
+    "raw_review_markdown": "# Tipo da mudança\nInclusão de documentação de contexto e regras para agentes de IA no projeto.\n\n# Evidências observadas\n- Criação do arquivo `.qagent/knowledge/qagent-context.md` com 87 linhas detalhando o contexto do projeto, stack tecnológica, estrutura, regras de arquitetura, regras de teste, regras de review, padrões de código, restrições para agentes e exemplos práticos.\n- O arquivo serve como base para orientar agentes de IA que analisam o repositório, especialmente para QA e revisão técnica.\n- Contexto do repositório indica um monorepo com múltiplas implementações da mesma API em Python, Java e JavaScript, com testes unitários e de integração estabelecidos e pipelines CI via GitHub Actions.\n\n# Impacto provável\n- Formalização e centralização das regras e padrões para agentes de IA, o que pode melhorar a consistência e qualidade das análises automatizadas.\n- Potencial para padronizar e automatizar processos de revisão e análise de código, aumentando eficiência e qualidade.\n- Nenhuma alteração direta no código executável ou nos testes existentes, mas impacto indireto na forma como agentes de IA realizam análises e sugerem testes.\n\n# Riscos identificados\n- Possibilidade de desatualização ou conflito do conteúdo do arquivo com práticas reais do projeto, gerando confusão e inconsistência.\n- Divergência entre regras documentadas e testes implementados, dificultando manutenção e cobertura.\n- Dependência excessiva dos agentes baseados nesse arquivo, reduzindo a revisão humana crítica.\n- Risco de agentes gerarem análises genéricas, incorretas ou inventadas se não seguirem rigorosamente as regras e não basearem conclusões em evidências claras.\n- O arquivo deve contemplar nuances específicas das diferentes stacks para evitar regras genéricas inadequadas.\n\n# Cenários de testes manuais\n- Revisão técnica multidisciplinar do arquivo para validar coerência com práticas atuais do projeto.\n- Simulações de análise por agentes de IA utilizando o arquivo para verificar aplicação correta das regras.\n- Testes manuais de revisão de PRs para confirmar que agentes orientados pelo arquivo identificam corretamente riscos e padrões.\n- Auditorias periódicas para garantir atualização e alinhamento do arquivo com a evolução do projeto.\n\n# Sugestões de testes unitários\n- Testes automatizados que validem a presença e formato correto das seções do arquivo.\n- Testes que verifiquem a aderência das regras documentadas com as práticas e padrões do código.\n- Testes que simulem a interpretação do arquivo por agentes para garantir que regras são aplicadas corretamente.\n\n# Sugestões de testes de integração\n- Testes que integrem agentes de IA com o arquivo para validar a eficácia das análises geradas.\n- Cenários que envolvam mudanças de alto risco para verificar se agentes sinalizam corretamente os problemas.\n- Testes de regressão para garantir que alterações no arquivo não causem perda de qualidade nas análises.\n\n# Sugestões de testes de carga ou desempenho\n- Não aplicável, pois a mudança é documental e não impacta diretamente performance ou carga.\n\n# Pontos que precisam de esclarecimento\n- Frequência e responsáveis pela atualização e revisão do arquivo para garantir sua manutenção.\n- Como será monitorada a eficácia do arquivo na melhoria das análises dos agentes ao longo do tempo.\n- Se há planos para integração automática do arquivo no pipeline CI/CD para validação contínua.\n- Detalhes sobre como as nuances específicas das diferentes stacks serão contempladas no arquivo.\n\n# Validação cooperativa\n- A análise de riscos foi realizada pelo QA Sênior Investigador, que destacou os impactos e riscos da inclusão do arquivo.\n- A estratégia de testes foi elaborada pelo Especialista em Estratégia de Testes para Código de Alto Risco, propondo validações de conteúdo, aplicação e regressão.\n- O Crítico de Análise de QA apontou os principais pontos críticos que podem levar a análises genéricas ou incorretas e sugeriu mitigação focada em evidências e rigor nas regras.\n- As conclusões foram consolidadas para garantir uma análise objetiva, rastreável e útil, respeitando as limitações e evitando achados genéricos ou inventados.",
+    "review_result": {
+      "summary": "Inclusão de documentação de contexto e regras para agentes de IA no projeto.\n\n- Formalização e centralização das regras e padrões para agentes de IA, o que pode melhorar a consistência e qualidade das análises automatizadas.\n- Potencial para padronizar e automatizar processos de revisão e análise de código, aumentando eficiência e qualidade.\n- Nenhuma alteração direta no código executável ou nos testes existentes, mas impacto indireto na forma como agentes de IA realizam análises e sugerem testes.",
+      "findings": [
+        {
+          "description": "Possibilidade de desatualização ou conflito do conteúdo do arquivo com práticas reais do projeto, gerando confusão e inconsistência.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Divergência entre regras documentadas e testes implementados, dificultando manutenção e cobertura.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Dependência excessiva dos agentes baseados nesse arquivo, reduzindo a revisão humana crítica.",
+          "severity": "ERROR",
+          "line_number": null
+        },
+        {
+          "description": "Risco de agentes gerarem análises genéricas, incorretas ou inventadas se não seguirem rigorosamente as regras e não basearem conclusões em evidências claras.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "O arquivo deve contemplar nuances específicas das diferentes stacks para evitar regras genéricas inadequadas.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Criação do arquivo `.qagent/knowledge/qagent-context.md` com 87 linhas detalhando o contexto do projeto, stack tecnológica, estrutura, regras de arquitetura, regras de teste, regras de review, padrões de código, restrições para agentes e exemplos práticos.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "O arquivo serve como base para orientar agentes de IA que analisam o repositório, especialmente para QA e revisão técnica.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Contexto do repositório indica um monorepo com múltiplas implementações da mesma API em Python, Java e JavaScript, com testes unitários e de integração estabelecidos e pipelines CI via GitHub Actions.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Formalização e centralização das regras e padrões para agentes de IA, o que pode melhorar a consistência e qualidade das análises automatizadas.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Potencial para padronizar e automatizar processos de revisão e análise de código, aumentando eficiência e qualidade.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Nenhuma alteração direta no código executável ou nos testes existentes, mas impacto indireto na forma como agentes de IA realizam análises e sugerem testes.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Frequência e responsáveis pela atualização e revisão do arquivo para garantir sua manutenção.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Como será monitorada a eficácia do arquivo na melhoria das análises dos agentes ao longo do tempo.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Se há planos para integração automática do arquivo no pipeline CI/CD para validação contínua.",
+          "severity": "INFO",
+          "line_number": null
+        },
+        {
+          "description": "Detalhes sobre como as nuances específicas das diferentes stacks serão contempladas no arquivo.",
+          "severity": "INFO",
+          "line_number": null
+        }
+      ],
+      "test_needs": [
+        "Revisão técnica multidisciplinar do arquivo para validar coerência com práticas atuais do projeto.",
+        "Simulações de análise por agentes de IA utilizando o arquivo para verificar aplicação correta das regras.",
+        "Testes manuais de revisão de PRs para confirmar que agentes orientados pelo arquivo identificam corretamente riscos e padrões.",
+        "Auditorias periódicas para garantir atualização e alinhamento do arquivo com a evolução do projeto.",
+        "Testes automatizados que validem a presença e formato correto das seções do arquivo.",
+        "Testes que verifiquem a aderência das regras documentadas com as práticas e padrões do código.",
+        "Testes que simulem a interpretação do arquivo por agentes para garantir que regras são aplicadas corretamente.",
+        "Testes que integrem agentes de IA com o arquivo para validar a eficácia das análises geradas.",
+        "Cenários que envolvam mudanças de alto risco para verificar se agentes sinalizam corretamente os problemas.",
+        "Testes de regressão para garantir que alterações no arquivo não causem perda de qualidade nas análises.",
+        "Não aplicável, pois a mudança é documental e não impacta diretamente performance ou carga."
+      ],
+      "summary_html": "<p>Inclusão de documentação de contexto e regras para agentes de IA no projeto.</p>\n<ul>\n<li>Formalização e centralização das regras e padrões para agentes de IA, o que pode melhorar a consistência e qualidade das análises automatizadas.</li>\n<li>Potencial para padronizar e automatizar processos de revisão e análise de código, aumentando eficiência e qualidade.</li>\n<li>Nenhuma alteração direta no código executável ou nos testes existentes, mas impacto indireto na forma como agentes de IA realizam análises e sugerem testes.</li>\n</ul>"
+    },
+    "test_strategy_result": {
+      "recommended_tests": [
+        {
+          "name": "Revisão técnica multidisciplinar do arquivo para validar coerência com práticas atuais do projeto.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Simulações de análise por agentes de IA utilizando o arquivo para verificar aplicação correta das regras.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testes manuais de revisão de PRs para confirmar que agentes orientados pelo arquivo identificam corretamente riscos e padrões.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Auditorias periódicas para garantir atualização e alinhamento do arquivo com a evolução do projeto.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testes automatizados que validem a presença e formato correto das seções do arquivo.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testes que verifiquem a aderência das regras documentadas com as práticas e padrões do código.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testes que simulem a interpretação do arquivo por agentes para garantir que regras são aplicadas corretamente.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testes que integrem agentes de IA com o arquivo para validar a eficácia das análises geradas.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Cenários que envolvam mudanças de alto risco para verificar se agentes sinalizam corretamente os problemas.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testes de regressão para garantir que alterações no arquivo não causem perda de qualidade nas análises.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Não aplicável, pois a mudança é documental e não impacta diretamente performance ou carga.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Possibilidade de desatualização ou conflito do conteúdo do arquivo com práticas reais do projeto, gerando confusão e inconsistência.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Divergência entre regras documentadas e testes implementados, dificultando manutenção e cobertura.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Dependência excessiva dos agentes baseados nesse arquivo, reduzindo a revisão humana crítica.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Risco de agentes gerarem análises genéricas, incorretas ou inventadas se não seguirem rigorosamente as regras e não basearem conclusões em evidências claras.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O arquivo deve contemplar nuances específicas das diferentes stacks para evitar regras genéricas inadequadas.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Criação do arquivo `.qagent/knowledge/qagent-context.md` com 87 linhas detalhando o contexto do projeto, stack tecnológica, estrutura, regras de arquitetura, regras de teste, regras de review, padrões de código, restrições para agentes e exemplos práticos.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: O arquivo serve como base para orientar agentes de IA que analisam o repositório, especialmente para QA e revisão técnica.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Contexto do repositório indica um monorepo com múltiplas implementações da mesma API em Python, Java e JavaScript, com testes unitários e de integração estabelecidos e pipelines CI via GitHub Actions.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Formalização e centralização das regras e padrões para agentes de IA, o que pode melhorar a consistência e qualidade das análises automatizadas.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Potencial para padronizar e automatizar processos de revisão e análise de código, aumentando eficiência e qualidade.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Nenhuma alteração direta no código executável ou nos testes existentes, mas impacto indireto na forma como agentes de IA realizam análises e sugerem testes.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Frequência e responsáveis pela atualização e revisão do arquivo para garantir sua manutenção.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Como será monitorada a eficácia do arquivo na melhoria das análises dos agentes ao longo do tempo.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Se há planos para integração automática do arquivo no pipeline CI/CD para validação contínua.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "[CRÍTICO] Prevenir regressão: Detalhes sobre como as nuances específicas das diferentes stacks serão contempladas no arquivo.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Teste de regressão geral para '.qagent/knowledge/qagent-context.md'",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testes que validem a robustez do arquivo contra formatações incorretas ou incompletas, garantindo que agentes de IA detectem e reportem erros de estrutura.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testes que simulem cenários de conflito entre regras documentadas no arquivo e regras emergentes em outras documentações do projeto, verificando a priorização correta das regras.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testes que verifiquem a capacidade dos agentes de IA de lidar com atualizações parciais ou incrementais no arquivo, assegurando que mudanças menores não causem falhas na interpretação.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testes que simulem falhas na leitura ou carregamento do arquivo por agentes, avaliando a resiliência e fallback dos agentes em caso de indisponibilidade do arquivo.",
+          "test_type": "UNIT",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testes de integração que validem a sincronização do arquivo com sistemas de versionamento e pipelines CI/CD, garantindo que alterações no arquivo disparem validações automáticas.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testes que verifiquem a interoperabilidade do arquivo com múltiplas stacks (Python, Java, JavaScript), assegurando que regras específicas de cada stack sejam corretamente aplicadas pelos agentes.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Testes que simulem a interação entre agentes de IA e revisores humanos, avaliando se o arquivo promove um equilíbrio adequado entre automação e revisão manual crítica.",
+          "test_type": "INTEGRATION",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Teste de fluxo completo que valide a cadeia desde a atualização do arquivo até a geração de relatórios de análise pelos agentes, incluindo detecção de erros, sugestões e bloqueios em PRs.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Teste de regressão focado em garantir que a inclusão do arquivo não introduza falsos positivos ou falsos negativos nas análises automatizadas realizadas pelos agentes.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        },
+        {
+          "name": "Teste que simule cenários de alta carga de análise simultânea por múltiplos agentes utilizando o arquivo, avaliando desempenho e consistência das análises geradas.",
+          "test_type": "E2E",
+          "priority": "HIGH"
+        }
+      ],
+      "notes": "⚠️ Política HIGH aplicada para '.qagent/knowledge/qagent-context.md'.\nTodos os cenários foram priorizados como críticos.\nResumo do QA: Inclusão de documentação de contexto e regras para agentes de IA no projeto.\n\n- Formalização e centralização das regras e padrões para agentes de IA, o que pode melhorar a consistência e qualidade das...\n\n--- Refinamento HIGH risk (via LLM) ---\n- A estratégia base já contempla uma cobertura ampla e crítica, porém a inclusão de testes que abordem falhas de formatação, conflitos entre regras e resiliência na leitura do arquivo reforça a robustez contra cenários de borda.\n- Testes de integração adicionais focados na sincronização com pipelines CI/CD e na interoperabilidade entre stacks são essenciais para garantir que o arquivo mantenha sua relevância e eficácia em um ambiente monorepo heterogêneo.\n- A inclusão de testes que avaliem a interação entre agentes e revisores humanos ajuda a mitigar o risco de dependência excessiva da automação, promovendo uma revisão crítica equilibrada.\n- Testes E2E que validem o fluxo completo e a performance sob carga asseguram que o arquivo não impacte negativamente a eficiência do processo de análise automatizada.\n- Todos os testes adicionais foram priorizados como HIGH devido ao impacto potencial na qualidade e confiabilidade das análises automatizadas baseadas no arquivo."
+    },
+    "generated_test_review_result": null,
+    "test_execution_result": null,
+    "generated_tests_raw": "### FILE: tests/test_qagent_context_validation.py\n```python\nimport os\nimport pytest\n\nQAGENT_CONTEXT_PATH = \".qagent/knowledge/qagent-context.md\"\n\ndef test_qagent_context_file_exists():\n    assert os.path.isfile(QAGENT_CONTEXT_PATH), f\"Arquivo {QAGENT_CONTEXT_PATH} deve existir.\"\n\ndef test_qagent_context_file_not_empty():\n    with open(QAGENT_CONTEXT_PATH, \"r\", encoding=\"utf-8\") as f:\n        content = f.read()\n    assert len(content.strip()) > 0, \"Arquivo não deve estar vazio.\"\n\ndef test_qagent_context_has_required_sections():\n    with open(QAGENT_CONTEXT_PATH, \"r\", encoding=\"utf-8\") as f:\n        content = f.read()\n\n    required_sections = [\n        \"## 1. Visão Geral do Projeto\",\n        \"## 2. Stack Tecnológica\",\n        \"## 3. Estrutura do Projeto\",\n        \"## 4. Regras de Arquitetura\",\n        \"## 5. Regras de Teste\",\n        \"## 6. Regras de Review\",\n        \"## 7. Padrões de Código\",\n        \"## 8. Coisas que o Agente NÃO deve fazer\",\n        \"## 9. Exemplos Práticos\"\n    ]\n\n    for section in required_sections:\n        assert section in content, f\"Seção obrigatória '{section}' não encontrada no arquivo.\"\n\ndef test_qagent_context_formatting_is_valid_markdown():\n    # Basic validation: check for balanced headers and no broken lines\n    with open(QAGENT_CONTEXT_PATH, \"r\", encoding=\"utf-8\") as f:\n        lines = f.readlines()\n\n    header_counts = {\n        \"#\": 0,\n        \"##\": 0,\n        \"###\": 0\n    }\n    for line in lines:\n        line_strip = line.strip()\n        if line_strip.startswith(\"### \"):\n            header_counts[\"###\"] += 1\n        elif line_strip.startswith(\"## \"):\n            header_counts[\"##\"] += 1\n        elif line_strip.startswith(\"# \"):\n            header_counts[\"#\"] += 1\n\n    # Expect at least one top-level header and multiple second-level headers\n    assert header_counts[\"#\"] >= 1, \"Deve haver pelo menos um header nível 1 (#).\"\n    assert header_counts[\"##\"] >= 5, \"Deve haver múltiplos headers nível 2 (##).\"\n\ndef test_qagent_context_no_hardcoded_secrets():\n    with open(QAGENT_CONTEXT_PATH, \"r\", encoding=\"utf-8\") as f:\n        content = f.read().lower()\n    forbidden_keywords = [\"token\", \"senha\", \"password\", \"apikey\", \"secret\", \"chave\"]\n    for keyword in forbidden_keywords:\n        assert keyword not in content, f\"Arquivo não deve conter '{keyword}' hardcoded.\"\n\n@pytest.mark.parametrize(\"partial_content,expected_error\", [\n    (\"## 1. Visão Geral do Projeto\\n- Apenas uma linha\", False),\n    (\"## 1. Visão Geral do Projeto\\n- Linha incompleta sem quebra\", False),\n    (\"# Início sem seção\", True),\n    (\"\", True),\n])\ndef test_qagent_context_robustness_against_incomplete_formatting(tmp_path, partial_content, expected_error):\n    test_file = tmp_path / \"qagent-context.md\"\n    test_file.write_text(partial_content, encoding=\"utf-8\")\n\n    def load_and_validate(path):\n        with open(path, \"r\", encoding=\"utf-8\") as f:\n            content = f.read()\n        if not content.strip():\n            raise ValueError(\"Arquivo vazio\")\n        if not content.startswith(\"## 1. Visão Geral do Projeto\"):\n            raise ValueError(\"Seção inicial obrigatória ausente\")\n        return True\n\n    if expected_error:\n        with pytest.raises(ValueError):\n            load_and_validate(test_file)\n    else:\n        assert load_and_validate(test_file) is True\n\ndef test_qagent_context_simulate_agent_interpretation(monkeypatch):\n    \"\"\"\n    Simula a interpretação do arquivo por um agente de IA, verificando se regras são aplicadas corretamente.\n    \"\"\"\n\n    class FakeAgent:\n        def __init__(self, context_path):\n            self.context_path = context_path\n            self.rules_loaded = False\n            self.rules = []\n\n        def load_context(self):\n            with open(self.context_path, \"r\", encoding=\"utf-8\") as f:\n                content = f.read()\n            if \"Regras de Arquitetura\" in content:\n                self.rules_loaded = True\n                self.rules.append(\"Arquitetura\")\n            if \"Regras de Teste\" in content:\n                self.rules.append(\"Testes\")\n            if \"Coisas que o Agente NÃO deve fazer\" in content:\n                self.rules.append(\"Restrições\")\n            return self.rules_loaded\n\n        def analyze_code(self, code_snippet):\n            if not self.rules_loaded:\n                raise RuntimeError(\"Contexto não carregado\")\n            # Simula análise simples baseada em regras\n            if \"hardcoded\" in code_snippet:\n                return \"Erro: hardcoded detectado\"\n            return \"Análise OK\"\n\n    agent = FakeAgent(QAGENT_CONTEXT_PATH)\n    assert agent.load_context() is True\n    result_ok = agent.analyze_code(\"função sem problemas\")\n    result_err = agent.analyze_code(\"token hardcoded na função\")\n\n    assert result_ok == \"Análise OK\"\n    assert result_err == \"Erro: hardcoded detectado\"\n\ndef test_qagent_context_simulate_conflicting_rules(monkeypatch):\n    \"\"\"\n    Simula cenário de conflito entre regras documentadas no arquivo e regras emergentes em outra documentação.\n    Verifica se a priorização correta das regras é aplicada.\n    \"\"\"\n\n    class RuleSet:\n        def __init__(self, base_rules, emergent_rules):\n            self.base_rules = base_rules\n            self.emergent_rules = emergent_rules\n\n        def get_effective_rules(self):\n            # Prioriza regras emergentes sobre base\n            effective = self.base_rules.copy()\n            effective.update(self.emergent_rules)\n            return effective\n\n    base_rules = {\n        \"max_line_length\": 120,\n        \"require_tests\": True,\n        \"allow_hardcoded\": False\n    }\n    emergent_rules = {\n        \"max_line_length\": 100,  # regra emergente mais restritiva\n        \"allow_hardcoded\": True  # conflito: emergente permite hardcoded\n    }\n\n    ruleset = RuleSet(base_rules, emergent_rules)\n    effective = ruleset.get_effective_rules()\n\n    assert effective[\"max_line_length\"] == 100\n    assert effective[\"require_tests\"] is True\n    assert effective[\"allow_hardcoded\"] is True\n\ndef test_qagent_context_handle_partial_updates(tmp_path):\n    \"\"\"\n    Testa a capacidade dos agentes de IA de lidar com atualizações parciais ou incrementais no arquivo,\n    assegurando que mudanças menores não causem falhas na interpretação.\n    \"\"\"\n    base_content = (\n        \"## 1. Visão Geral do Projeto\\n\"\n        \"- Descrição inicial\\n\"\n        \"## 2. Stack Tecnológica\\n\"\n        \"- Python, Java, JS\\n\"\n    )\n    updated_content = (\n        base_content +\n        \"## 3. Estrutura do Projeto\\n\"\n        \"- Novas pastas adicionadas\\n\"\n    )\n\n    test_file = tmp_path / \"qagent-context.md\"\n    test_file.write_text(base_content, encoding=\"utf-8\")\n\n    class Agent:\n        def __init__(self, path):\n            self.path = path\n            self.sections = []\n\n        def load(self):\n            with open(self.path, \"r\", encoding=\"utf-8\") as f:\n                content = f.read()\n            self.sections = [line for line in content.splitlines() if line.startswith(\"## \")]\n            return self.sections\n\n    agent = Agent(test_file)\n    sections_before = agent.load()\n    assert \"## 3. Estrutura do Projeto\" not in sections_before\n\n    test_file.write_text(updated_content, encoding=\"utf-8\")\n    sections_after = agent.load()\n    assert \"## 3. Estrutura do Projeto\" in sections_after\n\ndef test_qagent_context_simulate_read_failure(monkeypatch):\n    \"\"\"\n    Simula falha na leitura ou carregamento do arquivo por agentes, avaliando a resiliência e fallback dos agentes.\n    \"\"\"\n\n    class Agent:\n        def __init__(self, path):\n            self.path = path\n            self.context_loaded = False\n\n        def load_context(self):\n            try:\n                with open(self.path, \"r\", encoding=\"utf-8\") as f:\n                    _ = f.read()\n                self.context_loaded = True\n            except Exception:\n                self.context_loaded = False\n            return self.context_loaded\n\n    agent = Agent(QAGENT_CONTEXT_PATH)\n    assert agent.load_context() is True\n\n    # Simula falha de leitura\n    agent_fail = Agent(\"/caminho/invalido/qagent-context.md\")\n    assert agent_fail.load_context() is False\n```\n",
+    "generated_test_files": {
+      "tests/test_qagent_context_validation.py": "import os\nimport pytest\n\nQAGENT_CONTEXT_PATH = \".qagent/knowledge/qagent-context.md\"\n\ndef test_qagent_context_file_exists():\n    assert os.path.isfile(QAGENT_CONTEXT_PATH), f\"Arquivo {QAGENT_CONTEXT_PATH} deve existir.\"\n\ndef test_qagent_context_file_not_empty():\n    with open(QAGENT_CONTEXT_PATH, \"r\", encoding=\"utf-8\") as f:\n        content = f.read()\n    assert len(content.strip()) > 0, \"Arquivo não deve estar vazio.\"\n\ndef test_qagent_context_has_required_sections():\n    with open(QAGENT_CONTEXT_PATH, \"r\", encoding=\"utf-8\") as f:\n        content = f.read()\n\n    required_sections = [\n        \"## 1. Visão Geral do Projeto\",\n        \"## 2. Stack Tecnológica\",\n        \"## 3. Estrutura do Projeto\",\n        \"## 4. Regras de Arquitetura\",\n        \"## 5. Regras de Teste\",\n        \"## 6. Regras de Review\",\n        \"## 7. Padrões de Código\",\n        \"## 8. Coisas que o Agente NÃO deve fazer\",\n        \"## 9. Exemplos Práticos\"\n    ]\n\n    for section in required_sections:\n        assert section in content, f\"Seção obrigatória '{section}' não encontrada no arquivo.\"\n\ndef test_qagent_context_formatting_is_valid_markdown():\n    # Basic validation: check for balanced headers and no broken lines\n    with open(QAGENT_CONTEXT_PATH, \"r\", encoding=\"utf-8\") as f:\n        lines = f.readlines()\n\n    header_counts = {\n        \"#\": 0,\n        \"##\": 0,\n        \"###\": 0\n    }\n    for line in lines:\n        line_strip = line.strip()\n        if line_strip.startswith(\"### \"):\n            header_counts[\"###\"] += 1\n        elif line_strip.startswith(\"## \"):\n            header_counts[\"##\"] += 1\n        elif line_strip.startswith(\"# \"):\n            header_counts[\"#\"] += 1\n\n    # Expect at least one top-level header and multiple second-level headers\n    assert header_counts[\"#\"] >= 1, \"Deve haver pelo menos um header nível 1 (#).\"\n    assert header_counts[\"##\"] >= 5, \"Deve haver múltiplos headers nível 2 (##).\"\n\ndef test_qagent_context_no_hardcoded_secrets():\n    with open(QAGENT_CONTEXT_PATH, \"r\", encoding=\"utf-8\") as f:\n        content = f.read().lower()\n    forbidden_keywords = [\"token\", \"senha\", \"password\", \"apikey\", \"secret\", \"chave\"]\n    for keyword in forbidden_keywords:\n        assert keyword not in content, f\"Arquivo não deve conter '{keyword}' hardcoded.\"\n\n@pytest.mark.parametrize(\"partial_content,expected_error\", [\n    (\"## 1. Visão Geral do Projeto\\n- Apenas uma linha\", False),\n    (\"## 1. Visão Geral do Projeto\\n- Linha incompleta sem quebra\", False),\n    (\"# Início sem seção\", True),\n    (\"\", True),\n])\ndef test_qagent_context_robustness_against_incomplete_formatting(tmp_path, partial_content, expected_error):\n    test_file = tmp_path / \"qagent-context.md\"\n    test_file.write_text(partial_content, encoding=\"utf-8\")\n\n    def load_and_validate(path):\n        with open(path, \"r\", encoding=\"utf-8\") as f:\n            content = f.read()\n        if not content.strip():\n            raise ValueError(\"Arquivo vazio\")\n        if not content.startswith(\"## 1. Visão Geral do Projeto\"):\n            raise ValueError(\"Seção inicial obrigatória ausente\")\n        return True\n\n    if expected_error:\n        with pytest.raises(ValueError):\n            load_and_validate(test_file)\n    else:\n        assert load_and_validate(test_file) is True\n\ndef test_qagent_context_simulate_agent_interpretation(monkeypatch):\n    \"\"\"\n    Simula a interpretação do arquivo por um agente de IA, verificando se regras são aplicadas corretamente.\n    \"\"\"\n\n    class FakeAgent:\n        def __init__(self, context_path):\n            self.context_path = context_path\n            self.rules_loaded = False\n            self.rules = []\n\n        def load_context(self):\n            with open(self.context_path, \"r\", encoding=\"utf-8\") as f:\n                content = f.read()\n            if \"Regras de Arquitetura\" in content:\n                self.rules_loaded = True\n                self.rules.append(\"Arquitetura\")\n            if \"Regras de Teste\" in content:\n                self.rules.append(\"Testes\")\n            if \"Coisas que o Agente NÃO deve fazer\" in content:\n                self.rules.append(\"Restrições\")\n            return self.rules_loaded\n\n        def analyze_code(self, code_snippet):\n            if not self.rules_loaded:\n                raise RuntimeError(\"Contexto não carregado\")\n            # Simula análise simples baseada em regras\n            if \"hardcoded\" in code_snippet:\n                return \"Erro: hardcoded detectado\"\n            return \"Análise OK\"\n\n    agent = FakeAgent(QAGENT_CONTEXT_PATH)\n    assert agent.load_context() is True\n    result_ok = agent.analyze_code(\"função sem problemas\")\n    result_err = agent.analyze_code(\"token hardcoded na função\")\n\n    assert result_ok == \"Análise OK\"\n    assert result_err == \"Erro: hardcoded detectado\"\n\ndef test_qagent_context_simulate_conflicting_rules(monkeypatch):\n    \"\"\"\n    Simula cenário de conflito entre regras documentadas no arquivo e regras emergentes em outra documentação.\n    Verifica se a priorização correta das regras é aplicada.\n    \"\"\"\n\n    class RuleSet:\n        def __init__(self, base_rules, emergent_rules):\n            self.base_rules = base_rules\n            self.emergent_rules = emergent_rules\n\n        def get_effective_rules(self):\n            # Prioriza regras emergentes sobre base\n            effective = self.base_rules.copy()\n            effective.update(self.emergent_rules)\n            return effective\n\n    base_rules = {\n        \"max_line_length\": 120,\n        \"require_tests\": True,\n        \"allow_hardcoded\": False\n    }\n    emergent_rules = {\n        \"max_line_length\": 100,  # regra emergente mais restritiva\n        \"allow_hardcoded\": True  # conflito: emergente permite hardcoded\n    }\n\n    ruleset = RuleSet(base_rules, emergent_rules)\n    effective = ruleset.get_effective_rules()\n\n    assert effective[\"max_line_length\"] == 100\n    assert effective[\"require_tests\"] is True\n    assert effective[\"allow_hardcoded\"] is True\n\ndef test_qagent_context_handle_partial_updates(tmp_path):\n    \"\"\"\n    Testa a capacidade dos agentes de IA de lidar com atualizações parciais ou incrementais no arquivo,\n    assegurando que mudanças menores não causem falhas na interpretação.\n    \"\"\"\n    base_content = (\n        \"## 1. Visão Geral do Projeto\\n\"\n        \"- Descrição inicial\\n\"\n        \"## 2. Stack Tecnológica\\n\"\n        \"- Python, Java, JS\\n\"\n    )\n    updated_content = (\n        base_content +\n        \"## 3. Estrutura do Projeto\\n\"\n        \"- Novas pastas adicionadas\\n\"\n    )\n\n    test_file = tmp_path / \"qagent-context.md\"\n    test_file.write_text(base_content, encoding=\"utf-8\")\n\n    class Agent:\n        def __init__(self, path):\n            self.path = path\n            self.sections = []\n\n        def load(self):\n            with open(self.path, \"r\", encoding=\"utf-8\") as f:\n                content = f.read()\n            self.sections = [line for line in content.splitlines() if line.startswith(\"## \")]\n            return self.sections\n\n    agent = Agent(test_file)\n    sections_before = agent.load()\n    assert \"## 3. Estrutura do Projeto\" not in sections_before\n\n    test_file.write_text(updated_content, encoding=\"utf-8\")\n    sections_after = agent.load()\n    assert \"## 3. Estrutura do Projeto\" in sections_after\n\ndef test_qagent_context_simulate_read_failure(monkeypatch):\n    \"\"\"\n    Simula falha na leitura ou carregamento do arquivo por agentes, avaliando a resiliência e fallback dos agentes.\n    \"\"\"\n\n    class Agent:\n        def __init__(self, path):\n            self.path = path\n            self.context_loaded = False\n\n        def load_context(self):\n            try:\n                with open(self.path, \"r\", encoding=\"utf-8\") as f:\n                    _ = f.read()\n                self.context_loaded = True\n            except Exception:\n                self.context_loaded = False\n            return self.context_loaded\n\n    agent = Agent(QAGENT_CONTEXT_PATH)\n    assert agent.load_context() is True\n\n    # Simula falha de leitura\n    agent_fail = Agent(\"/caminho/invalido/qagent-context.md\")\n    assert agent_fail.load_context() is False"
+    },
+    "memory_query": "",
+    "memories_used_raw": "",
+    "memories_used": [],
+    "risk_level": "HIGH",
+    "review_quality": "OK",
+    "test_generation_recommendation": "RECOMMENDED",
+    "executed_steps": [
+      "parse_review",
+      "evaluate_risk",
+      "build_strategy",
+      "high_risk_enrichment",
+      "evaluate_final",
+      "test_generation"
+    ],
+    "skipped_steps": [],
+    "applied_policies": [
+      "token_budget_skip",
+      "context_none",
+      "strategy_HIGH",
+      "high_risk_llm_enrichment"
+    ],
+    "fallbacks_triggered": [],
+    "step_durations_ms": {
+      "evaluate_risk": 0.03,
+      "build_strategy": 0.07,
+      "high_risk_enrichment": 9052.75,
+      "test_generation": 28839.65
+    },
+    "diagnostic_notes": [
+      "Mudança pequena em arquivo sem lógica executável; review LLM não é necessária."
+    ]
+  }
+]
